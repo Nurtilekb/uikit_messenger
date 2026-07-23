@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:uikit/screens/search_users_screen.dart';
 import 'package:uikit/widgets/appbar_button.dart';
-import 'package:uikit/widgets/user_tile.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -57,8 +57,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           'Я',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
-                        background: Colors.black12,
-                        onTap: () {},
+                        background: themeStyle.dividerColor,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SearchScreen(),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

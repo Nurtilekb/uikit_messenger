@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
             backgroundColor: WidgetStatePropertyAll(Color(0xff0A84FF)),
           ),
         ),
+        dividerColor: const Color.fromARGB(17, 0, 0, 0),
         textTheme: TextTheme(
           bodyMedium: TextStyle(color: Colors.black, fontSize: 15),
           bodySmall: TextStyle(

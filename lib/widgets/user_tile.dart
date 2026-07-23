@@ -22,7 +22,7 @@ class UserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textstyle = Theme.of(context).textTheme;
+    final _getterStyle = Theme.of(context).textTheme;
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -37,8 +37,8 @@ class UserTile extends StatelessWidget {
             Stack(
               children: [
                 Container(
-                  width: 60,
-                  height: 60,
+                  width: 65,
+                  height: 65,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.grey[300],
@@ -106,7 +106,7 @@ class UserTile extends StatelessWidget {
                         child: Text(
                           lastMessage,
                           maxLines: 1,
-                          style: textstyle.bodySmall,
+                          style: _getterStyle.bodySmall,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
