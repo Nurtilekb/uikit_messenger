@@ -41,7 +41,7 @@ class _SearchScreenState extends State<SearchScreen> {
               padding: const EdgeInsets.fromLTRB(24, 10, 24, 100),
               child: ListView.separated(
                 itemBuilder: (BuildContext context, int index) {
-                  return Search_User_Tile(
+                  return SearchChatTile(
                     name: 'Anya Смирнова',
                     gmailAccaunt: '@annya',
                     avatarUrl:

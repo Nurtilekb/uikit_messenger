@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class Search_User_Tile extends StatelessWidget {
+class SearchChatTile extends StatelessWidget {
   final String name;
   final String gmailAccaunt;
   final String avatarUrl;
   final VoidCallback? onTap;
 
-  const Search_User_Tile({
+  const SearchChatTile({
     super.key,
     required this.name,
     required this.gmailAccaunt,
@@ -16,7 +16,7 @@ class Search_User_Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _getterStyle = Theme.of(context);
+    final getterStyle = Theme.of(context);
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -51,7 +51,7 @@ class Search_User_Tile extends StatelessWidget {
             ),
             const SizedBox(width: 14),
 
-            // User info
+            // Chat info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +81,7 @@ class Search_User_Tile extends StatelessWidget {
                         child: Text(
                           gmailAccaunt,
                           maxLines: 1,
-                          style: _getterStyle.textTheme.bodySmall,
+                          style: getterStyle.textTheme.bodySmall,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -94,8 +94,8 @@ class Search_User_Tile extends StatelessWidget {
               onPressed: () {},
               icon: const Icon(Icons.messenger_outline, size: 18),
               style: IconButton.styleFrom(
-                backgroundColor: _getterStyle.dividerColor,
-                foregroundColor: _getterStyle.primaryColor,
+                backgroundColor: getterStyle.dividerColor,
+                foregroundColor: getterStyle.primaryColor,
               ),
             ),
           ],

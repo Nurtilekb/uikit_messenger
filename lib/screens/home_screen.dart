@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:uikit/models/chat_model.dart';
+import 'package:uikit/screens/chats_screen.dart';
+import 'package:uikit/screens/profile_screen.dart';
 import 'package:uikit/screens/search_users_screen.dart';
+import 'package:uikit/screens/users_list_screen.dart';
 import 'package:uikit/widgets/appbar_button.dart';
+import 'package:uikit/widgets/empty_contacts_state.dart';
+import 'package:uikit/widgets/user_tile.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,17 +22,61 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
+  List<Chat> Chats = [
+    Chat(
+      name: 'Nurtilek',
+      lastMessage: 'bro go to afsasdb asfdg wert werthy retqwer gtrewgwt r wet',
+      time: '22 июня',
+      avatar: '',
+      unreadCount: 3,
+      isOnline: true,
+    ),
+    Chat(
+      name: 'Aigerim',
+      lastMessage: 'Спасибо за помощь! 😊',
+      time: 'Сегодня',
+      avatar: '',
+      unreadCount: 0,
+      isOnline: false,
+    ),
+    Chat(
+      name: 'Bekzat',
+      lastMessage: 'Когда встречаемся?',
+      time: 'Вчера',
+      avatar: '',
+      unreadCount: 5,
+      isOnline: true,
+    ),
+    Chat(
+      name: 'Daniyar',
+      lastMessage: 'Ок, договорились 👍',
+      time: '12:30',
+      avatar: '',
+      unreadCount: 1,
+      isOnline: false,
+    ),
+    Chat(
+      name: 'Aizhan',
+      lastMessage: 'С днем рождения! 🎉',
+      time: '11:45',
+      avatar: '',
+      unreadCount: 0,
+      isOnline: true,
+    ),
+    Chat(
+      name: 'Ruslan',
+      lastMessage: 'Где ты? Я уже на месте',
+      time: '10:00',
+      avatar:
+          'https://media.gq-magazine.co.uk/photos/5d1392adb363fa622820c7ec/1:1/w_1280,h_1280,c_limit/Conor-McGregor-GQ-20Dec16_rex_b.jpg',
+      unreadCount: 2,
+      isOnline: false,
+    ),
+  ];
   @override
   Widget build(BuildContext context) {
     final themeStyle = Theme.of(context);
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-
-        backgroundColor: themeStyle.primaryColor,
-        onPressed: () {},
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
       body: Stack(
         children: [
           SafeArea(
@@ -49,7 +99,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       Spacer(),
                       CircleIconButton(
                         childd: Icon(Icons.search, size: 27),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SearchScreen(),
+                            ),
+                          );
+                        },
                       ),
                       SizedBox(width: 12),
                       CircleIconButton(
@@ -62,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SearchScreen(),
+                              builder: (context) => ProfileScreen(),
                             ),
                           );
                         },
@@ -71,92 +128,55 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 SizedBox(height: 30),
-                // if (isEmpty != false)
-                //   Expanded(
-                //     child: ListView.separated(
-                //       padding: const EdgeInsets.fromLTRB(24, 2, 24, 100),
-                //       itemCount: 10,
-                //       separatorBuilder: (_, _) => const SizedBox(height: 25),
-                //       itemBuilder: (context, i) {
-                //         return UserTile(
-                //           name: 'Nurtilek',
-                //           lastMessage:
-                //               'bro go to afsasdb asfdg wert werthy retqwer gtrewgwt r wet',
-                //           time: '22 июня',
-                //         );
-                //       },
-                //     ),
-                //   ),
-                if (isEmpty = true) Center(child: EmptyChatWidget()),
+                if (Chats.isNotEmpty)
+                  Expanded(
+                    child: ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(24, 2, 24, 100),
+                      itemCount: Chats.length,
+
+                      separatorBuilder: (_, _) => const SizedBox(height: 25),
+                      itemBuilder: (context, index) {
+                        final Chat = Chats[index];
+                        return UserTile(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChatsScreen(
+                                  numName: Chat.name,
+                                  isOnline: Chat.isOnline,
+                                  imageAvatar: Chat.avatar,
+                                ),
+                              ),
+                            );
+                          },
+                          name: Chat.name,
+                          lastMessage: Chat.lastMessage,
+                          isOnline: Chat.isOnline,
+                          unreadCount: Chat.unreadCount,
+                          avatarUrl: Chat.avatar,
+                          time: Chat.time,
+                        );
+                      },
+                    ),
+                  ),
+                if (Chats.isEmpty) Center(child: EmptyChatWidget()),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-}
+      floatingActionButton: FloatingActionButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
 
-class EmptyChatWidget extends StatelessWidget {
-  const EmptyChatWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final themeStyle = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 44),
-      child: Column(
-        children: [
-          SizedBox(height: MediaQuery.of(context).size.height * 0.25),
-          Container(
-            width: 96,
-            height: 96,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(30, 158, 158, 158),
-              borderRadius: BorderRadius.circular(68),
-            ),
-            child: const Icon(
-              Icons.messenger,
-              color: Color.fromARGB(159, 158, 158, 158),
-              size: 42,
-            ),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Пока нет чатов',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Начните переписку — найдите пользователя по имени или email',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, height: 1.5),
-          ),
-          SizedBox(height: 30),
-          InkWell(
-            onTap: () {},
-            child: Container(
-              decoration: BoxDecoration(
-                color: themeStyle.primaryColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-
-              width: MediaQuery.of(context).size.width / 2,
-              height: 50,
-              child: Center(
-                child: Text(
-                  '+ Новый чат',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight(600),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        backgroundColor: themeStyle.primaryColor,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => UsersListScreen()),
+          );
+        },
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

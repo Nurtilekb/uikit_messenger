@@ -160,9 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: TextStyle(color: Colors.grey[600], fontSize: 14),
         ),
         GestureDetector(
-          onTap: () {
-            print('Sign up pressed');
-          },
+          onTap: () {},
           child: const Text(
             'Восстановить',
             style: TextStyle(

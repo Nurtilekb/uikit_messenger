@@ -114,7 +114,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                   elevation: 2,
-                  shadowColor: Color(0xff0A84FF).withOpacity(0.3),
+                  shadowColor: Color(0xff0A84FF).withValues(alpha: 0.3),
                 ),
                 child: Text(
                   'Create Account',
@@ -193,7 +193,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           border: Border.all(color: Colors.grey[300]!, width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 8,
               offset: Offset(0, 4),
             ),

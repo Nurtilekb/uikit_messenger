@@ -10,7 +10,7 @@ class UserTile extends StatelessWidget {
   final VoidCallback? onTap;
 
   const UserTile({
-    Key? key,
+    super.key,
     required this.name,
     required this.lastMessage,
     required this.time,
@@ -18,11 +18,11 @@ class UserTile extends StatelessWidget {
     this.unreadCount = 1,
     this.isOnline = false,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final _getterStyle = Theme.of(context).textTheme;
+    final getterStyle = Theme.of(context).textTheme;
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -72,7 +72,7 @@ class UserTile extends StatelessWidget {
             ),
             const SizedBox(width: 14),
 
-            // User info
+            // Chat info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +106,7 @@ class UserTile extends StatelessWidget {
                         child: Text(
                           lastMessage,
                           maxLines: 1,
-                          style: _getterStyle.bodySmall,
+                          style: getterStyle.bodySmall,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),

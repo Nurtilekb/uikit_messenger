@@ -110,7 +110,7 @@ class _AppInputWidgetState extends State<AppInputWidget> {
           keyboardType: widget.inputType,
           initialValue: widget.controller == null ? widget.initalValue : null,
           obscureText: widget.isPasswordField == true ? _obsecureText : false,
-          cursorColor: theme.colorScheme.onSurface.withOpacity(.6),
+          cursorColor: theme.colorScheme.onSurface.withValues(alpha: .6),
           autovalidateMode: AutovalidateMode.onUserInteraction,
           onTap: widget.onTap,
           style: theme.textTheme.bodyMedium?.copyWith(fontSize: 16),
@@ -142,7 +142,7 @@ class _AppInputWidgetState extends State<AppInputWidget> {
                 color: widget.isBorder == false
                     ? Colors.transparent
                     : widget.borderColor ??
-                          theme.colorScheme.outline.withOpacity(.4),
+                          theme.colorScheme.outline.withValues(alpha: .4),
               ),
               borderRadius: BorderRadius.circular(widget.radius ?? 10),
             ),
