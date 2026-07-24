@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:uikit/theme/app_colors.dart';
 
-class UserAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String ChatName;
+class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String userName;
   final bool isOnline;
   final String avatarUrl;
 
-  const UserAppBar({
+  const ChatAppBar({
     super.key,
-    required this.ChatName,
+    required this.userName,
     required this.isOnline,
     required this.avatarUrl,
   });
@@ -17,22 +18,23 @@ class UserAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.cardBackground,
       elevation: 0,
       titleSpacing: 0,
       actionsPadding: const EdgeInsets.only(right: 8),
       leading: IconButton(
         onPressed: () => Navigator.pop(context),
-        icon: const Icon(Icons.arrow_back, color: Colors.black45, size: 28),
+        icon: Icon(Icons.arrow_back, color: colors.iconPrimary, size: 28),
       ),
       actions: [
         IconButton(
           onPressed: () {},
-          icon: const Icon(
+          icon: Icon(
             Icons.more_vert_outlined,
             size: 29,
-            color: Colors.black45,
+            color: colors.iconPrimary,
           ),
         ),
       ],
@@ -45,7 +47,7 @@ class UserAppBar extends StatelessWidget implements PreferredSizeWidget {
                 height: 50,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.grey[300],
+                  color: colors.surface,
                   image: avatarUrl.isNotEmpty
                       ? DecorationImage(
                           image: NetworkImage(avatarUrl),
@@ -54,7 +56,7 @@ class UserAppBar extends StatelessWidget implements PreferredSizeWidget {
                       : null,
                 ),
                 child: avatarUrl.isEmpty
-                    ? Icon(Icons.person, size: 30, color: Colors.grey[600])
+                    ? Icon(Icons.person, size: 30, color: colors.iconSecondary)
                     : null,
               ),
               if (isOnline)
@@ -65,9 +67,9 @@ class UserAppBar extends StatelessWidget implements PreferredSizeWidget {
                     width: 14,
                     height: 14,
                     decoration: BoxDecoration(
-                      color: Colors.green,
+                      color: colors.online,
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(color: colors.cardBackground, width: 2),
                     ),
                   ),
                 ),
@@ -83,10 +85,11 @@ class UserAppBar extends StatelessWidget implements PreferredSizeWidget {
                 child: Text(
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  ChatName,
-                  style: const TextStyle(
+                  userName,
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
+                    color: colors.textPrimary,
                   ),
                 ),
               ),
@@ -96,7 +99,7 @@ class UserAppBar extends StatelessWidget implements PreferredSizeWidget {
                 isOnline ? 'в сети' : 'был(а) недавно',
                 style: TextStyle(
                   fontSize: 14,
-                  color: isOnline ? Colors.green : Colors.grey.shade600,
+                  color: isOnline ? colors.online : colors.textSecondary,
                 ),
               ),
             ],

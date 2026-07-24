@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/screens/users_list_screen.dart';
 
 class EmptyChatWidget extends StatelessWidget {
@@ -6,6 +7,7 @@ class EmptyChatWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final themeStyle = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 44),
@@ -17,32 +19,36 @@ class EmptyChatWidget extends StatelessWidget {
             height: 96,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color.fromARGB(30, 158, 158, 158),
+              color: colors.surface,
               borderRadius: BorderRadius.circular(68),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.messenger,
-              color: Color.fromARGB(159, 158, 158, 158),
+              color: colors.iconSecondary,
               size: 42,
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'Пока нет чатов',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: colors.textPrimary,
+            ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Начните переписку — найдите пользователя по имени или email',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, height: 1.5),
+            style: TextStyle(fontSize: 15, height: 1.5, color: colors.textSecondary),
           ),
-          SizedBox(height: 30),
+          const SizedBox(height: 30),
           InkWell(
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => (UsersListScreen())),
+                MaterialPageRoute(builder: (context) => UsersListScreen()),
               );
             },
             child: Container(
@@ -50,16 +56,15 @@ class EmptyChatWidget extends StatelessWidget {
                 color: themeStyle.primaryColor,
                 borderRadius: BorderRadius.circular(12),
               ),
-
               width: MediaQuery.of(context).size.width / 2,
               height: 50,
               child: Center(
                 child: Text(
                   '+ Новый чат',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: colors.textOnPrimary,
                     fontSize: 15,
-                    fontWeight: FontWeight(600),
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),

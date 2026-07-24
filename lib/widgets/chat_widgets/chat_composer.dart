@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/app_text_field.dart';
 
 class ChatComposer extends StatelessWidget {
@@ -13,8 +14,9 @@ class ChatComposer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return ColoredBox(
-      color: Colors.white,
+      color: colors.cardBackground,
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
@@ -24,20 +26,20 @@ class ChatComposer extends StatelessWidget {
                 child: AppInputWidget(
                   controller: controller,
                   radius: 25,
-                  borderColor: Colors.white,
+                  borderColor: colors.cardBackground,
                   hintText: 'Сообщение',
-                  filledColor: const Color.fromARGB(17, 0, 0, 0),
+                  filledColor: colors.composerInputBackground,
                 ),
               ),
               const SizedBox(width: 8),
               Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
+                  color: colors.primary,
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
                   onPressed: onSend,
-                  icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                  icon: Icon(Icons.send, color: colors.textOnPrimary, size: 20),
                 ),
               ),
             ],

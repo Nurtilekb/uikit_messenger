@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/app_text_field.dart';
 import 'package:uikit/widgets/on_user_search_tile.dart';
 
@@ -12,6 +13,7 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final getStyle = Theme.of(context);
 
     return Scaffold(
@@ -21,9 +23,9 @@ class _SearchScreenState extends State<SearchScreen> {
           child: AppInputWidget(
             trailing: IconButton(
               onPressed: () {},
-              icon: Icon(Icons.cancel, color: Colors.black26),
+              icon: Icon(Icons.cancel, color: colors.iconSecondary),
             ),
-            leading: Icon(Icons.search, color: Colors.black26),
+            leading: Icon(Icons.search, color: colors.iconSecondary),
             filledColor: getStyle.dividerColor,
           ),
         ),
@@ -49,7 +51,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) {
-                  return SizedBox(height: 25);
+                  return const SizedBox(height: 25);
                 },
                 itemCount: 4,
               ),

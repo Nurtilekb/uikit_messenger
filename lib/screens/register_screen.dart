@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uikit/widgets/app_text_field.dart';
+import 'package:uikit/theme/app_colors.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -25,6 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return SafeArea(
       child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
@@ -45,7 +47,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 horizontal: 16,
                 vertical: 18,
               ),
-              filledColor: Colors.white,
+              filledColor: colors.cardBackground,
               label: 'Email',
               inputType: TextInputType.emailAddress,
             ),
@@ -60,7 +62,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 horizontal: 16,
                 vertical: 18,
               ),
-              filledColor: Colors.white,
+              filledColor: colors.cardBackground,
               label: 'Пароль',
               inputType: TextInputType.emailAddress,
               validator: (value) {
@@ -83,7 +85,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 horizontal: 16,
                 vertical: 18,
               ),
-              filledColor: Colors.white,
+              filledColor: colors.cardBackground,
               label: 'Пароль',
               inputType: TextInputType.emailAddress,
               validator: (value) {
@@ -101,22 +103,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
               },
             ),
 
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xff0A84FF),
-                  foregroundColor: Colors.white,
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.textOnPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
                   elevation: 2,
-                  shadowColor: Color(0xff0A84FF).withValues(alpha: 0.3),
+                  shadowColor: colors.primary.withValues(alpha: 0.3),
                 ),
-                child: Text(
+                child: const Text(
                   'Create Account',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
@@ -126,15 +128,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
             Row(
               children: [
-                Expanded(child: Divider(color: Colors.grey[300])),
+                Expanded(child: Divider(color: colors.border)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     'или',
-                    style: TextStyle(color: Colors.grey[500], fontSize: 14),
+                    style: TextStyle(color: colors.textSecondary, fontSize: 14),
                   ),
                 ),
-                Expanded(child: Divider(color: Colors.grey[300])),
+                Expanded(child: Divider(color: colors.border)),
               ],
             ),
             const SizedBox(height: 24),
@@ -158,14 +160,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 Text(
                   'Already have an account? ',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 15),
+                  style: TextStyle(color: colors.textSecondary, fontSize: 15),
                 ),
                 GestureDetector(
                   onTap: () {},
                   child: Text(
                     'Log In',
                     style: TextStyle(
-                      color: Color(0xff0A84FF),
+                      color: colors.primary,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -181,6 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildSocialIcon(IconData icon) {
+    final colors = context.appColors;
     return InkWell(
       onTap: () {},
       borderRadius: BorderRadius.circular(14),
@@ -188,18 +191,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         width: 63,
         height: 63,
         decoration: BoxDecoration(
-          color: Colors.grey[50],
+          color: colors.surface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.grey[300]!, width: 1.5),
+          border: Border.all(color: colors.border, width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: colors.shadow,
               blurRadius: 8,
-              offset: Offset(0, 4),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Icon(icon, size: 28, color: Colors.black87),
+        child: Icon(icon, size: 28, color: colors.textPrimary),
       ),
     );
   }

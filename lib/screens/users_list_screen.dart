@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:uikit/screens/chats_screen.dart';
+import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/user_tile.dart';
 
 class UsersListScreen extends StatelessWidget {
@@ -6,27 +8,40 @@ class UsersListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: colors.cardBackground,
         title: Text(
           'Пользователи',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800),
+          style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800, color: colors.textPrimary),
         ),
       ),
       body: Padding(
-        padding: EdgeInsetsGeometry.all(24),
+        padding: const EdgeInsetsGeometry.all(24),
         child: ListView.separated(
           itemBuilder: (BuildContext context, int index) {
             return UserTile(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatsScreen(
+                      numName: 'Nurik',
+                      isOnline: true,
+                      imageAvatar: '',
+                    ),
+                  ),
+                );
+              },
               name: "Nurik",
               lastMessage: 'был в сети год назад',
               time: 'вчера',
             );
           },
           separatorBuilder: (BuildContext context, int index) {
-            return SizedBox(height: 25);
+            return const SizedBox(height: 25);
           },
           itemCount: 7,
         ),

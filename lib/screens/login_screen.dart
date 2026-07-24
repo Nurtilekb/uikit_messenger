@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uikit/widgets/app_text_field.dart';
+import 'package:uikit/theme/app_colors.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return SingleChildScrollView(
       controller: _scroolController,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -42,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
               horizontal: 16,
               vertical: 18,
             ),
-            filledColor: Colors.white,
+            filledColor: colors.cardBackground,
             controller: _emailController,
             label: 'Email',
             hintText: 'your@gmail.com',
@@ -55,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
               horizontal: 16,
               vertical: 18,
             ),
-            filledColor: Colors.white,
+            filledColor: colors.cardBackground,
             controller: _passwordController,
             label: 'Пароль',
             hintText: 'Введите пароль',
@@ -84,11 +86,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildSignInButton(BuildContext context) {
+    final colors = context.appColors;
     return ElevatedButton(
       onPressed: () {},
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF0066FF),
-        foregroundColor: Colors.white,
+        backgroundColor: colors.primaryDark,
+        foregroundColor: colors.textOnPrimary,
         padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 0,
@@ -101,34 +104,36 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildForgotPasswordButton(BuildContext context) {
+    final colors = context.appColors;
     return Row(
       children: [
         Expanded(
-          child: Divider(height: 1, color: Color.fromARGB(40, 10, 10, 10)),
+          child: Divider(height: 1, color: colors.divider),
         ),
         Container(
-          margin: EdgeInsets.symmetric(horizontal: 15),
-          child: Text('или'),
+          margin: const EdgeInsets.symmetric(horizontal: 15),
+          child: Text('или', style: TextStyle(color: colors.textSecondary)),
         ),
         Expanded(
-          child: Divider(height: 1, color: Color.fromARGB(40, 10, 10, 10)),
+          child: Divider(height: 1, color: colors.divider),
         ),
       ],
     );
   }
 
   Widget _buildSocialIcon(IconData icon, String label) {
+    final colors = context.appColors;
     return InkWell(
       onTap: () {},
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
         width: MediaQuery.of(context).size.width,
         height: 56,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.googleButtonBackground,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[300]!, width: 1),
+          border: Border.all(color: colors.googleButtonBorder, width: 1),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -136,14 +141,18 @@ class _LoginScreenState extends State<LoginScreen> {
             ClipRRect(
               borderRadius: BorderRadiusGeometry.circular(16),
               child: ColoredBox(
-                color: Colors.black12,
-                child: Icon(icon, size: 28, color: Colors.grey[800]),
+                color: colors.surface,
+                child: Icon(icon, size: 28, color: colors.googleButtonIcon),
               ),
             ),
-            SizedBox(width: 20),
+            const SizedBox(width: 20),
             Text(
               "Войти через Google",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: colors.textPrimary,
+              ),
             ),
           ],
         ),
@@ -152,19 +161,20 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildSignUpRow(BuildContext context) {
+    final colors = context.appColors;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           "Забыли пароль?",
-          style: TextStyle(color: Colors.grey[600], fontSize: 14),
+          style: TextStyle(color: colors.textSecondary, fontSize: 14),
         ),
         GestureDetector(
           onTap: () {},
-          child: const Text(
+          child: Text(
             'Восстановить',
             style: TextStyle(
-              color: Color(0xFF0066FF),
+              color: colors.primaryDark,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uikit/theme/app_colors.dart';
 
 class SearchChatTile extends StatelessWidget {
   final String name;
@@ -16,16 +17,11 @@ class SearchChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final getterStyle = Theme.of(context);
     return InkWell(
       onTap: onTap,
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(
-            bottom: BorderSide(color: Colors.grey[200]!, width: 0.5),
-          ),
-        ),
         child: Row(
           children: [
             Stack(
@@ -35,7 +31,7 @@ class SearchChatTile extends StatelessWidget {
                   height: 65,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.grey[300],
+                    color: colors.surface,
                     image: avatarUrl.isNotEmpty
                         ? DecorationImage(
                             image: NetworkImage(avatarUrl),
@@ -44,14 +40,16 @@ class SearchChatTile extends StatelessWidget {
                         : null,
                   ),
                   child: avatarUrl.isEmpty
-                      ? Icon(Icons.person, size: 30, color: Colors.grey[600])
+                      ? Icon(
+                          Icons.person,
+                          size: 30,
+                          color: colors.iconSecondary,
+                        )
                       : null,
                 ),
               ],
             ),
             const SizedBox(width: 14),
-
-            // Chat info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,12 +60,11 @@ class SearchChatTile extends StatelessWidget {
                         child: Text(
                           name,
                           maxLines: 1,
-
-                          style: const TextStyle(
+                          style: TextStyle(
                             overflow: TextOverflow.ellipsis,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: colors.textPrimary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),

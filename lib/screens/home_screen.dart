@@ -4,6 +4,7 @@ import 'package:uikit/screens/chats_screen.dart';
 import 'package:uikit/screens/profile_screen.dart';
 import 'package:uikit/screens/search_users_screen.dart';
 import 'package:uikit/screens/users_list_screen.dart';
+import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/appbar_button.dart';
 import 'package:uikit/widgets/empty_contacts_state.dart';
 import 'package:uikit/widgets/user_tile.dart';
@@ -75,6 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final themeStyle = Theme.of(context);
     return Scaffold(
       body: Stack(
@@ -87,18 +89,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.fromLTRB(24, 14, 24, 10),
                   child: Row(
                     children: [
-                      const Text(
+                      Text(
                         'Чаты',
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.4,
-                          color: Colors.black,
+                          color: colors.textPrimary,
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       CircleIconButton(
-                        childd: Icon(Icons.search, size: 27),
+                        childd: Icon(Icons.search, size: 27, color: colors.textPrimary),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -108,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         },
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       CircleIconButton(
                         childd: Text(
                           'Я',
@@ -127,13 +129,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 if (Chats.isNotEmpty)
                   Expanded(
                     child: ListView.separated(
                       padding: const EdgeInsets.fromLTRB(24, 2, 24, 100),
                       itemCount: Chats.length,
-
                       separatorBuilder: (_, _) => const SizedBox(height: 25),
                       itemBuilder: (context, index) {
                         final Chat = Chats[index];
@@ -168,7 +169,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-
         backgroundColor: themeStyle.primaryColor,
         onPressed: () {
           Navigator.push(
@@ -176,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
             MaterialPageRoute(builder: (context) => UsersListScreen()),
           );
         },
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add, color: colors.textOnPrimary),
       ),
     );
   }

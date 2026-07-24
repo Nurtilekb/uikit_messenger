@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uikit/theme/app_colors.dart';
 
 class UserTile extends StatelessWidget {
   final String name;
@@ -22,16 +23,11 @@ class UserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final getterStyle = Theme.of(context).textTheme;
+    final colors = context.appColors;
+    final textTheme = Theme.of(context).textTheme;
     return InkWell(
       onTap: onTap,
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(
-            bottom: BorderSide(color: Colors.grey[200]!, width: 0.5),
-          ),
-        ),
         child: Row(
           children: [
             Stack(
@@ -41,7 +37,7 @@ class UserTile extends StatelessWidget {
                   height: 65,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.grey[300],
+                    color: colors.surface,
                     image: avatarUrl.isNotEmpty
                         ? DecorationImage(
                             image: NetworkImage(avatarUrl),
@@ -50,10 +46,13 @@ class UserTile extends StatelessWidget {
                         : null,
                   ),
                   child: avatarUrl.isEmpty
-                      ? Icon(Icons.person, size: 30, color: Colors.grey[600])
+                      ? Icon(
+                          Icons.person,
+                          size: 30,
+                          color: colors.iconSecondary,
+                        )
                       : null,
                 ),
-                // Online indicator
                 if (isOnline)
                   Positioned(
                     bottom: 0,
@@ -62,17 +61,18 @@ class UserTile extends StatelessWidget {
                       width: 14,
                       height: 14,
                       decoration: BoxDecoration(
-                        color: Colors.green,
+                        color: colors.online,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+                        border: Border.all(
+                          color: colors.cardBackground,
+                          width: 2,
+                        ),
                       ),
                     ),
                   ),
               ],
             ),
             const SizedBox(width: 14),
-
-            // Chat info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,19 +83,21 @@ class UserTile extends StatelessWidget {
                         child: Text(
                           name,
                           maxLines: 1,
-
-                          style: const TextStyle(
+                          style: TextStyle(
                             overflow: TextOverflow.ellipsis,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            color: colors.textPrimary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Text(
                         time,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -106,7 +108,7 @@ class UserTile extends StatelessWidget {
                         child: Text(
                           lastMessage,
                           maxLines: 1,
-                          style: getterStyle.bodySmall,
+                          style: textTheme.bodySmall,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -116,14 +118,14 @@ class UserTile extends StatelessWidget {
                           width: 22,
                           height: 22,
                           decoration: BoxDecoration(
-                            color: const Color(0xff0A84FF),
+                            color: colors.primary,
                             shape: BoxShape.circle,
                           ),
                           child: Center(
                             child: Text(
                               unreadCount.toString(),
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: colors.textOnPrimary,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),

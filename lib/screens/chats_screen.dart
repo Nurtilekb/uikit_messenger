@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:uikit/widgets/Chat_widgets/Chat_app_bar.dart';
+import 'package:uikit/theme/app_colors.dart';
+import 'package:uikit/widgets/Chat_widgets/Chat_message_bubble.dart';
+import 'package:uikit/widgets/chat_widgets/chat_app_bar.dart';
 import 'package:uikit/widgets/chat_widgets/chat_composer.dart';
-import 'package:uikit/widgets/chat_widgets/chat_message_bubble.dart';
 
 class ChatsScreen extends StatefulWidget {
   final String numName;
@@ -105,8 +106,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Scaffold(
-      appBar: UserAppBar(
+      appBar: ChatAppBar(
         userName: widget.numName,
         isOnline: widget.isOnline,
         avatarUrl: widget.imageAvatar,
@@ -115,7 +117,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
         children: [
           Expanded(
             child: ColoredBox(
-              color: const Color.fromARGB(17, 0, 0, 0),
+              color: colors.chatBackground,
               child: ListView.builder(
                 controller: _scrollController,
                 padding: const EdgeInsets.symmetric(
