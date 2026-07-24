@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(height: 20),
           _buildSocialIcon(Icons.g_mobiledata, 'Google'),
           const SizedBox(height: 20),
-          _buildSignUpRow(context),
+          // _buildSignUpRow(context),
         ],
       ),
     );
@@ -107,16 +107,12 @@ class _LoginScreenState extends State<LoginScreen> {
     final colors = context.appColors;
     return Row(
       children: [
-        Expanded(
-          child: Divider(height: 1, color: colors.divider),
-        ),
+        Expanded(child: Divider(height: 1, color: colors.divider)),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 15),
           child: Text('или', style: TextStyle(color: colors.textSecondary)),
         ),
-        Expanded(
-          child: Divider(height: 1, color: colors.divider),
-        ),
+        Expanded(child: Divider(height: 1, color: colors.divider)),
       ],
     );
   }

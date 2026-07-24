@@ -17,33 +17,31 @@ class ChatComposer extends StatelessWidget {
     final colors = context.appColors;
     return ColoredBox(
       color: colors.cardBackground,
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-          child: Row(
-            children: [
-              Expanded(
-                child: AppInputWidget(
-                  controller: controller,
-                  radius: 25,
-                  borderColor: colors.cardBackground,
-                  hintText: 'Сообщение',
-                  filledColor: colors.composerInputBackground,
-                ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: AppInputWidget(
+                controller: controller,
+                radius: 25,
+                borderColor: colors.cardBackground,
+                hintText: 'Сообщение',
+                filledColor: colors.composerInputBackground,
               ),
-              const SizedBox(width: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: colors.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  onPressed: onSend,
-                  icon: Icon(Icons.send, color: colors.textOnPrimary, size: 20),
-                ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              decoration: BoxDecoration(
+                color: colors.primary,
+                shape: BoxShape.circle,
               ),
-            ],
-          ),
+              child: IconButton(
+                onPressed: onSend,
+                icon: Icon(Icons.send, color: colors.textOnPrimary, size: 20),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -75,7 +75,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             AppInputWidget(
               isPasswordField: true,
               controller: _registrpassword2Controller,
@@ -103,7 +103,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               },
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 60),
             SizedBox(
               width: double.infinity,
               height: 56,
@@ -142,17 +142,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 24),
 
             // Social icons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildSocialIcon(Icons.facebook),
-                const SizedBox(width: 16),
-                _buildSocialIcon(Icons.email_outlined),
-                const SizedBox(width: 16),
-                _buildSocialIcon(Icons.apple),
-              ],
-            ),
-            const SizedBox(height: 32),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     _buildSocialIcon(Icons.facebook),
+            //     const SizedBox(width: 16),
+            //     _buildSocialIcon(Icons.email_outlined),
+            //     const SizedBox(width: 16),
+            //     _buildSocialIcon(Icons.apple),
+            //   ],
+            // ),
+            // const SizedBox(height: 32),
 
             // Login link
             Row(
@@ -182,28 +182,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildSocialIcon(IconData icon) {
-    final colors = context.appColors;
-    return InkWell(
-      onTap: () {},
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        width: 63,
-        height: 63,
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: colors.border, width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: colors.shadow,
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(icon, size: 28, color: colors.textPrimary),
-      ),
-    );
-  }
+  //   Widget _buildSocialIcon(IconData icon) {
+  //     final colors = context.appColors;
+  //     return InkWell(
+  //       onTap: () {},
+  //       borderRadius: BorderRadius.circular(14),
+  //       child: Container(
+  //         width: 63,
+  //         height: 63,
+  //         decoration: BoxDecoration(
+  //           color: colors.surface,
+  //           borderRadius: BorderRadius.circular(18),
+  //           border: Border.all(color: colors.border, width: 1.5),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               color: colors.shadow,
+  //               blurRadius: 8,
+  //               offset: const Offset(0, 4),
+  //             ),
+  //           ],
+  //         ),
+  //         child: Icon(icon, size: 28, color: colors.textPrimary),
+  //       ),
+  //     );
+  //   }
+  // }
 }

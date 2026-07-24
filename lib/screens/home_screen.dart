@@ -100,7 +100,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const Spacer(),
                       CircleIconButton(
-                        childd: Icon(Icons.search, size: 27, color: colors.textPrimary),
+                        childd: Icon(
+                          Icons.search,
+                          size: 27,
+                          color: colors.textPrimary,
+                        ),
                         onTap: () {
                           Navigator.push(
                             context,

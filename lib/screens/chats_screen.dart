@@ -21,8 +21,8 @@ class ChatsScreen extends StatefulWidget {
 }
 
 class _ChatsScreenState extends State<ChatsScreen> {
-  final TextEditingController _messageController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
+  final _messageController = TextEditingController();
+  final _scrollController = ScrollController();
   final List<Map<String, dynamic>> _messages = [];
 
   @override
@@ -113,31 +113,33 @@ class _ChatsScreenState extends State<ChatsScreen> {
         isOnline: widget.isOnline,
         avatarUrl: widget.imageAvatar,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ColoredBox(
-              color: colors.chatBackground,
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 20,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: ColoredBox(
+                color: colors.chatBackground,
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 20,
+                  ),
+                  itemCount: _messages.length,
+                  itemBuilder: (context, index) {
+                    final message = _messages[index];
+                    return ChatMessageBubble(
+                      text: message['text'],
+                      isMe: message['isMe'],
+                      time: message['time'],
+                    );
+                  },
                 ),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  return ChatMessageBubble(
-                    text: message['text'],
-                    isMe: message['isMe'],
-                    time: message['time'],
-                  );
-                },
               ),
             ),
-          ),
-          ChatComposer(controller: _messageController, onSend: _sendMessage),
-        ],
+            ChatComposer(controller: _messageController, onSend: _sendMessage),
+          ],
+        ),
       ),
     );
   }

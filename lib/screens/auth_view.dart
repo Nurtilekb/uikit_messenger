@@ -10,9 +10,21 @@ class AuthView extends StatefulWidget {
   State<AuthView> createState() => _AuthViewState();
 }
 
-class _AuthViewState extends State<AuthView> {
-  int selectedIndex = 0;
-  final PageController _pageController = PageController();
+class _AuthViewState extends State<AuthView>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,107 +65,45 @@ class _AuthViewState extends State<AuthView> {
                   color: colors.tabBackground,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Stack(
-                  children: [
-                    AnimatedAlign(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInOut,
-                      alignment: selectedIndex == 0
-                          ? Alignment.centerLeft
-                          : Alignment.centerRight,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: 164,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: colors.tabSelected,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: colors.shadow,
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
+                child: TabBar(
+                  padding: EdgeInsets.all(5),
+                  controller: _tabController,
+                  indicator: BoxDecoration(
+                    color: colors.tabSelected,
+                    borderRadius: BorderRadius.circular(11),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colors.shadow,
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
                       ),
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedIndex = 0;
-                                _pageController.animateToPage(
-                                  0,
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.only(top: 15),
-                              height: 40,
-                              alignment: Alignment.center,
-                              child: Text(
-                                'Вход',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: selectedIndex == 0
-                                      ? colors.primary
-                                      : colors.tabUnselected,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: 'interTight',
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedIndex = 1;
-                                _pageController.animateToPage(
-                                  1,
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.only(top: 15),
-                              height: 40,
-                              alignment: Alignment.center,
-                              child: Text(
-                                'Регистрация',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: selectedIndex == 1
-                                      ? colors.primary
-                                      : colors.tabUnselected,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: 'interTight',
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    ],
+                  ),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  labelColor: colors.primary,
+                  unselectedLabelColor: colors.tabUnselected,
+                  labelStyle: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'interTight',
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'interTight',
+                  ),
+                  splashBorderRadius: BorderRadius.circular(16),
+                  tabs: const [
+                    Tab(text: 'Вход'),
+                    Tab(text: 'Регистрация'),
                   ],
                 ),
               ),
             ),
-            Flexible(
-              child: PageView(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    selectedIndex = index;
-                  });
-                },
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
                 children: const [LoginScreen(), RegisterScreen()],
               ),
             ),

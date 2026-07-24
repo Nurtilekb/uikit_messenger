@@ -11,39 +11,49 @@ class UsersListScreen extends StatelessWidget {
     final colors = context.appColors;
     return Scaffold(
       appBar: AppBar(
+        forceMaterialTransparency: true,
         titleSpacing: 0,
         backgroundColor: colors.cardBackground,
         title: Text(
           'Пользователи',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800, color: colors.textPrimary),
+          style: TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.w800,
+            color: colors.textPrimary,
+          ),
         ),
       ),
       body: Padding(
-        padding: const EdgeInsetsGeometry.all(24),
-        child: ListView.separated(
-          itemBuilder: (BuildContext context, int index) {
-            return UserTile(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatsScreen(
-                      numName: 'Nurik',
-                      isOnline: true,
-                      imageAvatar: '',
-                    ),
-                  ),
-                );
-              },
-              name: "Nurik",
-              lastMessage: 'был в сети год назад',
-              time: 'вчера',
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return const SizedBox(height: 25);
-          },
-          itemCount: 7,
+        padding: const EdgeInsets.only(top: 15),
+        child: SafeArea(
+          child: ListView.separated(
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                child: UserTile(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatsScreen(
+                          numName: 'Nurik',
+                          isOnline: true,
+                          imageAvatar: '',
+                        ),
+                      ),
+                    );
+                  },
+                  name: "Nurik",
+                  lastMessage: 'Today or tomorrow ',
+                  time: 'вчера',
+                ),
+              );
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return const SizedBox(height: 25);
+            },
+            itemCount: 13,
+          ),
         ),
       ),
     );

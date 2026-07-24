@@ -40,7 +40,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 10, 24, 100),
+              padding: const EdgeInsets.fromLTRB(24, 10, 24, 10),
               child: ListView.separated(
                 itemBuilder: (BuildContext context, int index) {
                   return SearchChatTile(
