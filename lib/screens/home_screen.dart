@@ -1,15 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uikit/blocs/theme/theme_cubit.dart';
+
 import 'package:uikit/models/chat_model.dart';
 import 'package:uikit/router/app_router.dart';
-import 'package:uikit/screens/chats_screen.dart';
-import 'package:uikit/screens/profile_screen.dart';
-import 'package:uikit/screens/search_users_screen.dart';
-import 'package:uikit/screens/users_list_screen.dart';
+
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/appbar_button.dart';
 import 'package:uikit/widgets/empty_contacts_state.dart';
@@ -120,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         background: themeStyle.dividerColor,
                         onTap: () {
-                          context.router.push(const ProfileRoute());
+                          context.router.push(ProfileRoute(name: 'nurtilek'));
                         },
                       ),
                     ],

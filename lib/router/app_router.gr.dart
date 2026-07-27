@@ -119,18 +119,46 @@ class HomeRoute extends PageRouteInfo<void> {
 
 /// generated route for
 /// [ProfileScreen]
-class ProfileRoute extends PageRouteInfo<void> {
-  const ProfileRoute({List<PageRouteInfo>? children})
-    : super(ProfileRoute.name, initialChildren: children);
+class ProfileRoute extends PageRouteInfo<ProfileRouteArgs> {
+  ProfileRoute({Key? key, required String name, List<PageRouteInfo>? children})
+    : super(
+        ProfileRoute.name,
+        args: ProfileRouteArgs(key: key, name: name),
+        initialChildren: children,
+      );
 
   static const String name = 'ProfileRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const ProfileScreen();
+      final args = data.argsAs<ProfileRouteArgs>();
+      return ProfileScreen(key: args.key, name: args.name);
     },
   );
+}
+
+class ProfileRouteArgs {
+  const ProfileRouteArgs({this.key, required this.name});
+
+  final Key? key;
+
+  final String name;
+
+  @override
+  String toString() {
+    return 'ProfileRouteArgs{key: $key, name: $name}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ProfileRouteArgs) return false;
+    return key == other.key && name == other.name;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ name.hashCode;
 }
 
 /// generated route for

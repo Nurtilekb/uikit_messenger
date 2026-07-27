@@ -4,6 +4,7 @@ import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/Chat_widgets/Chat_message_bubble.dart';
 import 'package:uikit/widgets/chat_widgets/chat_app_bar.dart';
 import 'package:uikit/widgets/chat_widgets/chat_composer.dart';
+
 @RoutePage()
 class ChatsScreen extends StatefulWidget {
   final String numName;
@@ -25,15 +26,33 @@ class _ChatsScreenState extends State<ChatsScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
   final List<Map<String, dynamic>> _messages = [];
+  final Set<String> selectedMessageIds = {};
+
+  bool get _isSelectionMode => selectedMessageIds.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
     _messages.addAll([
-      {'text': 'Привет! Как дела?', 'isMe': false, 'time': '10:30'},
-      {'text': 'Привет! Все отлично, а у тебя?', 'isMe': true, 'time': '10:32'},
-      {'text': 'Тоже хорошо! Чем занимаешься?', 'isMe': false, 'time': '10:35'},
-      {'text': 'Работаю над новым проектом', 'isMe': true, 'time': '10:38'},
+      {'id': '1', 'text': 'Привет! Как дела?', 'isMe': false, 'time': '10:30'},
+      {
+        'id': '2',
+        'text': 'Привет! Все отлично, а у тебя?',
+        'isMe': true,
+        'time': '10:32',
+      },
+      {
+        'id': '3',
+        'text': 'Тоже хорошо! Чем занимаешься?',
+        'isMe': false,
+        'time': '10:35',
+      },
+      {
+        'id': '4',
+        'text': 'Работаю над новым проектом',
+        'isMe': true,
+        'time': '10:38',
+      },
     ]);
   }
 
@@ -47,12 +66,15 @@ class _ChatsScreenState extends State<ChatsScreen> {
   void _sendMessage() {
     if (_messageController.text.trim().isEmpty) return;
 
+    final newMessage = {
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'text': _messageController.text.trim(),
+      'isMe': true,
+      'time': _getCurrentTime(),
+    };
+
     setState(() {
-      _messages.add({
-        'text': _messageController.text.trim(),
-        'isMe': true,
-        'time': _getCurrentTime(),
-      });
+      _messages.add(newMessage);
       _messageController.clear();
     });
     _scrollToBottom();
@@ -64,6 +86,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
       if (mounted && widget.isOnline == true) {
         setState(() {
           _messages.add({
+            'id': DateTime.now().millisecondsSinceEpoch.toString(),
             'text': _getRandomReply(),
             'isMe': false,
             'time': _getCurrentTime(),
@@ -105,15 +128,54 @@ class _ChatsScreenState extends State<ChatsScreen> {
     });
   }
 
+  void _toggleSelection(String id) {
+    setState(() {
+      if (selectedMessageIds.contains(id)) {
+        selectedMessageIds.remove(id);
+      } else {
+        selectedMessageIds.add(id);
+      }
+    });
+  }
+
+  void _clearSelection() {
+    setState(() {
+      selectedMessageIds.clear();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return Scaffold(
-      appBar: ChatAppBar(
-        userName: widget.numName,
-        isOnline: widget.isOnline,
-        avatarUrl: widget.imageAvatar,
-      ),
+      appBar: _isSelectionMode
+          ? AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: _clearSelection,
+              ),
+              title: Text('${selectedMessageIds.length}'),
+              actions: [
+                IconButton(icon: const Icon(Icons.reply), onPressed: () {}),
+                IconButton(icon: const Icon(Icons.star), onPressed: () {}),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    setState(() {
+                      _messages.removeWhere(
+                        (msg) => selectedMessageIds.contains(msg['id']),
+                      );
+                      selectedMessageIds.clear();
+                    });
+                  },
+                ),
+              ],
+            )
+          : ChatAppBar(
+              userName: widget.numName,
+              isOnline: widget.isOnline,
+              avatarUrl: widget.imageAvatar,
+            ),
       body: SafeArea(
         child: Column(
           children: [
@@ -122,17 +184,31 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 color: colors.chatBackground,
                 child: ListView.builder(
                   controller: _scrollController,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 20,
-                  ),
                   itemCount: _messages.length,
                   itemBuilder: (context, index) {
                     final message = _messages[index];
-                    return ChatMessageBubble(
-                      text: message['text'],
-                      isMe: message['isMe'],
-                      time: message['time'],
+                    final isSelected = selectedMessageIds.contains(
+                      message['id'],
+                    );
+
+                    return Container(
+                      padding: EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+                      color: isSelected
+                          ? colors.primary.withValues(alpha: 0.1)
+                          : Colors.transparent,
+                      child: ChatMessageBubble(
+                        text: message['text'],
+                        isMe: message['isMe'],
+                        time: message['time'],
+                        onlongTap: () {
+                          _toggleSelection(message['id']);
+                        },
+                        ontapp: () {
+                          if (_isSelectionMode) {
+                            _toggleSelection(message['id']);
+                          }
+                        },
+                      ),
                     );
                   },
                 ),

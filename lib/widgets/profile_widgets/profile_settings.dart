@@ -130,6 +130,7 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                                             selectedLanguage = newLanguage;
                                           });
 
+                                          // ignore: use_build_context_synchronously
                                           Navigator.pop(context);
                                         },
                                       ),

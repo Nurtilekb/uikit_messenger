@@ -3,7 +3,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/router/app_router.dart';
 import 'package:uikit/theme/app_colors.dart';
-import 'package:uikit/screens/users_list_screen.dart';
 
 class EmptyChatWidget extends StatelessWidget {
   const EmptyChatWidget({super.key});

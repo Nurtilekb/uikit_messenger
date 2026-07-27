@@ -21,82 +21,76 @@ class SearchChatTile extends StatelessWidget {
     final getterStyle = Theme.of(context);
     return InkWell(
       onTap: onTap,
-      child: Container(
-        child: Row(
-          children: [
-            Stack(
-              children: [
-                Container(
-                  width: 65,
-                  height: 65,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: colors.surface,
-                    image: avatarUrl.isNotEmpty
-                        ? DecorationImage(
-                            image: NetworkImage(avatarUrl),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
-                  ),
-                  child: avatarUrl.isEmpty
-                      ? Icon(
-                          Icons.person,
-                          size: 30,
-                          color: colors.iconSecondary,
+      child: Row(
+        children: [
+          Stack(
+            children: [
+              Container(
+                width: 65,
+                height: 65,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: colors.surface,
+                  image: avatarUrl.isNotEmpty
+                      ? DecorationImage(
+                          image: NetworkImage(avatarUrl),
+                          fit: BoxFit.cover,
                         )
                       : null,
                 ),
+                child: avatarUrl.isEmpty
+                    ? Icon(Icons.person, size: 30, color: colors.iconSecondary)
+                    : null,
+              ),
+            ],
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        name,
+                        maxLines: 1,
+                        style: TextStyle(
+                          overflow: TextOverflow.ellipsis,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: colors.textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        gmailAccaunt,
+                        maxLines: 1,
+                        style: getterStyle.textTheme.bodySmall,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          name,
-                          maxLines: 1,
-                          style: TextStyle(
-                            overflow: TextOverflow.ellipsis,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: colors.textPrimary,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          gmailAccaunt,
-                          maxLines: 1,
-                          style: getterStyle.textTheme.bodySmall,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+          ),
+          IconButton.filled(
+            onPressed: () {},
+            icon: const Icon(Icons.messenger_outline, size: 18),
+            style: IconButton.styleFrom(
+              backgroundColor: getterStyle.dividerColor,
+              foregroundColor: getterStyle.primaryColor,
             ),
-            IconButton.filled(
-              onPressed: () {},
-              icon: const Icon(Icons.messenger_outline, size: 18),
-              style: IconButton.styleFrom(
-                backgroundColor: getterStyle.dividerColor,
-                foregroundColor: getterStyle.primaryColor,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

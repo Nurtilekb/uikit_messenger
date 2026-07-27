@@ -1,14 +1,16 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uikit/blocs/theme/theme_cubit.dart';
+import 'package:uikit/firebase_options.dart';
 import 'package:uikit/router/app_router.dart';
 import 'package:uikit/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
     EasyLocalization(
@@ -25,7 +27,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _appRouter = AppRouter();
+    final appRouter = AppRouter();
     return BlocProvider(
       create: (_) => ThemeCubit(),
       child: BlocBuilder<ThemeCubit, ThemeState>(
@@ -34,7 +36,7 @@ class MyApp extends StatelessWidget {
             locale: context.locale,
             supportedLocales: context.supportedLocales,
             localizationsDelegates: context.localizationDelegates,
-            routerConfig: _appRouter.config(),
+            routerConfig: appRouter.config(),
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,

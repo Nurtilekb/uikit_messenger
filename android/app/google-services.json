@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "317189993499",
+    "project_id": "ui-kit-messenger",
+    "storage_bucket": "ui-kit-messenger.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317189993499:android:3e02ac8a36ddd3bbbf74be",
+        "android_client_info": {
+          "package_name": "com.example.uikit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKD0FLrO_aXJgdvrOnSCq9w2PvtA4fLQg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

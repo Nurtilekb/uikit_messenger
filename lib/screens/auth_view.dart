@@ -21,6 +21,7 @@ class _AuthScreenState extends State<AuthScreen>
   Future<void> _loadThemeMode() async {
     final prefs = await SharedPreferences.getInstance();
     final isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    // ignore: use_build_context_synchronously
     context.read<ThemeCubit>().setTheme(isDarkMode);
   }
 

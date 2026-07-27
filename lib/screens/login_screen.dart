@@ -160,28 +160,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
-  Widget _buildSignUpRow(BuildContext context) {
-    final colors = context.appColors;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "forgotyourpassword".tr(),
-          style: TextStyle(color: colors.textSecondary, fontSize: 14),
-        ),
-        GestureDetector(
-          onTap: () {},
-          child: Text(
-            'restore'.tr(),
-            style: TextStyle(
-              color: colors.primaryDark,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }

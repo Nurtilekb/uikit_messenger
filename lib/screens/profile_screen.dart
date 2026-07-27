@@ -12,7 +12,9 @@ import 'package:uikit/widgets/profile_widgets/profile_logout_button.dart';
 
 @RoutePage()
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final String name;
+
+  const ProfileScreen({super.key, required this.name});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -27,6 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Stack(
       children: [
         Scaffold(
+          resizeToAvoidBottomInset: false,
           appBar: AppBar(
             title: Text(
               'profile'.tr(),
@@ -54,7 +57,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(height: 90, color: colors.profileHeader),
-                ProfileInfo(name: 'Мария Ковалева', email: 'maria@email.com'),
+
+                ProfileInfo(
+                  name: 'Мария Ковалева',
+                  email: 'maria@email.com',
+                  ontap: () => _showMyDialog(context),
+                ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 30, 24, 10),
                   child: Text(
@@ -78,6 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
+
                 ProfileLogoutButton(),
               ],
             ),
@@ -91,5 +100,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _saveThemeMode(bool isDarkMode) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isDarkMode', isDarkMode);
+  }
+
+  void _showMyDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text("Редактировать профиль"),
+          content: const TextField(),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Отмена"),
+            ),
+            ElevatedButton(onPressed: () {}, child: const Text("Сохранить")),
+          ],
+        );
+      },
+    );
   }
 }
