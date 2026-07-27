@@ -2,6 +2,7 @@
 "eho":"Eho",  
 "hello": "Hello",
 "login": "Login",
+"login2": "Login",
 "profile": "Profile",
 "chats": "Chats",
 "me": "Me",
@@ -35,7 +36,6 @@
 "users2": "USERS",
 "nochatsyet":"There are no chats yet",
 "startconv":"Start a conversation - find a user by name or email",
-"+newchat":"+ New chat"
-
+"+newchat":"+ New chat"  
 }
  
