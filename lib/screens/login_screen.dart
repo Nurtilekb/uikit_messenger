@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/widgets/app_text_field.dart';
 import 'package:uikit/theme/app_colors.dart';
@@ -59,15 +60,15 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             filledColor: colors.cardBackground,
             controller: _passwordController,
-            label: 'Пароль',
-            hintText: 'Введите пароль',
+            label: 'password'.tr(),
+            hintText: 'enteryourpassword'.tr(),
             isPasswordField: true,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Введите пароль';
+                return 'enteryourpassword'.tr();
               }
               if (value.length < 6) {
-                return 'Пароль должен быть не менее 6 символов';
+                return '6characterspassword'.tr();
               }
               return null;
             },
@@ -96,8 +97,8 @@ class _LoginScreenState extends State<LoginScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 0,
       ),
-      child: const Text(
-        'Войти',
+      child: Text(
+        "login".tr(),
         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
     );
@@ -110,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Expanded(child: Divider(height: 1, color: colors.divider)),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 15),
-          child: Text('или', style: TextStyle(color: colors.textSecondary)),
+          child: Text("or".tr(), style: TextStyle(color: colors.textSecondary)),
         ),
         Expanded(child: Divider(height: 1, color: colors.divider)),
       ],
@@ -143,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(width: 20),
             Text(
-              "Войти через Google",
+              "signinwithGoogle".tr(),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -162,13 +163,13 @@ class _LoginScreenState extends State<LoginScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          "Забыли пароль?",
+          "forgotyourpassword".tr(),
           style: TextStyle(color: colors.textSecondary, fontSize: 14),
         ),
         GestureDetector(
           onTap: () {},
           child: Text(
-            'Восстановить',
+            'restore'.tr(),
             style: TextStyle(
               color: colors.primaryDark,
               fontSize: 14,

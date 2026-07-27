@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/theme/app_colors.dart';
 
@@ -44,48 +45,48 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                 break;
               case 'block':
                 break;
-              case 'report':
+              case 'complain':
                 break;
             }
           },
           itemBuilder: (BuildContext context) => [
-            const PopupMenuItem<String>(
+            PopupMenuItem<String>(
               value: 'clearchat',
               child: Row(
                 children: [
                   Icon(Icons.delete_sweep_outlined, size: 22),
                   SizedBox(width: 12),
-                  Text('Очистить чат'),
+                  Text('clearchat'.tr()),
                 ],
               ),
             ),
-            const PopupMenuItem<String>(
+            PopupMenuItem<String>(
               value: 'search',
               child: Row(
                 children: [
                   Icon(Icons.search, size: 22),
                   SizedBox(width: 12),
-                  Text('Поиск'),
+                  Text('search'.tr()),
                 ],
               ),
             ),
-            const PopupMenuItem<String>(
+            PopupMenuItem<String>(
               value: 'block',
               child: Row(
                 children: [
                   Icon(Icons.block, size: 22, color: Colors.red),
                   SizedBox(width: 12),
-                  Text('Заблокировать', style: TextStyle(color: Colors.red)),
+                  Text('block'.tr(), style: TextStyle(color: Colors.red)),
                 ],
               ),
             ),
-            const PopupMenuItem<String>(
-              value: 'report',
+            PopupMenuItem<String>(
+              value: 'complain',
               child: Row(
                 children: [
                   Icon(Icons.report_outlined, size: 22, color: Colors.red),
                   SizedBox(width: 12),
-                  Text('Пожаловаться', style: TextStyle(color: Colors.red)),
+                  Text('complain'.tr(), style: TextStyle(color: Colors.red)),
                 ],
               ),
             ),
@@ -153,7 +154,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               Text(
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                isOnline ? 'в сети' : 'был(а) недавно',
+                isOnline ? 'online'.tr() : 'offline'.tr(),
                 style: TextStyle(
                   fontSize: 14,
                   color: isOnline ? colors.online : colors.textSecondary,

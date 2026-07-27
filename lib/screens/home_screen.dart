@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/models/chat_model.dart';
 import 'package:uikit/screens/chats_screen.dart';
@@ -90,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     children: [
                       Text(
-                        'Чаты',
+                        "chats".tr(),
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.w800,
@@ -117,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(width: 12),
                       CircleIconButton(
                         childd: Text(
-                          'Я',
+                          "me".tr(),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         background: themeStyle.dividerColor,

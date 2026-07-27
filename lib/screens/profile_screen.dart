@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/profile_widgets/profile_avatar.dart';
@@ -23,8 +24,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Scaffold(
           appBar: AppBar(
             title: Text(
-              'Профиль',
-              style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800, color: colors.textPrimary),
+              'profile'.tr(),
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.w800,
+                color: colors.textPrimary,
+              ),
             ),
             backgroundColor: colors.cardBackground,
             actions: [
@@ -43,15 +48,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  height: 90,
-                  color: colors.profileHeader,
-                ),
+                Container(height: 90, color: colors.profileHeader),
                 ProfileInfo(name: 'Мария Ковалева', email: 'maria@email.com'),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 30, 24, 10),
                   child: Text(
-                    'НАСТРОЙКИ',
+                    'settings2'.tr(),
                     style: TextStyle(
                       color: colors.iconSecondary,
                       fontSize: 17,

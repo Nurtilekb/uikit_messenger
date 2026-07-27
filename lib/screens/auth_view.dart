@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/screens/login_screen.dart';
 import 'package:uikit/screens/register_screen.dart';
@@ -37,7 +38,7 @@ class _AuthViewState extends State<AuthView>
             _buildSocialIcon(Icons.messenger),
             const SizedBox(height: 16),
             Text(
-              'Эхо',
+              "eho".tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 34,
@@ -47,7 +48,7 @@ class _AuthViewState extends State<AuthView>
               ),
             ),
             Text(
-              'Сообщения без лишнего',
+              "amessagewithout".tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/app_text_field.dart';
@@ -36,7 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 15, 24, 15),
-            child: Text('ПОЛЬЗОВАТЕЛИ', style: getStyle.textTheme.bodySmall),
+            child: Text('users2'.tr(), style: getStyle.textTheme.bodySmall),
           ),
           Expanded(
             child: Padding(

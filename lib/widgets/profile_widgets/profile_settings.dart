@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/theme/app_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Добавьте в pubspec.yaml
 
 class ProfileSettings extends StatefulWidget {
   final bool isDarkMode;
@@ -19,16 +21,47 @@ class ProfileSettings extends StatefulWidget {
 class _ProfileSettingsState extends State<ProfileSettings> {
   String selectedLanguage = '🇷🇺 Русский';
 
-  final List<String> languages = [
-    '🇺🇸 English',
-    '🇷🇺 Русский',
-    '🇰🇬 Кыргызча',
+  final List<Map<String, String>> languages = [
+    {'flag': '🇺🇸', 'name': 'English', 'code': 'en'},
+    {'flag': '🇷🇺', 'name': 'Русский', 'code': 'ru'},
+    {'flag': '🇰🇬', 'name': 'Кыргызча', 'code': 'ky'},
   ];
 
-  void onSelectLang(String language) {
-    setState(() {
-      selectedLanguage = language;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedLanguage();
+  }
+
+  Future<void> _loadSavedLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedLanguage = prefs.getString('selected_language');
+    if (savedLanguage != null) {
+      setState(() {
+        selectedLanguage = savedLanguage;
+      });
+    }
+  }
+
+  Future<void> _saveLanguage(String language) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selected_language', language);
+  }
+
+  String getLanguageName(String language) {
+    return language
+        .replaceFirst('🇺🇸 ', '')
+        .replaceFirst('🇷🇺 ', '')
+        .replaceFirst('🇰🇬 ', '');
+  }
+
+  String getLanguageCode(String language) {
+    for (var lang in languages) {
+      if (language.contains(lang['name']!)) {
+        return lang['code']!;
+      }
+    }
+    return 'ru';
   }
 
   @override
@@ -79,14 +112,25 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                                   children: [
                                     for (var lang in languages)
                                       _buildLanguageItem(
-                                        lang,
+                                        '${lang['flag']} ${lang['name']}',
                                         selectedLanguage,
                                         colors,
-                                        () {
+                                        () async {
+                                          final newLanguage =
+                                              '${lang['flag']} ${lang['name']}';
+
+                                          // Меняем язык в приложении
+                                          await context.setLocale(
+                                            Locale(lang['code']!),
+                                          );
+
+                                          // Сохраняем в SharedPreferences
+                                          await _saveLanguage(newLanguage);
+
                                           setState(() {
-                                            selectedLanguage = lang;
+                                            selectedLanguage = newLanguage;
                                           });
-                                          setStateBottomSheet(() {});
+
                                           Navigator.pop(context);
                                         },
                                       ),
@@ -114,13 +158,16 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                             width: 40,
                             child: const Icon(Icons.public_rounded),
                           ),
-                          Text('Язык', style: TextStyle(fontSize: 18, color: colors.textPrimary)),
+                          Text(
+                            'language'.tr(),
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: colors.textPrimary,
+                            ),
+                          ),
                           const Spacer(),
                           Text(
-                            selectedLanguage
-                                .replaceFirst('🇺🇸 ', '')
-                                .replaceFirst('🇷🇺 ', '')
-                                .replaceFirst('🇰🇬 ', ''),
+                            getLanguageName(selectedLanguage),
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
@@ -128,7 +175,10 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                             ),
                           ),
                           const SizedBox(width: 10),
-                          Icon(CupertinoIcons.forward, color: colors.iconSecondary),
+                          Icon(
+                            CupertinoIcons.forward,
+                            color: colors.iconSecondary,
+                          ),
                         ],
                       ),
                     ),
@@ -173,8 +223,11 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                           child: const Icon(Icons.dark_mode_outlined),
                         ),
                         Text(
-                          'Тёмная тема',
-                          style: TextStyle(fontSize: 18, color: colors.textPrimary),
+                          'darktheme'.tr(),
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: colors.textPrimary,
+                          ),
                         ),
                         const Spacer(),
                         CupertinoSwitch(
@@ -212,14 +265,18 @@ class _ProfileSettingsState extends State<ProfileSettings> {
           color: isSelected ? colors.settingsItemSelected : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? colors.settingsItemSelected : colors.settingsItemBorder,
+            color: isSelected
+                ? colors.settingsItemSelected
+                : colors.settingsItemBorder,
           ),
         ),
         child: Row(
           children: [
             Text(
               text,
-              style: TextStyle(color: isSelected ? colors.textOnPrimary : colors.textPrimary),
+              style: TextStyle(
+                color: isSelected ? colors.textOnPrimary : colors.textPrimary,
+              ),
             ),
             const Spacer(),
             if (isSelected)

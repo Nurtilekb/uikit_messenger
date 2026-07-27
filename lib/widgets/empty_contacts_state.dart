@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/screens/users_list_screen.dart';
@@ -22,15 +23,11 @@ class EmptyChatWidget extends StatelessWidget {
               color: colors.surface,
               borderRadius: BorderRadius.circular(68),
             ),
-            child: Icon(
-              Icons.messenger,
-              color: colors.iconSecondary,
-              size: 42,
-            ),
+            child: Icon(Icons.messenger, color: colors.iconSecondary, size: 42),
           ),
           const SizedBox(height: 24),
           Text(
-            'Пока нет чатов',
+            'nochatsyet'.tr(),
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
@@ -39,9 +36,13 @@ class EmptyChatWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Начните переписку — найдите пользователя по имени или email',
+            'startconv'.tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, height: 1.5, color: colors.textSecondary),
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.5,
+              color: colors.textSecondary,
+            ),
           ),
           const SizedBox(height: 30),
           InkWell(
@@ -60,7 +61,7 @@ class EmptyChatWidget extends StatelessWidget {
               height: 50,
               child: Center(
                 child: Text(
-                  '+ Новый чат',
+                  'newchat'.tr(),
                   style: TextStyle(
                     color: colors.textOnPrimary,
                     fontSize: 15,

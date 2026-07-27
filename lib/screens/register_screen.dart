@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/widgets/app_text_field.dart';
 import 'package:uikit/theme/app_colors.dart';
@@ -57,20 +58,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
               isPasswordField: true,
               controller: _registrpasswordController,
               labelStyle: Theme.of(context).textTheme.bodySmall,
-              hintText: 'Введите пароль',
+              hintText: 'enteryourpassword'.tr(),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 18,
               ),
               filledColor: colors.cardBackground,
-              label: 'Пароль',
+              label: 'password'.tr(),
               inputType: TextInputType.emailAddress,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Введите пароль';
+                  return 'enteryourpassword'.tr();
                 }
                 if (value.length < 6) {
-                  return 'Пароль должен быть не менее 6 символов';
+                  return '6characterspassword'.tr();
                 }
                 return null;
               },
@@ -80,24 +81,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
               isPasswordField: true,
               controller: _registrpassword2Controller,
               labelStyle: Theme.of(context).textTheme.bodySmall,
-              hintText: 'Подтвердите пароль',
+              hintText: 'enteryourpassword'.tr(),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 18,
               ),
               filledColor: colors.cardBackground,
-              label: 'Пароль',
+              label: 'password'.tr(),
               inputType: TextInputType.emailAddress,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Введите пароль';
+                  return 'enteryourpassword'.tr();
                 }
                 if (_registrpasswordController.text !=
                     _registrpassword2Controller.text) {
-                  return 'Пароли не совпадают!';
+                  return 'passwordsdontmatch'.tr();
                 }
                 if (value.length < 6) {
-                  return 'Пароль должен быть не менее 6 символов';
+                  return '6characterspassword'.tr();
                 }
                 return null;
               },
@@ -118,8 +119,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   elevation: 2,
                   shadowColor: colors.primary.withValues(alpha: 0.3),
                 ),
-                child: const Text(
-                  'Create Account',
+                child: Text(
+                  'createaccaunt'.tr(),
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -132,7 +133,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
-                    'или',
+                    'or'.tr(),
                     style: TextStyle(color: colors.textSecondary, fontSize: 14),
                   ),
                 ),
@@ -159,13 +160,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Already have an account? ',
+                  'alreadyhaveacc'.tr(),
                   style: TextStyle(color: colors.textSecondary, fontSize: 15),
                 ),
                 GestureDetector(
                   onTap: () {},
                   child: Text(
-                    'Log In',
+                    'login'.tr(),
                     style: TextStyle(
                       color: colors.primary,
                       fontSize: 15,

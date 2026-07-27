@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/screens/chats_screen.dart';
 import 'package:uikit/theme/app_colors.dart';
@@ -15,7 +16,7 @@ class UsersListScreen extends StatelessWidget {
         titleSpacing: 0,
         backgroundColor: colors.cardBackground,
         title: Text(
-          'Пользователи',
+          'users'.tr(),
           style: TextStyle(
             fontSize: 25,
             fontWeight: FontWeight.w800,
@@ -45,7 +46,7 @@ class UsersListScreen extends StatelessWidget {
                   },
                   name: "Nurik",
                   lastMessage: 'Today or tomorrow ',
-                  time: 'вчера',
+                  time: 'yesterday'.tr(),
                 ),
               );
             },
