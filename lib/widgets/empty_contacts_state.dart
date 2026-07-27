@@ -1,5 +1,7 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:uikit/router/app_router.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/screens/users_list_screen.dart';
 
@@ -47,10 +49,7 @@ class EmptyChatWidget extends StatelessWidget {
           const SizedBox(height: 30),
           InkWell(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => UsersListScreen()),
-              );
+              context.router.push(const UsersListRoute());
             },
             child: Container(
               decoration: BoxDecoration(

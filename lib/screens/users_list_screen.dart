@@ -1,9 +1,11 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/screens/chats_screen.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/user_tile.dart';
 
+@RoutePage()
 class UsersListScreen extends StatelessWidget {
   const UsersListScreen({super.key});
 

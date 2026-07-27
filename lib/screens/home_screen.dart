@@ -1,6 +1,11 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uikit/blocs/theme/theme_cubit.dart';
 import 'package:uikit/models/chat_model.dart';
+import 'package:uikit/router/app_router.dart';
 import 'package:uikit/screens/chats_screen.dart';
 import 'package:uikit/screens/profile_screen.dart';
 import 'package:uikit/screens/search_users_screen.dart';
@@ -10,6 +15,7 @@ import 'package:uikit/widgets/appbar_button.dart';
 import 'package:uikit/widgets/empty_contacts_state.dart';
 import 'package:uikit/widgets/user_tile.dart';
 
+@RoutePage()
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -19,12 +25,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool isEmpty = false;
-  @override
-  void initState() {
-    super.initState();
-  }
 
-  List<Chat> Chats = [
+  List<Chat> chats = [
     Chat(
       name: 'Nurtilek',
       lastMessage: 'bro go to afsasdb asfdg wert werthy retqwer gtrewgwt r wet',
@@ -107,12 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: colors.textPrimary,
                         ),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SearchScreen(),
-                            ),
-                          );
+                          context.router.push(const SearchRoute());
                         },
                       ),
                       const SizedBox(width: 12),
@@ -123,50 +120,42 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         background: themeStyle.dividerColor,
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProfileScreen(),
-                            ),
-                          );
+                          context.router.push(const ProfileRoute());
                         },
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 30),
-                if (Chats.isNotEmpty)
+                if (chats.isNotEmpty)
                   Expanded(
                     child: ListView.separated(
                       padding: const EdgeInsets.fromLTRB(24, 2, 24, 100),
-                      itemCount: Chats.length,
+                      itemCount: chats.length,
                       separatorBuilder: (_, _) => const SizedBox(height: 25),
                       itemBuilder: (context, index) {
-                        final Chat = Chats[index];
+                        final chat = chats[index];
                         return UserTile(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ChatsScreen(
-                                  numName: Chat.name,
-                                  isOnline: Chat.isOnline,
-                                  imageAvatar: Chat.avatar,
-                                ),
+                            context.router.push(
+                              ChatsRoute(
+                                numName: chat.name,
+                                isOnline: chat.isOnline,
+                                imageAvatar: chat.avatar,
                               ),
                             );
                           },
-                          name: Chat.name,
-                          lastMessage: Chat.lastMessage,
-                          isOnline: Chat.isOnline,
-                          unreadCount: Chat.unreadCount,
-                          avatarUrl: Chat.avatar,
-                          time: Chat.time,
+                          name: chat.name,
+                          lastMessage: chat.lastMessage,
+                          isOnline: chat.isOnline,
+                          unreadCount: chat.unreadCount,
+                          avatarUrl: chat.avatar,
+                          time: chat.time,
                         );
                       },
                     ),
                   ),
-                if (Chats.isEmpty) Center(child: EmptyChatWidget()),
+                if (chats.isEmpty) Center(child: EmptyChatWidget()),
               ],
             ),
           ),
@@ -176,10 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         backgroundColor: themeStyle.primaryColor,
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => UsersListScreen()),
-          );
+          context.router.push(const UsersListRoute());
         },
         child: Icon(Icons.add, color: colors.textOnPrimary),
       ),

@@ -1,9 +1,10 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/Chat_widgets/Chat_message_bubble.dart';
 import 'package:uikit/widgets/chat_widgets/chat_app_bar.dart';
 import 'package:uikit/widgets/chat_widgets/chat_composer.dart';
-
+@RoutePage()
 class ChatsScreen extends StatefulWidget {
   final String numName;
   final bool isOnline;

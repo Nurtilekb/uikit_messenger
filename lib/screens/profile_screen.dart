@@ -1,11 +1,16 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uikit/blocs/theme/theme_cubit.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/profile_widgets/profile_avatar.dart';
 import 'package:uikit/widgets/profile_widgets/profile_info.dart';
 import 'package:uikit/widgets/profile_widgets/profile_settings.dart';
 import 'package:uikit/widgets/profile_widgets/profile_logout_button.dart';
 
+@RoutePage()
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -61,12 +66,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-                ProfileSettings(
-                  isDarkMode: isSwitched,
-                  onDarkModeChanged: (value) {
-                    setState(() {
-                      isSwitched = value;
-                    });
+                BlocBuilder<ThemeCubit, ThemeState>(
+                  builder: (context, state) {
+                    return ProfileSettings(
+                      isDarkMode: state.isDarkMode,
+                      onDarkModeChanged: (value) {
+                        context.read<ThemeCubit>().setTheme(value);
+                        _saveThemeMode(value);
+                      },
+                    );
                   },
                 ),
                 const SizedBox(height: 20),
@@ -78,5 +86,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ProfileAvatar(initials: 'MK'),
       ],
     );
+  }
+
+  Future<void> _saveThemeMode(bool isDarkMode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isDarkMode', isDarkMode);
   }
 }

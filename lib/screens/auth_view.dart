@@ -1,23 +1,35 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uikit/blocs/theme/theme_cubit.dart';
 import 'package:uikit/screens/login_screen.dart';
 import 'package:uikit/screens/register_screen.dart';
 import 'package:uikit/theme/app_colors.dart';
 
-class AuthView extends StatefulWidget {
-  const AuthView({super.key});
+@RoutePage()
+class AuthScreen extends StatefulWidget {
+  const AuthScreen({super.key});
 
   @override
-  State<AuthView> createState() => _AuthViewState();
+  State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthViewState extends State<AuthView>
+class _AuthScreenState extends State<AuthScreen>
     with SingleTickerProviderStateMixin {
+  Future<void> _loadThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    context.read<ThemeCubit>().setTheme(isDarkMode);
+  }
+
   late final TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _loadThemeMode();
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -95,9 +107,9 @@ class _AuthViewState extends State<AuthView>
                     fontFamily: 'interTight',
                   ),
                   splashBorderRadius: BorderRadius.circular(16),
-                  tabs: const [
-                    Tab(text: 'Вход'),
-                    Tab(text: 'Регистрация'),
+                  tabs: [
+                    Tab(text: "login".tr()),
+                    Tab(text: 'registration'.tr()),
                   ],
                 ),
               ),

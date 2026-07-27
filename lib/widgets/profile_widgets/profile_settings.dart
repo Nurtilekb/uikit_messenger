@@ -2,7 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/theme/app_colors.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Добавьте в pubspec.yaml
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uikit/widgets/profile_widgets/build_lang_item.dart';
 
 class ProfileSettings extends StatefulWidget {
   final bool isDarkMode;
@@ -111,20 +112,18 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                                 child: Column(
                                   children: [
                                     for (var lang in languages)
-                                      _buildLanguageItem(
-                                        '${lang['flag']} ${lang['name']}',
-                                        selectedLanguage,
-                                        colors,
-                                        () async {
+                                      BuiltLangItem(
+                                        key: ValueKey(lang['code']),
+                                        text: '${lang['flag']} ${lang['name']}',
+                                        currentSelected: selectedLanguage,
+                                        colors: colors,
+                                        onTap: () async {
                                           final newLanguage =
                                               '${lang['flag']} ${lang['name']}';
 
-                                          // Меняем язык в приложении
                                           await context.setLocale(
                                             Locale(lang['code']!),
                                           );
-
-                                          // Сохраняем в SharedPreferences
                                           await _saveLanguage(newLanguage);
 
                                           setState(() {
@@ -241,46 +240,6 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLanguageItem(
-    String text,
-    String currentSelected,
-    AppColors colors,
-    VoidCallback onTap,
-  ) {
-    bool isSelected = currentSelected == text;
-
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        height: 40,
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? colors.settingsItemSelected : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected
-                ? colors.settingsItemSelected
-                : colors.settingsItemBorder,
-          ),
-        ),
-        child: Row(
-          children: [
-            Text(
-              text,
-              style: TextStyle(
-                color: isSelected ? colors.textOnPrimary : colors.textPrimary,
-              ),
-            ),
-            const Spacer(),
-            if (isSelected)
-              Icon(Icons.check, color: colors.textOnPrimary, size: 18),
           ],
         ),
       ),
