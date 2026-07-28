@@ -1,13 +1,12 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'package:uikit/models/chat_model.dart';
 import 'package:uikit/router/app_router.dart';
 
 import 'package:uikit/theme/app_colors.dart';
-import 'package:uikit/widgets/appbar_button.dart';
 import 'package:uikit/widgets/empty_contacts_state.dart';
+import 'package:uikit/widgets/home_widgets/home_appbar.dart';
 import 'package:uikit/widgets/user_tile.dart';
 
 @RoutePage()
@@ -19,6 +18,18 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool get _isSelectionMode => selectedUserIds.isNotEmpty;
+  final Set<String> selectedUserIds = {};
+  void _toggleSelection(String id) {
+    setState(() {
+      if (selectedUserIds.contains(id)) {
+        selectedUserIds.remove(id);
+      } else {
+        selectedUserIds.add(id);
+      }
+    });
+  }
+
   bool isEmpty = false;
 
   List<Chat> chats = [
@@ -29,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
       avatar: '',
       unreadCount: 3,
       isOnline: true,
+      id: '1',
     ),
     Chat(
       name: 'Aigerim',
@@ -37,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
       avatar: '',
       unreadCount: 0,
       isOnline: false,
+      id: '2',
     ),
     Chat(
       name: 'Bekzat',
@@ -45,6 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
       avatar: '',
       unreadCount: 5,
       isOnline: true,
+      id: '3',
     ),
     Chat(
       name: 'Daniyar Ermatov',
@@ -53,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
       avatar: '',
       unreadCount: 1,
       isOnline: false,
+      id: '4',
     ),
     Chat(
       name: 'Aizhan Matraimova',
@@ -61,6 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
       avatar: '',
       unreadCount: 0,
       isOnline: true,
+      id: '5',
     ),
     Chat(
       name: 'Ruslan',
@@ -69,6 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
       avatar: '',
       unreadCount: 2,
       isOnline: false,
+      id: '6',
     ),
   ];
   @override
@@ -94,7 +111,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemBuilder: (context, index) {
                     final chat = chats[index];
                     return UserTile(
+                      onlongpress: () {
+                        _toggleSelection(chat.id);
+                      },
                       onTap: () {
+                        if (_isSelectionMode) {
+                          _toggleSelection(chat.id);
+                        }
                         context.router.push(
                           ChatsRoute(
                             numName: chat.name,
@@ -121,51 +144,10 @@ class _HomeScreenState extends State<HomeScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         backgroundColor: themeStyle.primaryColor,
         onPressed: () {
-          context.router.push(const UsersListRoute());
+          context.router.push(UsersListRoute());
         },
         child: Icon(Icons.add, color: colors.textOnPrimary),
       ),
-    );
-  }
-}
-
-class HomeAppBar extends StatelessWidget {
-  final void Function()? onTapSearch;
-  final VoidCallback? onTapProfile;
-  const HomeAppBar({this.onTapSearch, this.onTapProfile, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    final themeStyle = Theme.of(context);
-
-    return AppBar(
-      backgroundColor: colors.cardBackground,
-      actionsPadding: const EdgeInsets.fromLTRB(0, 8, 16, 8),
-      title: Text(
-        "chats".tr(),
-        style: TextStyle(
-          fontSize: 30,
-          fontWeight: FontWeight.w800,
-          letterSpacing: -0.4,
-          color: colors.textPrimary,
-        ),
-      ),
-      actions: [
-        CircleIconButton(
-          childd: Icon(Icons.search, size: 27, color: colors.textPrimary),
-          onTap: onTapSearch,
-        ),
-        const SizedBox(width: 12),
-        CircleIconButton(
-          childd: Text(
-            "me".tr(),
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          background: themeStyle.dividerColor,
-          onTap: onTapProfile,
-        ),
-      ],
     );
   }
 }

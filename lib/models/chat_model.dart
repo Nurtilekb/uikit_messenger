@@ -5,6 +5,7 @@ class Chat {
   final String avatar;
   final int unreadCount;
   final bool isOnline;
+  final String id;
 
   Chat({
     required this.name,
@@ -13,6 +14,7 @@ class Chat {
     this.avatar = '',
     this.unreadCount = 0,
     this.isOnline = false,
+    required this.id,
   });
 
   factory Chat.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class Chat {
       avatar: json['avatar'] ?? '',
       unreadCount: json['unreadCount'] ?? 0,
       isOnline: json['isOnline'] ?? false,
+      id: json['id'],
     );
   }
 
@@ -34,6 +37,7 @@ class Chat {
       'avatar': avatar,
       'unreadCount': unreadCount,
       'isOnline': isOnline,
+      'id': id,
     };
   }
 }

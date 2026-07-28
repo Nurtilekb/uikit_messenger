@@ -48,7 +48,7 @@ class EmptyChatWidget extends StatelessWidget {
           const SizedBox(height: 30),
           InkWell(
             onTap: () {
-              context.router.push(const UsersListRoute());
+              context.router.push(UsersListRoute());
             },
             child: Container(
               decoration: BoxDecoration(

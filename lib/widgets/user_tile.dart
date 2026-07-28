@@ -9,6 +9,7 @@ class UserTile extends StatelessWidget {
   final int unreadCount;
   final bool isOnline;
   final VoidCallback? onTap;
+  final VoidCallback? _onlongpress;
 
   const UserTile({
     super.key,
@@ -19,6 +20,7 @@ class UserTile extends StatelessWidget {
     this.unreadCount = 1,
     this.isOnline = false,
     this.onTap,
+    this._onlongpress,
   });
 
   @override
@@ -41,6 +43,7 @@ class UserTile extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: onTap,
+        onLongPress: _onlongpress,
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 24),
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
