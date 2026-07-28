@@ -1,10 +1,12 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'package:uikit/models/chat_model.dart';
 import 'package:uikit/router/app_router.dart';
 
 import 'package:uikit/theme/app_colors.dart';
+import 'package:uikit/widgets/appbar_button.dart';
 import 'package:uikit/widgets/empty_contacts_state.dart';
 import 'package:uikit/widgets/home_widgets/home_appbar.dart';
 import 'package:uikit/widgets/user_tile.dart';
@@ -18,7 +20,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool get _isSelectionMode => selectedUserIds.isNotEmpty;
   final Set<String> selectedUserIds = {};
   void _toggleSelection(String id) {
     setState(() {
@@ -111,13 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemBuilder: (context, index) {
                     final chat = chats[index];
                     return UserTile(
-                      onlongpress: () {
-                        _toggleSelection(chat.id);
-                      },
                       onTap: () {
-                        if (_isSelectionMode) {
-                          _toggleSelection(chat.id);
-                        }
                         context.router.push(
                           ChatsRoute(
                             numName: chat.name,
@@ -132,6 +127,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       unreadCount: chat.unreadCount,
                       avatarUrl: chat.avatar,
                       time: chat.time,
+                      onlongPress: () {
+                        _toggleSelection(chats[index].id);
+                      },
                     );
                   },
                 ),
@@ -144,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         backgroundColor: themeStyle.primaryColor,
         onPressed: () {
-          context.router.push(UsersListRoute());
+          context.router.push(const UsersListRoute());
         },
         child: Icon(Icons.add, color: colors.textOnPrimary),
       ),
