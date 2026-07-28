@@ -43,10 +43,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: colors.cardBackground,
             actions: [
               if (_hasProfileChanges)
-                // Кнопка "Сохранить" при изменениях
                 TextButton(
                   onPressed: () {
-                    // TODO: Логика сохранения профиля
                     setState(() {
                       _hasProfileChanges = false;
                     });
@@ -62,19 +60,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       fontSize: 16,
                     ),
                   ),
-                )
-              else
-                // Кнопка редактирования по умолчанию
-                IconButton(
-                  onPressed: () {
-                    // Фокус на поле имени для редактирования
-                    // Можно добавить дополнительную логику
-                  },
-                  icon: Icon(
-                    Icons.edit_outlined,
-                    color: Theme.of(context).primaryColor,
-                  ),
                 ),
+
               const SizedBox(width: 8),
             ],
           ),
