@@ -56,7 +56,10 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   Icon(Icons.delete_sweep_outlined, size: 22),
                   SizedBox(width: 12),
-                  Text('clearchat'.tr()),
+                  Text(
+                    'clearchat'.tr(),
+                    style: TextStyle(color: Colors.black87),
+                  ),
                 ],
               ),
             ),
@@ -66,7 +69,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   Icon(Icons.search, size: 22),
                   SizedBox(width: 12),
-                  Text('search'.tr()),
+                  Text('search'.tr(), style: TextStyle(color: Colors.black87)),
                 ],
               ),
             ),
@@ -102,16 +105,15 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                 height: 50,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: colors.surface,
-                  image: avatarUrl.isNotEmpty
-                      ? DecorationImage(
-                          image: NetworkImage(avatarUrl),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
+                  color: Theme.of(context).dividerColor,
                 ),
                 child: avatarUrl.isEmpty
-                    ? Icon(Icons.person, size: 30, color: colors.iconSecondary)
+                    ? Center(
+                        child: Text(
+                          getInitials(userName),
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      )
                     : null,
               ),
               if (isOnline)
@@ -165,5 +167,16 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
     );
+  }
+
+  String getInitials(String fullName) {
+    if (fullName.isEmpty) return '';
+
+    final parts = fullName.trim().split(' ');
+    if (parts.length == 1) {
+      return parts[0][0].toUpperCase();
+    }
+
+    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
   }
 }

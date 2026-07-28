@@ -106,6 +106,9 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                           builder: (context, setStateBottomSheet) {
                             return SafeArea(
                               child: Container(
+                                color: Theme.of(
+                                  context,
+                                ).scaffoldBackgroundColor,
                                 padding: const EdgeInsets.all(16),
                                 height: 200,
                                 width: MediaQuery.of(context).size.width,

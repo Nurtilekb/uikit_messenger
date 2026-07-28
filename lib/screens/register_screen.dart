@@ -4,24 +4,23 @@ import 'package:uikit/widgets/app_text_field.dart';
 import 'package:uikit/theme/app_colors.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  const RegisterScreen({super.key, required this.forLogin});
+  final Widget forLogin;
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final TextEditingController _registrEmailController = TextEditingController();
-  final TextEditingController _registrpasswordController =
-      TextEditingController();
-  final TextEditingController _registrpassword2Controller =
-      TextEditingController();
+  final _registrEmailController = TextEditingController();
+  final _registrpasswordController = TextEditingController();
+  final _nameController = TextEditingController();
 
   @override
   void dispose() {
     _registrEmailController.dispose();
     _registrpasswordController.dispose();
-    _registrpassword2Controller.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -39,7 +38,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            AppInputWidget(
+              controller: _nameController,
+              labelStyle: Theme.of(context).textTheme.bodySmall,
+              hintText: 'fullname2'.tr(),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 18,
+              ),
+              filledColor: colors.cardBackground,
+              label: 'fullname'.tr(),
+              inputType: TextInputType.visiblePassword,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'fullname2'.tr();
+                }
+              },
+            ),
+            const SizedBox(height: 16),
             AppInputWidget(
               controller: _registrEmailController,
               labelStyle: Theme.of(context).textTheme.bodySmall,
@@ -65,37 +82,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               filledColor: colors.cardBackground,
               label: 'password'.tr(),
-              inputType: TextInputType.emailAddress,
+              inputType: TextInputType.visiblePassword,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'enteryourpassword'.tr();
-                }
-                if (value.length < 6) {
-                  return '6characterspassword'.tr();
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            AppInputWidget(
-              isPasswordField: true,
-              controller: _registrpassword2Controller,
-              labelStyle: Theme.of(context).textTheme.bodySmall,
-              hintText: 'enteryourpassword'.tr(),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 18,
-              ),
-              filledColor: colors.cardBackground,
-              label: 'password'.tr(),
-              inputType: TextInputType.emailAddress,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'enteryourpassword'.tr();
-                }
-                if (_registrpasswordController.text !=
-                    _registrpassword2Controller.text) {
-                  return 'passwordsdontmatch'.tr();
                 }
                 if (value.length < 6) {
                   return '6characterspassword'.tr();
@@ -104,7 +94,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               },
             ),
 
-            const SizedBox(height: 60),
+            const SizedBox(height: 70),
             SizedBox(
               width: double.infinity,
               height: 56,
@@ -142,20 +132,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Social icons
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: [
-            //     _buildSocialIcon(Icons.facebook),
-            //     const SizedBox(width: 16),
-            //     _buildSocialIcon(Icons.email_outlined),
-            //     const SizedBox(width: 16),
-            //     _buildSocialIcon(Icons.apple),
-            //   ],
-            // ),
-            // const SizedBox(height: 32),
-
-            // Login link
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -163,17 +139,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   'alreadyhaveacc'.tr(),
                   style: TextStyle(color: colors.textSecondary, fontSize: 15),
                 ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Text(
-                    'login'.tr(),
-                    style: TextStyle(
-                      color: colors.primary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                widget.forLogin,
               ],
             ),
             const SizedBox(height: 20),
@@ -182,30 +148,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-
-  //   Widget _buildSocialIcon(IconData icon) {
-  //     final colors = context.appColors;
-  //     return InkWell(
-  //       onTap: () {},
-  //       borderRadius: BorderRadius.circular(14),
-  //       child: Container(
-  //         width: 63,
-  //         height: 63,
-  //         decoration: BoxDecoration(
-  //           color: colors.surface,
-  //           borderRadius: BorderRadius.circular(18),
-  //           border: Border.all(color: colors.border, width: 1.5),
-  //           boxShadow: [
-  //             BoxShadow(
-  //               color: colors.shadow,
-  //               blurRadius: 8,
-  //               offset: const Offset(0, 4),
-  //             ),
-  //           ],
-  //         ),
-  //         child: Icon(icon, size: 28, color: colors.textPrimary),
-  //       ),
-  //     );
-  //   }
-  // }
 }

@@ -1,9 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:uikit/screens/chats_screen.dart';
 import 'package:uikit/theme/app_colors.dart';
-import 'package:uikit/widgets/user_tile.dart';
 
 @RoutePage()
 class UsersListScreen extends StatelessWidget {
@@ -32,23 +30,49 @@ class UsersListScreen extends StatelessWidget {
           child: ListView.separated(
             itemBuilder: (BuildContext context, int index) {
               return Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-                child: UserTile(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChatsScreen(
-                          numName: 'Nurik',
-                          isOnline: true,
-                          imageAvatar: '',
+                padding: const EdgeInsets.fromLTRB(24, 3, 24, 0),
+                child: Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: colors.surface,
+                        radius: 35,
+                        child: Center(
+                          child: Text(
+                            getInitials('name'),
+                            style: TextStyle(
+                              fontSize: 23,
+                              fontWeight: FontWeight(600),
+                            ),
+                          ),
                         ),
                       ),
-                    );
-                  },
-                  name: "Nurik",
-                  lastMessage: 'Today or tomorrow ',
-                  time: 'yesterday'.tr(),
+                      const SizedBox(width: 14),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Name',
+                            maxLines: 1,
+                            style: TextStyle(
+                              overflow: TextOverflow.ellipsis,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: colors.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            'был(а) в 8:30',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -60,5 +84,16 @@ class UsersListScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String getInitials(String fullName) {
+    if (fullName.isEmpty) return '';
+
+    final parts = fullName.trim().split(' ');
+    if (parts.length == 1) {
+      return parts[0][0].toUpperCase();
+    }
+
+    return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
   }
 }

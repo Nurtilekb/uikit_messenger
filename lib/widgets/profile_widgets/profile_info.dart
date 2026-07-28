@@ -4,14 +4,7 @@ import 'package:uikit/theme/app_colors.dart';
 class ProfileInfo extends StatefulWidget {
   final String name;
   final String email;
-  final VoidCallback? ontap;
-
-  const ProfileInfo({
-    super.key,
-    required this.name,
-    required this.email,
-    required this.ontap,
-  });
+  const ProfileInfo({super.key, required this.name, required this.email});
 
   @override
   State<ProfileInfo> createState() => _ProfileInfoState();
@@ -38,7 +31,7 @@ class _ProfileInfoState extends State<ProfileInfo> {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return Container(
-      padding: const EdgeInsets.fromLTRB(40, 50, 40, 40),
+      padding: const EdgeInsets.fromLTRB(40, 60, 40, 30),
       color: colors.cardBackground,
       height: 180,
       child: Center(
@@ -50,6 +43,7 @@ class _ProfileInfoState extends State<ProfileInfo> {
               children: [
                 Expanded(
                   child: TextField(
+                    autofocus: false,
                     controller: _titleController,
                     textAlign: TextAlign.center,
                     maxLines: 1,
@@ -72,6 +66,7 @@ class _ProfileInfoState extends State<ProfileInfo> {
               width: 300,
               child: Center(
                 child: TextField(
+                  autofocus: false,
                   controller: _emailController,
                   textAlign: TextAlign.center,
                   maxLines: 1,
