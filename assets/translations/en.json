@@ -36,6 +36,8 @@
 "users2": "USERS",
 "nochatsyet":"There are no chats yet",
 "startconv":"Start a conversation - find a user by name or email",
-"+newchat":"+ New chat"  
+"+newchat":"+ New chat"  ,
+ "fullname": "Full name",
+  "fullname2": "Enter your full name"
 }
  
