@@ -26,8 +26,8 @@ class SearchChatTile extends StatelessWidget {
           Stack(
             children: [
               Container(
-                width: 65,
-                height: 65,
+                width: 70,
+                height: 70,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: colors.surface,
@@ -48,6 +48,7 @@ class SearchChatTile extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Row(
                   children: [
@@ -57,7 +58,7 @@ class SearchChatTile extends StatelessWidget {
                         maxLines: 1,
                         style: TextStyle(
                           overflow: TextOverflow.ellipsis,
-                          fontSize: 16,
+                          fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: colors.textPrimary,
                         ),
