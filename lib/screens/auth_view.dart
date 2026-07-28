@@ -21,7 +21,6 @@ class _AuthScreenState extends State<AuthScreen>
   Future<void> _loadThemeMode() async {
     final prefs = await SharedPreferences.getInstance();
     final isDarkMode = prefs.getBool('isDarkMode') ?? false;
-    // ignore: use_build_context_synchronously
     context.read<ThemeCubit>().setTheme(isDarkMode);
   }
 
@@ -38,6 +37,10 @@ class _AuthScreenState extends State<AuthScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _switchToLogin() {
+    _tabController.animateTo(0); // Переключаем на вкладку "Вход"
   }
 
   @override
@@ -118,10 +121,27 @@ class _AuthScreenState extends State<AuthScreen>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: const [LoginScreen(), RegisterScreen()],
+                children: [
+                  LoginScreen(),
+                  RegisterScreen(forLogin: _forLogin(colors)),
+                ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _forLogin(AppColors colors) {
+    return GestureDetector(
+      onTap: _switchToLogin.call,
+      child: Text(
+        'login'.tr(),
+        style: TextStyle(
+          color: colors.primary,
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
