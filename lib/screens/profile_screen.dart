@@ -22,6 +22,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool isSwitched = false;
+  bool _hasProfileChanges = false;
 
   @override
   Widget build(BuildContext context) {
@@ -41,13 +42,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             backgroundColor: colors.cardBackground,
             actions: [
-              IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.edit_outlined,
-                  color: Theme.of(context).primaryColor,
+              if (_hasProfileChanges)
+                // Кнопка "Сохранить" при изменениях
+                TextButton(
+                  onPressed: () {
+                    // TODO: Логика сохранения профиля
+                    setState(() {
+                      _hasProfileChanges = false;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Изменения сохранены')),
+                    );
+                  },
+                  child: Text(
+                    'save'.tr(),
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                )
+              else
+                // Кнопка редактирования по умолчанию
+                IconButton(
+                  onPressed: () {
+                    // Фокус на поле имени для редактирования
+                    // Можно добавить дополнительную логику
+                  },
+                  icon: Icon(
+                    Icons.edit_outlined,
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
-              ),
               const SizedBox(width: 8),
             ],
           ),
@@ -58,7 +85,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Container(height: 90, color: colors.profileHeader),
 
-                ProfileInfo(name: 'Мария Ковалева', email: 'maria@email.com'),
+                ProfileInfo(
+                  name: 'Мария Ковалева',
+                  email: 'maria@email.com',
+                  onChanged: (hasChanges) {
+                    setState(() {
+                      _hasProfileChanges = hasChanges;
+                    });
+                  },
+                ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 30, 24, 10),
                   child: Text(
