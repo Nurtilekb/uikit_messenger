@@ -5,10 +5,10 @@ class ProfileInfo extends StatefulWidget {
   final String name;
   final String email;
   final ValueChanged<bool>? onChanged; // Callback для уведомления об изменениях
-  
+
   const ProfileInfo({
-    super.key, 
-    required this.name, 
+    super.key,
+    required this.name,
     required this.email,
     this.onChanged,
   });
@@ -31,15 +31,16 @@ class _ProfileInfoState extends State<ProfileInfo> {
     _originalEmail = widget.email;
     _titleController.text = widget.name;
     _emailController.text = widget.email;
-    
+
     _titleController.addListener(_checkForChanges);
     _emailController.addListener(_checkForChanges);
   }
 
   void _checkForChanges() {
-    final hasChanges = _titleController.text.trim() != _originalName ||
-                       _emailController.text.trim() != _originalEmail;
-    
+    final hasChanges =
+        _titleController.text.trim() != _originalName ||
+        _emailController.text.trim() != _originalEmail;
+
     if (hasChanges != _hasChanges) {
       setState(() {
         _hasChanges = hasChanges;
@@ -73,7 +74,7 @@ class _ProfileInfoState extends State<ProfileInfo> {
               children: [
                 Expanded(
                   child: TextField(
-                    autofocus: false,
+                    autofocus: true,
                     controller: _titleController,
                     textAlign: TextAlign.center,
                     maxLines: 1,
@@ -96,7 +97,7 @@ class _ProfileInfoState extends State<ProfileInfo> {
               width: 300,
               child: Center(
                 child: TextField(
-                  autofocus: false,
+                  autofocus: true,
                   controller: _emailController,
                   textAlign: TextAlign.center,
                   maxLines: 1,
