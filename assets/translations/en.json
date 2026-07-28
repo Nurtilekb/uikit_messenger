@@ -42,6 +42,7 @@
       "delete":"Delete",
         "cancel": "Cancel",
   "confirmdeleting": "Are you sure you want to delete?",
-  "descriptdeleting": "All selected messages will be deleted."
+  "descriptdeleting": "All selected messages will be deleted.",
+  "save": "Save"
 }
  
