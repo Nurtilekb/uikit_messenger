@@ -23,6 +23,7 @@ class ChatComposer extends StatelessWidget {
           children: [
             Expanded(
               child: AppInputWidget(
+                maxLines: 3,
                 controller: controller,
                 radius: 25,
                 borderColor: colors.cardBackground,
