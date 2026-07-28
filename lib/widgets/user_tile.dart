@@ -68,6 +68,7 @@ class UserTile extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 23,
                                 fontWeight: FontWeight(500),
+                                color: colors.textHint,
                               ),
                             ),
                           )

@@ -39,57 +39,18 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           onSelected: (String value) {
             switch (value) {
-              case 'clearchat':
-                break;
-              case 'search':
-                break;
-              case 'block':
-                break;
-              case 'complain':
+              case 'delete':
                 break;
             }
           },
           itemBuilder: (BuildContext context) => [
             PopupMenuItem<String>(
-              value: 'clearchat',
+              value: 'delete',
               child: Row(
                 children: [
                   Icon(Icons.delete_sweep_outlined, size: 22),
                   SizedBox(width: 12),
-                  Text(
-                    'clearchat'.tr(),
-                    style: TextStyle(color: Colors.black87),
-                  ),
-                ],
-              ),
-            ),
-            PopupMenuItem<String>(
-              value: 'search',
-              child: Row(
-                children: [
-                  Icon(Icons.search, size: 22),
-                  SizedBox(width: 12),
-                  Text('search'.tr(), style: TextStyle(color: Colors.black87)),
-                ],
-              ),
-            ),
-            PopupMenuItem<String>(
-              value: 'block',
-              child: Row(
-                children: [
-                  Icon(Icons.block, size: 22, color: Colors.red),
-                  SizedBox(width: 12),
-                  Text('block'.tr(), style: TextStyle(color: Colors.red)),
-                ],
-              ),
-            ),
-            PopupMenuItem<String>(
-              value: 'complain',
-              child: Row(
-                children: [
-                  Icon(Icons.report_outlined, size: 22, color: Colors.red),
-                  SizedBox(width: 12),
-                  Text('complain'.tr(), style: TextStyle(color: Colors.red)),
+                  Text('delete'.tr(), style: TextStyle(color: Colors.black87)),
                 ],
               ),
             ),

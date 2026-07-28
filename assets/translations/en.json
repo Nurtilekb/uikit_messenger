@@ -38,6 +38,10 @@
 "startconv":"Start a conversation - find a user by name or email",
 "+newchat":"+ New chat"  ,
  "fullname": "Full name",
-  "fullname2": "Enter your full name"
+  "fullname2": "Enter your full name",
+      "delete":"Delete",
+        "cancel": "Cancel",
+  "confirmdeleting": "Are you sure you want to delete?",
+  "descriptdeleting": "All selected messages will be deleted."
 }
  
