@@ -58,11 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Container(height: 90, color: colors.profileHeader),
 
-                ProfileInfo(
-                  name: 'Мария Ковалева',
-                  email: 'maria@email.com',
-                  ontap: () => _showMyDialog(context),
-                ),
+                ProfileInfo(name: 'Мария Ковалева', email: 'maria@email.com'),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 30, 24, 10),
                   child: Text(
@@ -100,24 +96,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _saveThemeMode(bool isDarkMode) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isDarkMode', isDarkMode);
-  }
-
-  void _showMyDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: const Text("Редактировать профиль"),
-          content: const TextField(),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Отмена"),
-            ),
-            ElevatedButton(onPressed: () {}, child: const Text("Сохранить")),
-          ],
-        );
-      },
-    );
   }
 }
