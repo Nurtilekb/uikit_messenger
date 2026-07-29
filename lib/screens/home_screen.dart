@@ -111,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   separatorBuilder: (_, _) => const SizedBox(height: 25),
                   itemBuilder: (context, index) {
                     final chat = chats[index];
+                    final isSelected = selectedUserIds.contains(chat.id);
                     return UserTile(
                       onTap: () {
                         context.router.push(
