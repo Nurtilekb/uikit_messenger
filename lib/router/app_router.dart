@@ -7,18 +7,26 @@ import 'package:uikit/screens/home_screen.dart';
 import 'package:uikit/screens/profile_screen.dart';
 import 'package:uikit/screens/search_users_screen.dart';
 import 'package:uikit/screens/users_list_screen.dart';
+
 part 'app_router.gr.dart';
 
 @AutoRouterConfig()
 class AppRouter extends RootStackRouter {
+  final AuthGuard authGuard = AuthGuard();
+
   @override
   List<AutoRoute> get routes => [
-    AutoRoute(page: HomeRoute.page, guards: [AuthGuard()]),
-    AutoRoute(page: AuthRoute.page, initial: true),
-    AutoRoute(page: HomeRoute.page),
-    AutoRoute(page: ProfileRoute.page),
-    AutoRoute(page: SearchRoute.page),
-    AutoRoute(page: UsersListRoute.page),
-    AutoRoute(page: ChatsRoute.page),
+    // Публичные маршруты (без защиты)
+    AutoRoute(
+      page: AuthRoute.page,
+      initial: true, // Стартовый экран
+    ),
+
+    // Защищенные маршруты (требуют авторизации)
+    AutoRoute(page: HomeRoute.page, guards: [authGuard]),
+    AutoRoute(page: ProfileRoute.page, guards: [authGuard]),
+    AutoRoute(page: SearchRoute.page, guards: [authGuard]),
+    AutoRoute(page: UsersListRoute.page, guards: [authGuard]),
+    AutoRoute(page: ChatsRoute.page, guards: [authGuard]),
   ];
 }

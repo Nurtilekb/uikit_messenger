@@ -1,36 +1,31 @@
 import 'package:equatable/equatable.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:uikit/models/user_model.dart';
 
-sealed class AuthState extends Equatable {
-  const AuthState();
+abstract class AuthState extends Equatable {
   @override
   List<Object?> get props => [];
 }
 
-class AuthInitial extends AuthState {
-  const AuthInitial();
-}
+class AuthInitial extends AuthState {}
 
-class AuthLoading extends AuthState {
-  const AuthLoading();
-}
+class AuthLoading extends AuthState {}
 
-class Authenticated extends AuthState {
-  final User user;
-  const Authenticated(this.user);
+class AuthAuthenticated extends AuthState {
+  final UserModel user;
+
+  AuthAuthenticated(this.user);
+
   @override
   List<Object?> get props => [user];
 }
 
-class Unauthenticated extends AuthState {
-  const Unauthenticated();
-}
-
-class LoginSuccess extends AuthState {}
+class AuthUnauthenticated extends AuthState {}
 
 class AuthError extends AuthState {
   final String message;
-  const AuthError(this.message);
+
+  AuthError(this.message);
+
   @override
   List<Object?> get props => [message];
 }

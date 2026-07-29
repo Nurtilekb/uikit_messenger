@@ -85,7 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(height: 20),
           _buildSocialIcon(Icons.g_mobiledata, 'Google'),
           const SizedBox(height: 20),
-          // _buildSignUpRow(context),
         ],
       ),
     );
@@ -94,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildSignInButton(BuildContext context) {
     final colors = context.appColors;
     return ElevatedButton(
-      onPressed: () => _handleSignIn(context),
+      onPressed: () => _handleLogin(),
 
       style: ElevatedButton.styleFrom(
         backgroundColor: colors.primaryDark,
@@ -163,26 +162,19 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _handleSignIn(BuildContext context) {
+  void _handleLogin() {
     final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
+    final password = _passwordController.text;
 
-    // Проверка полей
-    final emailError = _validateEmail(email);
-    if (emailError != null) {
-      _showSnackBar(context, emailError, Colors.red);
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Заполните все поля')));
       return;
     }
 
-    final passwordError = _validatePassword(password);
-    if (passwordError != null) {
-      _showSnackBar(context, passwordError, Colors.red);
-      return;
-    }
-
-    // Отправляем событие в Bloc
     context.read<AuthBloc>().add(
-      SignInRequested(email: email, password: password),
+      AuthLoginRequested(email: email, password: password),
     );
   }
 

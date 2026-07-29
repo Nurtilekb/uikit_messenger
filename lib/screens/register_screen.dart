@@ -192,7 +192,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     _showSnackBar(context, 'Account created successfully!', Colors.green);
     context.read<AuthBloc>().add(
-      SignUpRequested(email: email, password: password, fullName: name),
+      AuthRegisterRequested(email: email, password: password, name: name),
     );
     Future.delayed(const Duration(seconds: 1), () {
       widget.onLoginTap.call();

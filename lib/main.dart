@@ -6,6 +6,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uikit/blocs/auth/auth_bloc.dart';
+import 'package:uikit/blocs/auth/auth_repository.dart';
+import 'package:uikit/blocs/auth/auth_state.dart';
 import 'package:uikit/blocs/theme/theme_cubit.dart';
 import 'package:uikit/firebase_options.dart';
 import 'package:uikit/router/app_router.dart';
@@ -15,21 +17,19 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  final authService = AuthService();
 
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('en'), Locale('ru'), Locale('ky')],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
-      child: MyApp(authService: authService),
+      child: MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final AuthService authService;
-  const MyApp({super.key, required this.authService});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,9 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => ThemeCubit()),
-        BlocProvider(create: (context) => AuthBloc(authService: authService)),
+        BlocProvider(
+          create: (context) => AuthBloc(authRepository: AuthRepository()),
+        ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {
@@ -67,24 +69,21 @@ class AuthGuard extends AutoRouteGuard {
       return;
     }
 
-    _checkUserProfile(resolver, router);
-  }
-
-  Future<void> _checkUserProfile(
-    NavigationResolver resolver,
-    StackRouter router,
-  ) async {
-    try {
-      final userData = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .get();
-
-      if (userData.exists && userData.data()?['name'] != null) {
-        resolver.next();
-      }
-    } catch (e) {
-      resolver.next();
-    }
+    // Проверяем профиль в Firestore
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get()
+        .then((doc) {
+          if (doc.exists && doc.data()?['name'] != null) {
+            resolver.next(); // Профиль заполнен
+          } else {
+            router.replace(const ProfileRoute()); // Профиль не заполнен
+          }
+        })
+        .catchError((e) {
+          // Если ошибка - пропускаем (или редирект на Auth)
+          resolver.next();
+        });
   }
 }
