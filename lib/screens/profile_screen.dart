@@ -3,6 +3,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uikit/blocs/auth/auth_bloc.dart';
+import 'package:uikit/blocs/auth/auth_event.dart';
+import 'package:uikit/blocs/auth/auth_state.dart';
 import 'package:uikit/blocs/theme/theme_cubit.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/profile_widgets/profile_avatar.dart';
@@ -21,6 +24,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool isSwitched = false;
   bool _hasProfileChanges = false;
+  String _name = '';
+  String _email = '';
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             actions: [
               if (_hasProfileChanges)
                 TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _hasProfileChanges = false;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Изменения сохранены')),
-                    );
-                  },
+                  onPressed: _saveProfile,
                   child: Text(
                     'save'.tr(),
                     style: TextStyle(
@@ -63,52 +61,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(width: 8),
             ],
           ),
-          body: ColoredBox(
-            color: colors.chatBackground,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(height: 90, color: colors.profileHeader),
+          body: BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              final user = state is AuthAuthenticated ? state.user : null;
+              return ColoredBox(
+                color: colors.chatBackground,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(height: 90, color: colors.profileHeader),
 
-                ProfileInfo(
-                  name: 'Мария Ковалева',
-                  email: 'maria@email.com',
-                  onChanged: (hasChanges) {
-                    setState(() {
-                      _hasProfileChanges = hasChanges;
-                    });
-                  },
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 30, 24, 10),
-                  child: Text(
-                    'settings2'.tr(),
-                    style: TextStyle(
-                      color: colors.iconSecondary,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                BlocBuilder<ThemeCubit, ThemeState>(
-                  builder: (context, state) {
-                    return ProfileSettings(
-                      isDarkMode: state.isDarkMode,
-                      onDarkModeChanged: (value) {
-                        context.read<ThemeCubit>().setTheme(value);
-                        _saveThemeMode(value);
+                    ProfileInfo(
+                      name: user?.name ?? '',
+                      email: user?.email ?? '',
+
+                      onChanged: (hasChanges) {
+                        setState(() {
+                          _hasProfileChanges = hasChanges;
+                        });
                       },
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 30, 24, 10),
+                      child: Text(
+                        'settings2'.tr(),
+                        style: TextStyle(
+                          color: colors.iconSecondary,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    BlocBuilder<ThemeCubit, ThemeState>(
+                      builder: (context, state) {
+                        return ProfileSettings(
+                          isDarkMode: state.isDarkMode,
+                          onDarkModeChanged: (value) {
+                            context.read<ThemeCubit>().setTheme(value);
+                            _saveThemeMode(value);
+                          },
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
 
-                ProfileLogoutButton(),
-              ],
-            ),
+                    ProfileLogoutButton(),
+                  ],
+                ),
+              );
+            },
           ),
         ),
-        ProfileAvatar(initials: 'MK'),
+        BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            final user = state is AuthAuthenticated ? state.user : null;
+            return ProfileAvatar(
+              initials:
+                  '${user!.name.isNotEmpty ? user!.name.split(' ').map((s) => s[0]).join() : ''}',
+            );
+          },
+        ),
       ],
     );
   }
@@ -116,5 +128,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _saveThemeMode(bool isDarkMode) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isDarkMode', isDarkMode);
+  }
+
+  Future<void> _saveProfile() async {
+    final trimmedName = _name.trim();
+
+    if (trimmedName.isEmpty) {
+      setState(() {
+        _hasProfileChanges = false;
+      });
+      return;
+    }
+
+    context.read<AuthBloc>().add(
+      UpdateProfileRequested(name: trimmedName.isEmpty ? 'User' : trimmedName),
+    );
+
+    setState(() {
+      _hasProfileChanges = false;
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Изменения сохранены')));
+    }
   }
 }
