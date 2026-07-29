@@ -5,7 +5,7 @@ class UserModel extends Equatable {
   final String id;
   final String name;
   final String email;
-  final String avatar;
+
   final bool isOnline;
   final DateTime? lastSeen;
   final String? phoneNumber;
@@ -17,7 +17,7 @@ class UserModel extends Equatable {
     required this.id,
     required this.name,
     this.email = '',
-    this.avatar = '',
+
     this.isOnline = false,
     this.lastSeen,
     this.phoneNumber,
@@ -31,18 +31,18 @@ class UserModel extends Equatable {
       id: json['id'] ?? '',
       name: json['name'] ?? '',
       email: json['email'] ?? '',
-      avatar: json['avatar'] ?? '',
+
       isOnline: json['isOnline'] ?? false,
-      lastSeen: json['lastSeen'] != null 
-          ? DateTime.parse(json['lastSeen']) 
+      lastSeen: json['lastSeen'] != null
+          ? DateTime.parse(json['lastSeen'])
           : null,
       phoneNumber: json['phoneNumber'],
       status: json['status'],
-      createdAt: json['createdAt'] != null 
-          ? DateTime.parse(json['createdAt']) 
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
-      updatedAt: json['updatedAt'] != null 
-          ? DateTime.parse(json['updatedAt']) 
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
           : null,
     );
   }
@@ -52,7 +52,6 @@ class UserModel extends Equatable {
       'id': id,
       'name': name,
       'email': email,
-      'avatar': avatar,
       'isOnline': isOnline,
       'lastSeen': lastSeen?.toIso8601String(),
       'phoneNumber': phoneNumber,
@@ -66,7 +65,6 @@ class UserModel extends Equatable {
     String? id,
     String? name,
     String? email,
-    String? avatar,
     bool? isOnline,
     DateTime? lastSeen,
     String? phoneNumber,
@@ -78,7 +76,6 @@ class UserModel extends Equatable {
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
-      avatar: avatar ?? this.avatar,
       isOnline: isOnline ?? this.isOnline,
       lastSeen: lastSeen ?? this.lastSeen,
       phoneNumber: phoneNumber ?? this.phoneNumber,
@@ -97,15 +94,14 @@ class UserModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        email,
-        avatar,
-        isOnline,
-        lastSeen,
-        phoneNumber,
-        status,
-        createdAt,
-        updatedAt,
-      ];
+    id,
+    name,
+    email,
+    isOnline,
+    lastSeen,
+    phoneNumber,
+    status,
+    createdAt,
+    updatedAt,
+  ];
 }

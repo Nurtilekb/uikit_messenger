@@ -16,13 +16,8 @@ class AppRouter extends RootStackRouter {
 
   @override
   List<AutoRoute> get routes => [
-    // Публичные маршруты (без защиты)
-    AutoRoute(
-      page: AuthRoute.page,
-      initial: true, // Стартовый экран
-    ),
+    AutoRoute(page: AuthRoute.page, initial: true),
 
-    // Защищенные маршруты (требуют авторизации)
     AutoRoute(page: HomeRoute.page, guards: [authGuard]),
     AutoRoute(page: ProfileRoute.page, guards: [authGuard]),
     AutoRoute(page: SearchRoute.page, guards: [authGuard]),

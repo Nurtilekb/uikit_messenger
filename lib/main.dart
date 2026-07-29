@@ -1,12 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uikit/blocs/auth/auth_bloc.dart';
-import 'package:uikit/blocs/auth/auth_repository.dart';
+import 'package:uikit/blocs/auth/auth_event.dart';
+import 'package:uikit/blocs/auth/auth_state.dart';
+
+import 'package:uikit/repositories/auth_repository.dart';
 import 'package:uikit/blocs/theme/theme_cubit.dart';
 import 'package:uikit/firebase_options.dart';
 import 'package:uikit/router/app_router.dart';
+
 import 'package:uikit/theme/app_theme.dart';
 
 void main() async {
@@ -34,10 +40,21 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => ThemeCubit()),
         BlocProvider(
-          create: (context) => AuthBloc(authRepository: AuthRepository()),
+          create: (context) {
+            final bloc = AuthBloc(authRepository: AuthRepository());
+            bloc.add(AuthRestoreRequested());
+            return bloc;
+          },
         ),
       ],
-      child: BlocBuilder<ThemeCubit, ThemeState>(
+      child: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthUnauthenticated) {
+            appRouter.replaceAll([const AuthRoute()]);
+          } else if (state is AuthAuthenticated) {
+            _checkProfileAndNavigate(context, appRouter);
+          }
+        },
         builder: (context, state) {
           return MaterialApp.router(
             locale: context.locale,
@@ -47,10 +64,34 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
-            themeMode: state.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            themeMode: context.watch<ThemeCubit>().state.isDarkMode
+                ? ThemeMode.dark
+                : ThemeMode.light,
           );
         },
       ),
     );
+  }
+
+  void _checkProfileAndNavigate(BuildContext context, AppRouter router) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get()
+        .then((doc) {
+          final data = doc.data();
+          final hasProfile =
+              doc.exists && data?['name'] != null && data?['name'] != '';
+
+          if (!hasProfile) {
+            router.replaceAll([const ProfileRoute()]);
+          }
+        })
+        .catchError((e) {
+          debugPrint('Error checking profile: $e');
+        });
   }
 }

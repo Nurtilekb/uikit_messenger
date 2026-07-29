@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uikit/blocs/auth/auth_event.dart';
-import 'package:uikit/blocs/auth/auth_repository.dart';
 import 'package:uikit/blocs/auth/auth_state.dart';
 import 'package:uikit/models/user_model.dart';
+import 'package:uikit/repositories/auth_repository.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
@@ -55,6 +55,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         } else {
           emit(AuthAuthenticated(user: user));
         }
+        return;
+      }
+
+      final firebaseUser = _authRepository.currentUser;
+      if (firebaseUser != null) {
+        final tempUser = UserModel(
+          id: firebaseUser.uid,
+          name: firebaseUser.displayName ?? 'User',
+          email: firebaseUser.email ?? '',
+          isOnline: true,
+          createdAt: DateTime.now(),
+        );
+        emit(AuthAuthenticated(user: tempUser));
       } else {
         emit(AuthUnauthenticated());
       }
@@ -121,7 +134,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             id: user.uid,
             name: user.displayName ?? 'User',
             email: user.email ?? '',
-            avatar: user.photoURL ?? '',
             isOnline: true,
             createdAt: DateTime.now(),
           );
