@@ -1,6 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +10,7 @@ import 'package:uikit/repositories/auth_repository.dart';
 import 'package:uikit/blocs/theme/theme_cubit.dart';
 import 'package:uikit/firebase_options.dart';
 import 'package:uikit/router/app_router.dart';
+import 'package:uikit/screens/splash_screen.dart';
 
 import 'package:uikit/theme/app_theme.dart';
 
@@ -31,11 +30,12 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final AppRouter _appRouter = AppRouter();
 
   @override
   Widget build(BuildContext context) {
-    final appRouter = AppRouter();
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => ThemeCubit()),
@@ -49,18 +49,37 @@ class MyApp extends StatelessWidget {
       ],
       child: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthUnauthenticated) {
-            appRouter.replaceAll([const AuthRoute()]);
-          } else if (state is AuthAuthenticated) {
-            _checkProfileAndNavigate(context, appRouter);
+          if (state is AuthAuthenticated) {
+            if (_appRouter.current.name != HomeRoute.name) {
+              _appRouter.replaceAll([const HomeRoute()]);
+            }
+          } else if (state is AuthUnauthenticated) {
+            if (_appRouter.current.name != AuthRoute.name) {
+              _appRouter.replaceAll([const AuthRoute()]);
+            }
           }
         },
         builder: (context, state) {
+          if (state is AuthInitial || state is AuthLoading) {
+            return MaterialApp(
+              locale: context.locale,
+              supportedLocales: context.supportedLocales,
+              localizationsDelegates: context.localizationDelegates,
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.light,
+              darkTheme: AppTheme.dark,
+              themeMode: context.watch<ThemeCubit>().state.isDarkMode
+                  ? ThemeMode.dark
+                  : ThemeMode.light,
+              home: const SplashScreen(),
+            );
+          }
+
           return MaterialApp.router(
             locale: context.locale,
             supportedLocales: context.supportedLocales,
             localizationsDelegates: context.localizationDelegates,
-            routerConfig: appRouter.config(),
+            routerConfig: _appRouter.config(),
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
@@ -71,27 +90,5 @@ class MyApp extends StatelessWidget {
         },
       ),
     );
-  }
-
-  void _checkProfileAndNavigate(BuildContext context, AppRouter router) {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get()
-        .then((doc) {
-          final data = doc.data();
-          final hasProfile =
-              doc.exists && data?['name'] != null && data?['name'] != '';
-
-          if (!hasProfile) {
-            router.replaceAll([const ProfileRoute()]);
-          }
-        })
-        .catchError((e) {
-          debugPrint('Error checking profile: $e');
-        });
   }
 }
