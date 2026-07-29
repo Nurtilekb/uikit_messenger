@@ -8,8 +8,9 @@ class UserTile extends StatelessWidget {
   final String avatarUrl;
   final int unreadCount;
   final bool isOnline;
+  final bool isSelected;
   final VoidCallback? onTap;
-  final VoidCallback? _onlongpress;
+  final VoidCallback? onLongPress;
 
   const UserTile({
     super.key,
@@ -19,8 +20,9 @@ class UserTile extends StatelessWidget {
     this.avatarUrl = '',
     this.unreadCount = 1,
     this.isOnline = false,
+    this.isSelected = false,
     this.onTap,
-    this._onlongpress,
+    this.onLongPress,
   });
 
   @override
@@ -39,14 +41,17 @@ class UserTile extends StatelessWidget {
     final colors = context.appColors;
     final textTheme = Theme.of(context).textTheme;
     return Material(
-      color: Colors.transparent,
+      color: isSelected ? colors.primary.withValues(alpha: 0.1) : Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: onTap,
-        onLongPress: _onlongpress,
+        onLongPress: onLongPress,
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 24),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: isSelected ? colors.primary.withValues(alpha: 0.1) : Colors.transparent,
+          ),
           child: Row(
             children: [
               Stack(

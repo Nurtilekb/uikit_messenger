@@ -110,21 +110,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   separatorBuilder: (_, _) => const SizedBox(height: 25),
                   itemBuilder: (context, index) {
                     final chat = chats[index];
+                    final isSelected = selectedUserIds.contains(chat.id);
                     return UserTile(
-                      onlongpress: () {
+                      isSelected: isSelected,
+                      onLongPress: () {
                         _toggleSelection(chat.id);
                       },
                       onTap: () {
                         if (_isSelectionMode) {
                           _toggleSelection(chat.id);
+                        } else {
+                          context.router.push(
+                            ChatsRoute(
+                              numName: chat.name,
+                              isOnline: chat.isOnline,
+                              imageAvatar: chat.avatar,
+                            ),
+                          );
                         }
-                        context.router.push(
-                          ChatsRoute(
-                            numName: chat.name,
-                            isOnline: chat.isOnline,
-                            imageAvatar: chat.avatar,
-                          ),
-                        );
                       },
                       name: chat.name,
                       lastMessage: chat.lastMessage,
