@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:uikit/main.dart';
+import 'package:uikit/router/auth_guard.dart';
 import 'package:uikit/screens/auth_view.dart';
 import 'package:uikit/screens/chats_screen.dart';
 import 'package:uikit/screens/home_screen.dart';

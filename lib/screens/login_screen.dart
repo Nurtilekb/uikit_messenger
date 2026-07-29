@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uikit/blocs/auth/auth_bloc.dart';
 import 'package:uikit/blocs/auth/auth_event.dart';
+import 'package:uikit/blocs/auth/auth_state.dart';
 import 'package:uikit/router/app_router.dart';
 import 'package:uikit/widgets/app_text_field.dart';
 import 'package:uikit/theme/app_colors.dart';
@@ -30,62 +31,73 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    return SingleChildScrollView(
-      controller: _scrollController,
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: EdgeInsets.fromLTRB(
-        24,
-        20,
-        24,
-        MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 20),
-          AppInputWidget(
-            labelStyle: Theme.of(context).textTheme.bodySmall,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 18,
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthAuthenticated) {
+          context.router.replace(HomeRoute());
+        } else if (state is AuthError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+          );
+        }
+      },
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: EdgeInsets.fromLTRB(
+          24,
+          20,
+          24,
+          MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 20),
+            AppInputWidget(
+              labelStyle: Theme.of(context).textTheme.bodySmall,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 18,
+              ),
+              filledColor: colors.cardBackground,
+              controller: _emailController,
+              label: 'Email',
+              hintText: 'your@gmail.com',
+              inputType: TextInputType.emailAddress,
             ),
-            filledColor: colors.cardBackground,
-            controller: _emailController,
-            label: 'Email',
-            hintText: 'your@gmail.com',
-            inputType: TextInputType.emailAddress,
-          ),
-          const SizedBox(height: 16),
-          AppInputWidget(
-            labelStyle: Theme.of(context).textTheme.bodySmall,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 18,
+            const SizedBox(height: 16),
+            AppInputWidget(
+              labelStyle: Theme.of(context).textTheme.bodySmall,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 18,
+              ),
+              filledColor: colors.cardBackground,
+              controller: _passwordController,
+              label: 'password'.tr(),
+              hintText: 'enteryourpassword'.tr(),
+              isPasswordField: true,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'enteryourpassword'.tr();
+                }
+                if (value.length < 6) {
+                  return '6characterspassword'.tr();
+                }
+                return null;
+              },
             ),
-            filledColor: colors.cardBackground,
-            controller: _passwordController,
-            label: 'password'.tr(),
-            hintText: 'enteryourpassword'.tr(),
-            isPasswordField: true,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'enteryourpassword'.tr();
-              }
-              if (value.length < 6) {
-                return '6characterspassword'.tr();
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 24),
-          _buildSignInButton(context),
-          const SizedBox(height: 20),
-          _buildForgotPasswordButton(context),
-          const SizedBox(height: 20),
-          _buildSocialIcon(Icons.g_mobiledata, 'Google'),
-          const SizedBox(height: 20),
-        ],
+            const SizedBox(height: 24),
+            _buildSignInButton(context),
+            const SizedBox(height: 20),
+            _buildForgotPasswordButton(context),
+            const SizedBox(height: 20),
+            _buildSocialIcon(Icons.g_mobiledata, 'Google'),
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }
@@ -175,58 +187,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     context.read<AuthBloc>().add(
       AuthLoginRequested(email: email, password: password),
-    );
-  }
-
-  String? _validateEmail(String email) {
-    if (email.isEmpty) {
-      return 'Please enter your email';
-    }
-
-    final emailRegex = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    );
-
-    if (!emailRegex.hasMatch(email)) {
-      return 'Please enter a valid email address';
-    }
-
-    return null;
-  }
-
-  String? _validatePassword(String password) {
-    if (password.isEmpty) {
-      return 'Please enter your password';
-    }
-
-    if (password.length < 6) {
-      return 'Password must be at least 6 characters';
-    }
-
-    return null;
-  }
-
-  void _showSnackBar(BuildContext context, String message, Color color) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(
-              color == Colors.red ? Icons.error_outline : Icons.info_outline,
-              color: Colors.white,
-              size: 20,
-            ),
-            const SizedBox(width: 12),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: color,
-        duration: const Duration(seconds: 3),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-      ),
     );
   }
 }

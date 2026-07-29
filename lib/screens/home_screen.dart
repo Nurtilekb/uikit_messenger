@@ -39,9 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onArchive() {
     setState(() {
-      final archived = chats
-          .where((chat) => selectedChatIds.contains(chat.id))
-          .toList();
+      chats.where((chat) => selectedChatIds.contains(chat.id)).toList();
 
       chats.removeWhere((chat) => selectedChatIds.contains(chat.id));
       selectedChatIds.clear();
@@ -148,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             _isSelectionMode
                 ? HomeAppBar2(
-                    wefwef: selectedChatIds,
+                    selectedChatIds: selectedChatIds,
                     clearSelection: _clearSelection,
                     deleteSelectedChats: _deleteSelectedChats,
                     onArchive: _onArchive,
@@ -166,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Expanded(
                 child: ListView.separated(
                   itemCount: chats.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 5),
+                  separatorBuilder: (_, _) => const SizedBox(height: 5),
                   itemBuilder: (context, index) {
                     final chat = chats[index];
                     final isSelected = selectedChatIds.contains(chat.id);
