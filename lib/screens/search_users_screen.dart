@@ -49,8 +49,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   return SearchChatTile(
                     name: 'Anya Смирнова',
                     gmailAccaunt: '@annya',
-                    avatarUrl:
-                        'https://media.gq-magazine.co.uk/photos/5d1392adb363fa622820c7ec/1:1/w_1280,h_1280,c_limit/Conor-McGregor-GQ-20Dec16_rex_b.jpg',
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) {

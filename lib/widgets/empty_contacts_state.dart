@@ -59,7 +59,7 @@ class EmptyChatWidget extends StatelessWidget {
               height: 50,
               child: Center(
                 child: Text(
-                  'newchat'.tr(),
+                  '+newchat'.tr(),
                   style: TextStyle(
                     color: colors.textOnPrimary,
                     fontSize: 15,

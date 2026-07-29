@@ -12,9 +12,7 @@ import 'package:uikit/widgets/profile_widgets/profile_logout_button.dart';
 
 @RoutePage()
 class ProfileScreen extends StatefulWidget {
-  final String name;
-
-  const ProfileScreen({super.key, required this.name});
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();

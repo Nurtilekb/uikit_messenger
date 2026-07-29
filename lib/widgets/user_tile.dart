@@ -41,17 +41,16 @@ class UserTile extends StatelessWidget {
     final colors = context.appColors;
     final textTheme = Theme.of(context).textTheme;
     return Material(
-      color: isSelected ? colors.primary.withValues(alpha: 0.1) : Colors.transparent,
+      color: isSelected
+          ? colors.primary.withValues(alpha: 0.1)
+          : Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: onTap,
         onLongPress: _onlongPress,
         child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 24),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: isSelected ? colors.primary.withValues(alpha: 0.1) : Colors.transparent,
-          ),
+          margin: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
           child: Row(
             children: [
               Stack(

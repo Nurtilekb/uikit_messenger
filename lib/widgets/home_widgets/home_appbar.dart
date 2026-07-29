@@ -43,3 +43,47 @@ class HomeAppBar extends StatelessWidget {
     );
   }
 }
+
+class HomeAppBar2 extends StatelessWidget {
+  final void Function()? onTapSearch;
+  final VoidCallback? _clearSelection;
+  final VoidCallback? _deleteSelectedChats;
+  final VoidCallback? _onArchive;
+  final Set<String> wefwef;
+  const HomeAppBar2({
+    this.onTapSearch,
+    super.key,
+    this._clearSelection,
+    this._deleteSelectedChats,
+    this._onArchive,
+    required this.wefwef,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return AppBar(
+      leading: IconButton(
+        icon: Icon(Icons.close, color: colors.iconPrimary),
+        onPressed: _clearSelection,
+      ),
+      title: Text(
+        'Выбрано: ${wefwef.length}',
+        style: TextStyle(color: colors.textPrimary),
+      ),
+      backgroundColor: colors.cardBackground,
+      elevation: 0,
+      actions: [
+        IconButton(
+          icon: Icon(Icons.delete_outline, color: Colors.red),
+          onPressed: _deleteSelectedChats,
+        ),
+        IconButton(
+          icon: Icon(Icons.archive_outlined, color: colors.iconPrimary),
+          onPressed: _onArchive,
+        ),
+      ],
+    );
+  }
+}

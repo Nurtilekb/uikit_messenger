@@ -1,12 +1,10 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'package:uikit/models/chat_model.dart';
 import 'package:uikit/router/app_router.dart';
 
 import 'package:uikit/theme/app_colors.dart';
-import 'package:uikit/widgets/appbar_button.dart';
 import 'package:uikit/widgets/empty_contacts_state.dart';
 import 'package:uikit/widgets/home_widgets/home_appbar.dart';
 import 'package:uikit/widgets/user_tile.dart';
@@ -20,15 +18,64 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final Set<String> selectedUserIds = {};
+  final Set<String> selectedChatIds = {};
+  bool get _isSelectionMode => selectedChatIds.isNotEmpty;
+
   void _toggleSelection(String id) {
     setState(() {
-      if (selectedUserIds.contains(id)) {
-        selectedUserIds.remove(id);
+      if (selectedChatIds.contains(id)) {
+        selectedChatIds.remove(id);
       } else {
-        selectedUserIds.add(id);
+        selectedChatIds.add(id);
       }
     });
+  }
+
+  void _clearSelection() {
+    setState(() {
+      selectedChatIds.clear();
+    });
+  }
+
+  void _onArchive() {
+    setState(() {
+      final archived = chats
+          .where((chat) => selectedChatIds.contains(chat.id))
+          .toList();
+
+      chats.removeWhere((chat) => selectedChatIds.contains(chat.id));
+      selectedChatIds.clear();
+    });
+  }
+
+  void _deleteSelectedChats() {
+    if (selectedChatIds.isEmpty) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Удалить чаты?'),
+        content: Text(
+          'Вы уверены, что хотите удалить ${selectedChatIds.length} чат(ов)?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                chats.removeWhere((chat) => selectedChatIds.contains(chat.id));
+                selectedChatIds.clear();
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('Удалить', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   bool isEmpty = false;
@@ -89,6 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
       id: '6',
     ),
   ];
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
@@ -98,29 +146,47 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            HomeAppBar(
-              onTapProfile: () =>
-                  context.pushRoute(ProfileRoute(name: 'nurtilek')),
-              onTapSearch: () => context.pushRoute(const SearchRoute()),
-            ),
-            const SizedBox(height: 30),
+            _isSelectionMode
+                ? HomeAppBar2(
+                    wefwef: selectedChatIds,
+                    clearSelection: _clearSelection,
+                    deleteSelectedChats: _deleteSelectedChats,
+                    onArchive: _onArchive,
+                  )
+                : HomeAppBar(
+                    onTapSearch: () {
+                      context.router.push(SearchRoute());
+                    },
+                    onTapProfile: () {
+                      context.router.push(ProfileRoute());
+                    },
+                  ),
+            const SizedBox(height: 10),
             if (chats.isNotEmpty)
               Expanded(
                 child: ListView.separated(
                   itemCount: chats.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 25),
+                  separatorBuilder: (_, __) => const SizedBox(height: 5),
                   itemBuilder: (context, index) {
                     final chat = chats[index];
-                    final isSelected = selectedUserIds.contains(chat.id);
+                    final isSelected = selectedChatIds.contains(chat.id);
+
                     return UserTile(
                       onTap: () {
-                        context.router.push(
-                          ChatsRoute(
-                            numName: chat.name,
-                            isOnline: chat.isOnline,
-                            imageAvatar: chat.avatar,
-                          ),
-                        );
+                        if (_isSelectionMode) {
+                          _toggleSelection(chat.id);
+                        } else {
+                          context.router.push(
+                            ChatsRoute(
+                              numName: chat.name,
+                              isOnline: chat.isOnline,
+                              imageAvatar: chat.avatar,
+                            ),
+                          );
+                        }
+                      },
+                      onlongPress: () {
+                        _toggleSelection(chat.id);
                       },
                       name: chat.name,
                       lastMessage: chat.lastMessage,
@@ -128,14 +194,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       unreadCount: chat.unreadCount,
                       avatarUrl: chat.avatar,
                       time: chat.time,
-                      onlongPress: () {
-                        _toggleSelection(chats[index].id);
-                      },
+                      isSelected: isSelected,
                     );
                   },
                 ),
               ),
-            if (chats.isEmpty) Center(child: EmptyChatWidget()),
+            if (chats.isEmpty) const Center(child: EmptyChatWidget()),
           ],
         ),
       ),

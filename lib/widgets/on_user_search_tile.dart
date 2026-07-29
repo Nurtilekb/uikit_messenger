@@ -4,19 +4,28 @@ import 'package:uikit/theme/app_colors.dart';
 class SearchChatTile extends StatelessWidget {
   final String name;
   final String gmailAccaunt;
-  final String avatarUrl;
   final VoidCallback? onTap;
 
   const SearchChatTile({
     super.key,
     required this.name,
     required this.gmailAccaunt,
-    required this.avatarUrl,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    String getInitials(String fullName) {
+      if (fullName.isEmpty) return '';
+
+      final parts = fullName.trim().split(' ');
+      if (parts.length == 1) {
+        return parts[0][0].toUpperCase();
+      }
+
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+
     final colors = context.appColors;
     final getterStyle = Theme.of(context);
     return InkWell(
@@ -31,16 +40,19 @@ class SearchChatTile extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: colors.surface,
-                  image: avatarUrl.isNotEmpty
-                      ? DecorationImage(
-                          image: NetworkImage(avatarUrl),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
                 ),
-                child: avatarUrl.isEmpty
+                child: name.isEmpty
                     ? Icon(Icons.person, size: 30, color: colors.iconSecondary)
-                    : null,
+                    : Center(
+                        child: Text(
+                          getInitials(name),
+                          style: TextStyle(
+                            fontSize: 23,
+                            fontWeight: FontWeight(500),
+                            color: colors.textHint,
+                          ),
+                        ),
+                      ),
               ),
             ],
           ),

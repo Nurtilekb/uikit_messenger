@@ -165,7 +165,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete),
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
                   onPressed: () {
                     showDialog(
                       context: context,
@@ -181,7 +181,10 @@ class _ChatsScreenState extends State<ChatsScreen> {
                               ).pop(), // Closes the dialog
                             ),
                             TextButton(
-                              child: Text('delete'.tr()),
+                              child: Text(
+                                'delete'.tr(),
+                                style: TextStyle(color: Colors.red),
+                              ),
                               onPressed: () {
                                 setState(() {
                                   _messages.removeWhere(
