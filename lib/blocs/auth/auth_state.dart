@@ -13,7 +13,7 @@ class AuthLoading extends AuthState {}
 class AuthAuthenticated extends AuthState {
   final UserModel user;
 
-  AuthAuthenticated(this.user);
+  AuthAuthenticated({required this.user});
 
   @override
   List<Object?> get props => [user];
