@@ -12,8 +12,6 @@ class AuthRepository {
 
   User? get currentUser => _firebaseAuth.currentUser;
 
-  Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
-
   Future<UserModel?> signInWithEmailAndPassword({
     required String email,
     required String password,
@@ -28,6 +26,29 @@ class AuthRepository {
         return await getUserData(credential.user!.uid);
       }
       return null;
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
+  Future<void> updateProfile({
+    required String uid,
+    required String name,
+  }) async {
+    try {
+      final currentUser = _firebaseAuth.currentUser;
+
+      await _firestore.collection('users').doc(uid).set({
+        'name': name,
+        'updatedAt': DateTime.now().toIso8601String(),
+      }, SetOptions(merge: true));
+
+      if (currentUser != null) {
+        if (name.trim().isNotEmpty) {
+          await currentUser.updateDisplayName(name.trim());
+        }
+        await currentUser.reload();
+      }
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
     }
@@ -100,26 +121,6 @@ class AuthRepository {
         return 'Слишком много попыток. Попробуйте позже';
       default:
         return 'Произошла ошибка: ${e.message}';
-    }
-  }
-
-  Future<void> ensureUserDocument(User user, {String? name}) async {
-    try {
-      final docRef = _firestore.collection('users').doc(user.uid);
-      final doc = await docRef.get();
-      if (!doc.exists) {
-        final userModel = UserModel(
-          id: user.uid,
-          name: name ?? user.displayName ?? 'User',
-          email: user.email ?? '',
-
-          isOnline: true,
-          createdAt: DateTime.now(),
-        );
-        await docRef.set(userModel.toJson());
-      }
-    } catch (e) {
-      // ignore errors here; caller can handle/log if needed
     }
   }
 }
