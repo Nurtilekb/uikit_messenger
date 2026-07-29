@@ -1,6 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uikit/blocs/auth/auth_bloc.dart';
+import 'package:uikit/blocs/auth/auth_event.dart';
 import 'package:uikit/router/app_router.dart';
 import 'package:uikit/widgets/app_text_field.dart';
 import 'package:uikit/theme/app_colors.dart';
@@ -91,9 +94,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildSignInButton(BuildContext context) {
     final colors = context.appColors;
     return ElevatedButton(
-      onPressed: () {
-        context.router.replaceAll([const HomeRoute()]);
-      },
+      onPressed: () => _handleSignIn(context),
+
       style: ElevatedButton.styleFrom(
         backgroundColor: colors.primaryDark,
         foregroundColor: colors.textOnPrimary,
@@ -157,6 +159,81 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _handleSignIn(BuildContext context) {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    // Проверка полей
+    final emailError = _validateEmail(email);
+    if (emailError != null) {
+      _showSnackBar(context, emailError, Colors.red);
+      return;
+    }
+
+    final passwordError = _validatePassword(password);
+    if (passwordError != null) {
+      _showSnackBar(context, passwordError, Colors.red);
+      return;
+    }
+
+    // Отправляем событие в Bloc
+    context.read<AuthBloc>().add(
+      SignInRequested(email: email, password: password),
+    );
+  }
+
+  String? _validateEmail(String email) {
+    if (email.isEmpty) {
+      return 'Please enter your email';
+    }
+
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+
+    if (!emailRegex.hasMatch(email)) {
+      return 'Please enter a valid email address';
+    }
+
+    return null;
+  }
+
+  String? _validatePassword(String password) {
+    if (password.isEmpty) {
+      return 'Please enter your password';
+    }
+
+    if (password.length < 6) {
+      return 'Password must be at least 6 characters';
+    }
+
+    return null;
+  }
+
+  void _showSnackBar(BuildContext context, String message, Color color) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              color == Colors.red ? Icons.error_outline : Icons.info_outline,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: color,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
       ),
     );
   }

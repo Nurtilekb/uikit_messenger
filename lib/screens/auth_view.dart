@@ -123,7 +123,10 @@ class _AuthScreenState extends State<AuthScreen>
                 controller: _tabController,
                 children: [
                   LoginScreen(),
-                  RegisterScreen(forLogin: _forLogin(colors)),
+                  RegisterScreen(
+                    forLogin: _forLogin(colors),
+                    onLoginTap: _switchToLogin.call,
+                  ),
                 ],
               ),
             ),

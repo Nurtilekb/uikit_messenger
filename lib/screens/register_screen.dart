@@ -1,11 +1,20 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uikit/blocs/auth/auth_bloc.dart';
+import 'package:uikit/blocs/auth/auth_event.dart';
 import 'package:uikit/widgets/app_text_field.dart';
 import 'package:uikit/theme/app_colors.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key, required this.forLogin});
+  const RegisterScreen({
+    super.key,
+    required this.forLogin,
+    required this.onLoginTap,
+  });
   final Widget forLogin;
+  final VoidCallback onLoginTap;
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -99,7 +108,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () => _handleSignUp(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
                   foregroundColor: colors.textOnPrimary,
@@ -145,6 +154,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 20),
           ],
         ),
+      ),
+    );
+  }
+
+  void _handleSignUp(BuildContext context) {
+    final name = _nameController.text.trim();
+    final email = _registrEmailController.text.trim();
+    final password = _registrpasswordController.text.trim();
+    if (name.isEmpty) {
+      _showSnackBar(context, 'Please enter your full name', Colors.red);
+      return;
+    }
+    if (email.isEmpty) {
+      _showSnackBar(context, 'Please enter your email', Colors.red);
+      return;
+    }
+    if (!email.contains('@') || !email.contains('.')) {
+      _showSnackBar(context, 'Please enter a valid email', Colors.red);
+      return;
+    }
+    if (password.isEmpty) {
+      _showSnackBar(context, 'Please enter a password', Colors.red);
+      return;
+    }
+
+    if (password.length < 6) {
+      _showSnackBar(
+        context,
+        'Password must be at least 6 characters',
+        Colors.red,
+      );
+      return;
+    }
+
+    print('Sign up with: $name, $email, $password');
+
+    _showSnackBar(context, 'Account created successfully!', Colors.green);
+    context.read<AuthBloc>().add(
+      SignUpRequested(email: email, password: password, fullName: name),
+    );
+    Future.delayed(const Duration(seconds: 1), () {
+      widget.onLoginTap.call();
+    });
+  }
+
+  void _showSnackBar(BuildContext context, String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
