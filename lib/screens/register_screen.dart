@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uikit/blocs/auth/auth_bloc.dart';
 import 'package:uikit/blocs/auth/auth_event.dart';
@@ -63,6 +62,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 if (value == null || value.isEmpty) {
                   return 'fullname2'.tr();
                 }
+                return null;
               },
             ),
             const SizedBox(height: 16),
@@ -187,8 +187,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       return;
     }
-
-    print('Sign up with: $name, $email, $password');
 
     _showSnackBar(context, 'Account created successfully!', Colors.green);
     context.read<AuthBloc>().add(

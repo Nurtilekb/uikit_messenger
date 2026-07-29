@@ -158,12 +158,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
               title: Text('${selectedMessageIds.length}'),
               actions: [
                 IconButton(icon: const Icon(Icons.reply), onPressed: () {}),
-                IconButton(
-                  icon: const Icon(Icons.copy),
-                  onPressed: () {
-                    print('You copied the messages');
-                  },
-                ),
+                IconButton(icon: const Icon(Icons.copy), onPressed: () {}),
                 IconButton(
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
                   onPressed: () {

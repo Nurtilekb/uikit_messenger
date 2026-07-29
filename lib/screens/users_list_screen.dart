@@ -31,48 +31,46 @@ class UsersListScreen extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(24, 3, 24, 0),
-                child: Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: colors.surface,
-                        radius: 35,
-                        child: Center(
-                          child: Text(
-                            getInitials('name'),
-                            style: TextStyle(
-                              fontSize: 23,
-                              fontWeight: FontWeight(600),
-                            ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: colors.surface,
+                      radius: 35,
+                      child: Center(
+                        child: Text(
+                          getInitials('name'),
+                          style: TextStyle(
+                            fontSize: 23,
+                            fontWeight: FontWeight(600),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 14),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Name',
-                            maxLines: 1,
-                            style: TextStyle(
-                              overflow: TextOverflow.ellipsis,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: colors.textPrimary,
-                            ),
+                    ),
+                    const SizedBox(width: 14),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Name',
+                          maxLines: 1,
+                          style: TextStyle(
+                            overflow: TextOverflow.ellipsis,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: colors.textPrimary,
                           ),
-                          Text(
-                            'был(а) в 8:30',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: colors.textSecondary,
-                            ),
+                        ),
+                        Text(
+                          'был(а) в 8:30',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colors.textSecondary,
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               );
             },

@@ -49,14 +49,14 @@ class HomeAppBar2 extends StatelessWidget {
   final VoidCallback? _clearSelection;
   final VoidCallback? _deleteSelectedChats;
   final VoidCallback? _onArchive;
-  final Set<String> wefwef;
+  final Set<String> selectedChatIds;
   const HomeAppBar2({
     this.onTapSearch,
     super.key,
     this._clearSelection,
     this._deleteSelectedChats,
     this._onArchive,
-    required this.wefwef,
+    required this.selectedChatIds,
   });
 
   @override
@@ -69,7 +69,7 @@ class HomeAppBar2 extends StatelessWidget {
         onPressed: _clearSelection,
       ),
       title: Text(
-        'Выбрано: ${wefwef.length}',
+        'Выбрано: ${selectedChatIds.length}',
         style: TextStyle(color: colors.textPrimary),
       ),
       backgroundColor: colors.cardBackground,
