@@ -1,23 +1,41 @@
 ```
-# Dependencies
-.dart_tool/
-.build/
-.packages
+# Build artifacts
+*.dart.js
+*.js
+*.map
+build/
+*.so
+*.dylib
+*.dll
 
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-
-# Environment
+# Environment variables
 .env
 .env.local
-*.env.*
+.env.*
+.envrc
 
-# Editors
+# IDE files
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
 
 # Coverage
 coverage/
+*.coverage
+.pytest_cache/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+vendor/
 ```
