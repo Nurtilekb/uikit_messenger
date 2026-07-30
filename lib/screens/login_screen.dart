@@ -25,6 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -104,20 +105,25 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildSignInButton(BuildContext context) {
     final colors = context.appColors;
-    return ElevatedButton(
-      onPressed: () => _handleLogin(),
-
-      style: ElevatedButton.styleFrom(
-        backgroundColor: colors.primaryDark,
-        foregroundColor: colors.textOnPrimary,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 0,
-      ),
-      child: Text(
-        "login".tr(),
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-      ),
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        return ElevatedButton(
+          onPressed: state is AuthLoading ? null : _handleLogin,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colors.primaryDark,
+            foregroundColor: colors.textOnPrimary,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 0,
+          ),
+          child: Text(
+            "login".tr(),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+        );
+      },
     );
   }
 
@@ -137,46 +143,59 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildSocialIcon(IconData icon, String label) {
     final colors = context.appColors;
-    return InkWell(
-      onTap: () {},
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        width: MediaQuery.of(context).size.width,
-        height: 56,
-        decoration: BoxDecoration(
-          color: colors.googleButtonBackground,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: colors.googleButtonBorder, width: 1),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadiusGeometry.circular(16),
-              child: ColoredBox(
-                color: colors.surface,
-                child: Icon(icon, size: 28, color: colors.googleButtonIcon),
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        final isLoading = state is AuthLoading;
+
+        return Material(
+          child: InkWell(
+            onTap: () {
+              context.read<AuthBloc>().add(AuthGoogleRequested());
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+              width: double.infinity,
+              height: 56,
+              decoration: BoxDecoration(
+                color: colors.googleButtonBackground,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: colors.googleButtonBorder, width: 1),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (isLoading)
+                    const SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  else
+                    Icon(icon, size: 28, color: colors.googleButtonIcon),
+                  const SizedBox(width: 20),
+                  Text(
+                    isLoading ? "loading...".tr() : "signinwithGoogle".tr(),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 20),
-            Text(
-              "signinwithGoogle".tr(),
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: colors.textPrimary,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
   void _handleLogin() {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
+    final state = context.read<AuthBloc>().state;
+    if (state is AuthLoading) return;
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(

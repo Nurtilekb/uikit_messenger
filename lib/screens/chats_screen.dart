@@ -31,31 +31,31 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
   bool get _isSelectionMode => selectedMessageIds.isNotEmpty;
 
-  @override
-  void initState() {
-    super.initState();
-    _messages.addAll([
-      {'id': '1', 'text': 'Привет! Как дела?', 'isMe': false, 'time': '10:30'},
-      {
-        'id': '2',
-        'text': 'Привет! Все отлично, а у тебя?',
-        'isMe': true,
-        'time': '10:32',
-      },
-      {
-        'id': '3',
-        'text': 'Тоже хорошо! Чем занимаешься?',
-        'isMe': false,
-        'time': '10:35',
-      },
-      {
-        'id': '4',
-        'text': 'Работаю над новым проектом',
-        'isMe': true,
-        'time': '10:38',
-      },
-    ]);
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _messages.addAll([
+  //     {'id': '1', 'text': 'Привет! Как дела?', 'isMe': false, 'time': '10:30'},
+  //     {
+  //       'id': '2',
+  //       'text': 'Привет! Все отлично, а у тебя?',
+  //       'isMe': true,
+  //       'time': '10:32',
+  //     },
+  //     {
+  //       'id': '3',
+  //       'text': 'Тоже хорошо! Чем занимаешься?',
+  //       'isMe': false,
+  //       'time': '10:35',
+  //     },
+  //     {
+  //       'id': '4',
+  //       'text': 'Работаю над новым проектом',
+  //       'isMe': true,
+  //       'time': '10:38',
+  //     },
+  //   ]);
+  // }
 
   @override
   void dispose() {
@@ -79,38 +79,38 @@ class _ChatsScreenState extends State<ChatsScreen> {
       _messageController.clear();
     });
     _scrollToBottom();
-    _autoReply();
+    // _autoReply();
   }
 
-  void _autoReply() {
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted && widget.isOnline == true) {
-        setState(() {
-          _messages.add({
-            'id': DateTime.now().millisecondsSinceEpoch.toString(),
-            'text': _getRandomReply(),
-            'isMe': false,
-            'time': _getCurrentTime(),
-          });
-        });
-        _scrollToBottom();
-      }
-    });
-  }
+  // void _autoReply() {
+  //   Future.delayed(const Duration(seconds: 1), () {
+  //     if (mounted && widget.isOnline == true) {
+  //       setState(() {
+  //         _messages.add({
+  //           'id': DateTime.now().millisecondsSinceEpoch.toString(),
+  //           'text': _getRandomReply(),
+  //           'isMe': false,
+  //           'time': _getCurrentTime(),
+  //         });
+  //       });
+  //       _scrollToBottom();
+  //     }
+  //   });
+  // }
 
-  String _getRandomReply() {
-    final replies = [
-      'Понял, интересно!',
-      'Ого, круто!',
-      'Давай обсудим позже',
-      'Хорошо, договорились!',
-      'Спасибо за информацию!',
-      'Отлично, жду!',
-      'Понял, сделаем',
-      'Супер!',
-    ];
-    return replies[DateTime.now().millisecond % replies.length];
-  }
+  // String _getRandomReply() {
+  //   final replies = [
+  //     'Понял, интересно!',
+  //     'Ого, круто!',
+  //     'Давай обсудим позже',
+  //     'Хорошо, договорились!',
+  //     'Спасибо за информацию!',
+  //     'Отлично, жду!',
+  //     'Понял, сделаем',
+  //     'Супер!',
+  //   ];
+  //   return replies[DateTime.now().millisecond % replies.length];
+  // }
 
   String _getCurrentTime() {
     final now = DateTime.now();
@@ -171,9 +171,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
                           actions: <Widget>[
                             TextButton(
                               child: Text('cancel'.tr()),
-                              onPressed: () => Navigator.of(
-                                context,
-                              ).pop(), // Closes the dialog
+                              onPressed: () => Navigator.of(context).pop(),
                             ),
                             TextButton(
                               child: Text(

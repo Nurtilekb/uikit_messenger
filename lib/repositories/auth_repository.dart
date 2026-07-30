@@ -1,16 +1,86 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uikit/models/user_model.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthRepository {
   final FirebaseAuth _firebaseAuth;
   final FirebaseFirestore _firestore;
+  final GoogleSignIn _googleSignIn;
+  final String? _googleServerClientId;
+  bool _googleSignInInitialized = false;
 
-  AuthRepository({FirebaseAuth? firebaseAuth, FirebaseFirestore? firestore})
-    : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-      _firestore = firestore ?? FirebaseFirestore.instance;
+  AuthRepository({
+    FirebaseAuth? firebaseAuth,
+    FirebaseFirestore? firestore,
+    GoogleSignIn? googleSignIn,
+    String? googleServerClientId,
+  }) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+       _firestore = firestore ?? FirebaseFirestore.instance,
+       _googleSignIn = googleSignIn ?? GoogleSignIn.instance,
+       _googleServerClientId = googleServerClientId;
 
   User? get currentUser => _firebaseAuth.currentUser;
+
+  Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
+
+  Future<UserModel?> signInWithGoogle() async {
+    try {
+      if (!_googleSignInInitialized) {
+        await _googleSignIn.initialize(serverClientId: _googleServerClientId);
+        _googleSignInInitialized = true;
+      }
+
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
+
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
+      );
+      final firebaseUser = userCredential.user;
+      if (firebaseUser == null) {
+        throw FirebaseAuthException(
+          code: 'invalid-user',
+          message: 'Google sign in failed: Firebase user is null',
+        );
+      }
+
+      await _saveUserToFirestore(firebaseUser);
+      return await getUserData(firebaseUser.uid);
+    } catch (e, stackTrace) {
+      log('Google sign in failed', error: e, stackTrace: stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<void> _saveUserToFirestore(User user) async {
+    final doc = _firestore.collection('users').doc(user.uid);
+    final snapshot = await doc.get();
+
+    if (!snapshot.exists) {
+      await doc.set(
+        UserModel(
+          id: user.uid,
+          name: user.displayName ?? user.email ?? '',
+          email: user.email ?? '',
+          phoneNumber: user.phoneNumber,
+          createdAt: DateTime.now(),
+        ).toJson(),
+      );
+    } else {
+      await doc.update({
+        'phoneNumber': user.phoneNumber,
+        'name': user.displayName ?? user.email ?? '',
+        'email': user.email,
+      });
+    }
+  }
 
   Future<UserModel?> signInWithEmailAndPassword({
     required String email,
@@ -88,6 +158,7 @@ class AuthRepository {
 
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
+    await _googleSignIn.signOut();
   }
 
   Future<UserModel?> getUserData(String uid) async {

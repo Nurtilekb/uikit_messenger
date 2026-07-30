@@ -15,6 +15,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLogoutRequested>(_onAuthLogoutRequested);
     on<UpdateProfileRequested>(_onUpdateProfileRequested);
     on<AuthRestoreRequested>(_onRestore);
+    on<AuthGoogleRequested>(_onGoogleLogin);
   }
 
   void _onAuthLoginRequested(
@@ -126,6 +127,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     try {
+      await Future.delayed(const Duration(seconds: 1));
+
       await _authRepository.signOut();
       emit(AuthUnauthenticated());
     } catch (e) {
@@ -154,6 +157,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           );
           emit(AuthAuthenticated(user: tempUser));
         }
+      } else {
+        emit(AuthUnauthenticated());
+      }
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
+
+  FutureOr<void> _onGoogleLogin(
+    AuthGoogleRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+
+    try {
+      print('Google handler running');
+      final userModel = await _authRepository.signInWithGoogle();
+
+      if (userModel != null) {
+        emit(AuthAuthenticated(user: userModel));
       } else {
         emit(AuthUnauthenticated());
       }

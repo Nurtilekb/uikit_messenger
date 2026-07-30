@@ -88,52 +88,65 @@ class _UsersListScreenState extends State<UsersListScreen> {
               return ListView.separated(
                 itemBuilder: (BuildContext context, int index) {
                   final user = _users[index];
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 3, 24, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: colors.surface,
-                          radius: 35,
-                          child: Center(
-                            child: Text(
-                              user.initials,
-                              style: const TextStyle(
-                                fontSize: 23,
-                                fontWeight: FontWeight.w600,
+                  return InkWell(
+                    onTap: () {
+                      context.router.push(
+                        ChatsRoute(
+                          numName: user.name,
+                          isOnline: user.isOnline,
+                          imageAvatar: '',
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 7, 24, 7),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: colors.surface,
+                            radius: 35,
+                            child: Center(
+                              child: Text(
+                                user.initials,
+                                style: const TextStyle(
+                                  fontSize: 23,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                user.name.isNotEmpty ? user.name : 'No Name',
-                                maxLines: 1,
-                                style: TextStyle(
-                                  overflow: TextOverflow.ellipsis,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: colors.textPrimary,
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  user.name.isNotEmpty ? user.name : 'No Name',
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    overflow: TextOverflow.ellipsis,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: colors.textPrimary,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                user.email.isNotEmpty ? user.email : 'No Email',
-                                maxLines: 1,
-                                style: TextStyle(
-                                  overflow: TextOverflow.ellipsis,
-                                  fontSize: 12,
-                                  color: colors.textSecondary,
+                                Text(
+                                  user.email.isNotEmpty
+                                      ? user.email
+                                      : 'No Email',
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    overflow: TextOverflow.ellipsis,
+                                    fontSize: 12,
+                                    color: colors.textSecondary,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 },

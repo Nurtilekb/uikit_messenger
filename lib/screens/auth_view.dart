@@ -40,7 +40,7 @@ class _AuthScreenState extends State<AuthScreen>
   }
 
   void _switchToLogin() {
-    _tabController.animateTo(0); // Переключаем на вкладку "Вход"
+    _tabController.animateTo(0);
   }
 
   @override
