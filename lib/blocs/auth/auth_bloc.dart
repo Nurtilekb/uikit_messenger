@@ -141,6 +141,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     try {
+      emit(GetUserLoading());
       final user = _authRepository.currentUser;
 
       if (user != null) {
@@ -172,7 +173,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     try {
-      print('Google handler running');
       final userModel = await _authRepository.signInWithGoogle();
 
       if (userModel != null) {
