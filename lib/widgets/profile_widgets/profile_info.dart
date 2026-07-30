@@ -3,7 +3,7 @@ import 'package:uikit/theme/app_colors.dart';
 
 class ProfileInfo extends StatefulWidget {
   final String name;
-  final ValueChanged<bool>? onChanged;
+  final ValueChanged<String>? onChanged;
 
   final String email;
 
@@ -27,13 +27,31 @@ class _ProfileInfoState extends State<ProfileInfo> {
     super.initState();
     _emailController.text = widget.email;
     _titleController.text = widget.name;
+    _titleController.addListener(_handleNameChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant ProfileInfo oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.name != widget.name && _titleController.text != widget.name) {
+      _titleController.text = widget.name;
+    }
+    if (oldWidget.email != widget.email &&
+        _emailController.text != widget.email) {
+      _emailController.text = widget.email;
+    }
   }
 
   @override
   void dispose() {
+    _titleController.removeListener(_handleNameChanged);
     _titleController.dispose();
     _emailController.dispose();
     super.dispose();
+  }
+
+  void _handleNameChanged() {
+    widget.onChanged?.call(_titleController.text);
   }
 
   @override

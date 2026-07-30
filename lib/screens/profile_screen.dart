@@ -24,8 +24,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool isSwitched = false;
   bool _hasProfileChanges = false;
-  String _name = '';
-  String _email = '';
+  String _draftName = '';
 
   @override
   Widget build(BuildContext context) {
@@ -74,10 +73,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ProfileInfo(
                       name: user?.name ?? '',
                       email: user?.email ?? '',
+                      onChanged: (value) {
+                        final trimmedValue = value.trim();
+                        final originalName = (user?.name ?? '').trim();
 
-                      onChanged: (hasChanges) {
                         setState(() {
-                          _hasProfileChanges = hasChanges;
+                          _draftName = value;
+                          _hasProfileChanges =
+                              trimmedValue.isNotEmpty &&
+                              trimmedValue != originalName;
                         });
                       },
                     ),
@@ -116,8 +120,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           builder: (context, state) {
             final user = state is AuthAuthenticated ? state.user : null;
             return ProfileAvatar(
-              initials:
-                  '${user!.name.isNotEmpty ? user!.name.split(' ').map((s) => s[0]).join() : ''}',
+              initials: user != null && user.name.isNotEmpty
+                  ? user.name.split(' ').map((s) => s[0]).join()
+                  : '',
             );
           },
         ),
@@ -131,18 +136,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
-    final trimmedName = _name.trim();
+    final nameToSave = _draftName.trim();
 
-    if (trimmedName.isEmpty) {
+    if (nameToSave.isEmpty) {
       setState(() {
         _hasProfileChanges = false;
       });
       return;
     }
 
-    context.read<AuthBloc>().add(
-      UpdateProfileRequested(name: trimmedName.isEmpty ? 'User' : trimmedName),
-    );
+    context.read<AuthBloc>().add(UpdateProfileRequested(name: nameToSave));
 
     setState(() {
       _hasProfileChanges = false;
