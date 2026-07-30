@@ -109,11 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    ProfileLogoutButton(
-                      onTap: () {
-                        context.read<AuthBloc>().add(AuthLogoutRequested());
-                      },
-                    ),
+                    ProfileLogoutButton(),
                   ],
                 ),
               );
