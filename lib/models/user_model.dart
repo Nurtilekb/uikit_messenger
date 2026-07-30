@@ -7,9 +7,7 @@ class UserModel extends Equatable {
   final String email;
 
   final bool isOnline;
-  final DateTime? lastSeen;
-  final String? phoneNumber;
-  final String? status;
+
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -19,9 +17,7 @@ class UserModel extends Equatable {
     this.email = '',
 
     this.isOnline = false,
-    this.lastSeen,
-    this.phoneNumber,
-    this.status,
+
     required this.createdAt,
     this.updatedAt,
   });
@@ -33,11 +29,7 @@ class UserModel extends Equatable {
       email: json['email'] ?? '',
 
       isOnline: json['isOnline'] ?? false,
-      lastSeen: json['lastSeen'] != null
-          ? DateTime.parse(json['lastSeen'])
-          : null,
-      phoneNumber: json['phoneNumber'],
-      status: json['status'],
+
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
@@ -53,9 +45,7 @@ class UserModel extends Equatable {
       'name': name,
       'email': email,
       'isOnline': isOnline,
-      'lastSeen': lastSeen?.toIso8601String(),
-      'phoneNumber': phoneNumber,
-      'status': status,
+
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };
@@ -77,9 +67,7 @@ class UserModel extends Equatable {
       name: name ?? this.name,
       email: email ?? this.email,
       isOnline: isOnline ?? this.isOnline,
-      lastSeen: lastSeen ?? this.lastSeen,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
-      status: status ?? this.status,
+
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -93,15 +81,5 @@ class UserModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-    id,
-    name,
-    email,
-    isOnline,
-    lastSeen,
-    phoneNumber,
-    status,
-    createdAt,
-    updatedAt,
-  ];
+  List<Object?> get props => [id, name, email, isOnline, createdAt, updatedAt];
 }

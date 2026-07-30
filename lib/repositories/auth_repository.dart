@@ -69,7 +69,6 @@ class AuthRepository {
           id: user.uid,
           name: user.displayName ?? user.email ?? '',
           email: user.email ?? '',
-          phoneNumber: user.phoneNumber,
           createdAt: DateTime.now(),
         ).toJson(),
       );
