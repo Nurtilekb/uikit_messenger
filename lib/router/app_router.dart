@@ -6,6 +6,7 @@ import 'package:uikit/screens/chats_screen.dart';
 import 'package:uikit/screens/home_screen.dart';
 import 'package:uikit/screens/profile_screen.dart';
 import 'package:uikit/screens/search_users_screen.dart';
+import 'package:uikit/screens/splash_screen.dart';
 import 'package:uikit/screens/users_list_screen.dart';
 
 part 'app_router.gr.dart';
@@ -16,12 +17,13 @@ class AppRouter extends RootStackRouter {
 
   @override
   List<AutoRoute> get routes => [
-    AutoRoute(page: AuthRoute.page, initial: true),
+    AutoRoute(page: AuthRoute.page),
 
     AutoRoute(page: HomeRoute.page, guards: [authGuard]),
     AutoRoute(page: ProfileRoute.page, guards: [authGuard]),
     AutoRoute(page: SearchRoute.page, guards: [authGuard]),
     AutoRoute(page: UsersListRoute.page, guards: [authGuard]),
     AutoRoute(page: ChatsRoute.page, guards: [authGuard]),
+    AutoRoute(page: SplashRoute.page, initial: true),
   ];
 }
