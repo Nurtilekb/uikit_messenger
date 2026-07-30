@@ -22,7 +22,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool isSwitched = false;
   bool _hasProfileChanges = false;
   String _draftName = '';
 
@@ -56,7 +55,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-
               const SizedBox(width: 8),
             ],
           ),
@@ -74,15 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       name: user?.name ?? '',
                       email: user?.email ?? '',
                       onChanged: (value) {
-                        final trimmedValue = value.trim();
-                        final originalName = (user?.name ?? '').trim();
-
-                        setState(() {
-                          _draftName = value;
-                          _hasProfileChanges =
-                              trimmedValue.isNotEmpty &&
-                              trimmedValue != originalName;
-                        });
+                        _handleNameChanged(value);
                       },
                     ),
                     Padding(
@@ -97,9 +87,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     BlocBuilder<ThemeCubit, ThemeState>(
-                      builder: (context, state) {
+                      builder: (context, themeState) {
                         return ProfileSettings(
-                          isDarkMode: state.isDarkMode,
+                          isDarkMode: themeState.isDarkMode,
                           onDarkModeChanged: (value) {
                             context.read<ThemeCubit>().setTheme(value);
                             _saveThemeMode(value);
@@ -109,14 +99,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    ProfileLogoutButton(),
+                    const ProfileLogoutButton(),
                   ],
                 ),
               );
             },
           ),
         ),
-
         BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             final user = state is AuthAuthenticated ? state.user : null;
@@ -131,6 +120,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void _handleNameChanged(String value) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final authState = context.read<AuthBloc>().state;
+        if (authState is! AuthAuthenticated) {
+          setState(() {
+            _hasProfileChanges = false;
+            _draftName = '';
+          });
+          return;
+        }
+        final trimmedValue = value.trim();
+        final originalName = authState.user.name.trim();
+        setState(() {
+          _draftName = value;
+          _hasProfileChanges =
+              trimmedValue.isNotEmpty && trimmedValue != originalName;
+        });
+      }
+    });
+  }
+
   Future<void> _saveThemeMode(bool isDarkMode) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isDarkMode', isDarkMode);
@@ -142,6 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (nameToSave.isEmpty) {
       setState(() {
         _hasProfileChanges = false;
+        _draftName = '';
       });
       return;
     }
@@ -153,9 +165,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
 
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Изменения сохранены')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Изменения сохранены'),
+          backgroundColor: Colors.green,
+        ),
+      );
     }
   }
 }
