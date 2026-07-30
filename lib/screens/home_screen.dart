@@ -39,9 +39,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onArchive() {
     setState(() {
-      chats.where((chat) => selectedChatIds.contains(chat.id)).toList();
+      chats.where((chat) => selectedChatIds.contains(chat.chatID)).toList();
 
-      chats.removeWhere((chat) => selectedChatIds.contains(chat.id));
+      chats.removeWhere((chat) => selectedChatIds.contains(chat.chatID));
       selectedChatIds.clear();
     });
   }
@@ -64,7 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
           TextButton(
             onPressed: () {
               setState(() {
-                chats.removeWhere((chat) => selectedChatIds.contains(chat.id));
+                chats.removeWhere(
+                  (chat) => selectedChatIds.contains(chat.chatID),
+                );
                 selectedChatIds.clear();
               });
               Navigator.pop(context);
@@ -86,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
       avatar: '',
       unreadCount: 3,
       isOnline: true,
-      id: '1',
+      chatID: '1',
     ),
     Chat(
       name: 'Aigerim',
@@ -95,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
       avatar: '',
       unreadCount: 0,
       isOnline: false,
-      id: '2',
+      chatID: '2',
     ),
     Chat(
       name: 'Bekzat',
@@ -104,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
       avatar: '',
       unreadCount: 5,
       isOnline: true,
-      id: '3',
+      chatID: '3',
     ),
     Chat(
       name: 'Daniyar Ermatov',
@@ -113,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
       avatar: '',
       unreadCount: 1,
       isOnline: false,
-      id: '4',
+      chatID: '4',
     ),
     Chat(
       name: 'Aizhan Matraimova',
@@ -122,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
       avatar: '',
       unreadCount: 0,
       isOnline: true,
-      id: '5',
+      chatID: '5',
     ),
     Chat(
       name: 'Ruslan',
@@ -131,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
       avatar: '',
       unreadCount: 2,
       isOnline: false,
-      id: '6',
+      chatID: '6',
     ),
   ];
 
@@ -167,12 +169,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   separatorBuilder: (_, _) => const SizedBox(height: 5),
                   itemBuilder: (context, index) {
                     final chat = chats[index];
-                    final isSelected = selectedChatIds.contains(chat.id);
+                    final isSelected = selectedChatIds.contains(chat.chatID);
 
                     return UserTile(
                       onTap: () {
                         if (_isSelectionMode) {
-                          _toggleSelection(chat.id);
+                          _toggleSelection(chat.chatID);
                         } else {
                           context.router.push(
                             ChatsRoute(
@@ -184,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
                       },
                       onlongPress: () {
-                        _toggleSelection(chat.id);
+                        _toggleSelection(chat.chatID);
                       },
                       name: chat.name,
                       lastMessage: chat.lastMessage,

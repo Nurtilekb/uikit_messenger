@@ -5,13 +5,13 @@ class Chat {
   final String time;
   final int unreadCount;
   final bool isOnline;
-  final String id;
+  final String chatID;
 
   Chat({
     this.avatar = '',
     this.unreadCount = 0,
     this.isOnline = false,
-    required this.id,
+    required this.chatID,
     required this.name,
     required this.lastMessage,
     required this.time,
@@ -22,7 +22,7 @@ class Chat {
       avatar: json['avatar'] ?? '',
       unreadCount: json['unreadCount'] ?? 0,
       isOnline: json['isOnline'] ?? false,
-      id: json['id'] ?? '',
+      chatID: json['chatID'] ?? '',
       name: json['name'] ?? '',
       lastMessage: json['lastMessage'] ?? '',
       time: json['time'] ?? '',
@@ -34,7 +34,7 @@ class Chat {
       'avatar': avatar,
       'unreadCount': unreadCount,
       'isOnline': isOnline,
-      'id': id,
+      'chatID': chatID,
       'name': name,
       'lastMessage': lastMessage,
       'time': time,
