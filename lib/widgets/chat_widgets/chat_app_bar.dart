@@ -25,10 +25,6 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       titleSpacing: 0,
       actionsPadding: const EdgeInsets.only(right: 8),
-      leading: IconButton(
-        onPressed: () => Navigator.pop(context),
-        icon: Icon(Icons.arrow_back, color: colors.iconPrimary, size: 28),
-      ),
       actions: [
         PopupMenuButton<String>(
           color: Colors.white,
