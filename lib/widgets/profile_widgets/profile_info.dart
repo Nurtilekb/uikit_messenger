@@ -20,12 +20,10 @@ class ProfileInfo extends StatefulWidget {
 
 class _ProfileInfoState extends State<ProfileInfo> {
   final _titleController = TextEditingController();
-  final _emailController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _emailController.text = widget.email;
     _titleController.text = widget.name;
     _titleController.addListener(_handleNameChanged);
   }
@@ -36,17 +34,12 @@ class _ProfileInfoState extends State<ProfileInfo> {
     if (oldWidget.name != widget.name && _titleController.text != widget.name) {
       _titleController.text = widget.name;
     }
-    if (oldWidget.email != widget.email &&
-        _emailController.text != widget.email) {
-      _emailController.text = widget.email;
-    }
   }
 
   @override
   void dispose() {
     _titleController.removeListener(_handleNameChanged);
     _titleController.dispose();
-    _emailController.dispose();
     super.dispose();
   }
 
@@ -92,21 +85,14 @@ class _ProfileInfoState extends State<ProfileInfo> {
               height: 50,
               width: 300,
               child: Center(
-                child: TextField(
-                  autofocus: false,
-                  controller: _emailController,
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
+                child: Text(
+                  widget.email,
                   style: TextStyle(
                     color: colors.textSecondary,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
                   ),
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    isCollapsed: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
+                  maxLines: 1,
                 ),
               ),
             ),
