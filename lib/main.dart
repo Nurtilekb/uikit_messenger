@@ -41,7 +41,12 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => ThemeCubit()),
         BlocProvider(
           create: (context) {
-            final bloc = AuthBloc(authRepository: AuthRepository());
+            final bloc = AuthBloc(
+              authRepository: AuthRepository(
+                googleServerClientId:
+                    '317189993499-bfk3q30ilqubtabp6m5sgpi3fogtujh8.apps.googleusercontent.com',
+              ),
+            );
             bloc.add(AuthRestoreRequested());
             return bloc;
           },
