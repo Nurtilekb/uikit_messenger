@@ -1,19 +1,44 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uikit/blocs/auth/auth_bloc.dart';
+import 'package:uikit/blocs/auth/auth_event.dart';
 import 'package:uikit/theme/app_colors.dart';
 
 class ProfileLogoutButton extends StatelessWidget {
-  final VoidCallback? onTap;
-
-  const ProfileLogoutButton({super.key, this.onTap});
+  const ProfileLogoutButton({super.key});
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 10),
-      child: InkWell(
-        onTap: onTap,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: GestureDetector(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Выйти из аккаунта?'),
+              content: const Text('Вы уверены, что хотите выйти?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Отмена'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    context.read<AuthBloc>().add(AuthLogoutRequested());
+                  },
+                  child: const Text(
+                    'Выйти',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
         child: Container(
           width: double.infinity,
           height: 60,
