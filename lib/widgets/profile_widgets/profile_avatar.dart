@@ -13,6 +13,7 @@ class ProfileAvatar extends StatelessWidget {
       top: 125,
       left: MediaQuery.of(context).size.width / 2 - 60,
       child: Container(
+        padding: const EdgeInsets.all(20),
         height: 125,
         width: 125,
         decoration: BoxDecoration(
@@ -26,6 +27,8 @@ class ProfileAvatar extends StatelessWidget {
           child: Center(
             child: Text(
               initials,
+              maxLines: 1,
+              overflow: TextOverflow.clip,
               style: TextStyle(
                 fontSize: 43,
                 fontWeight: FontWeight.w600,
