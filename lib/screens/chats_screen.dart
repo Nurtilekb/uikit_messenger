@@ -42,23 +42,38 @@ class _ChatsScreenState extends State<ChatsScreen> {
     super.dispose();
   }
 
+  String _chatDocId(String userId1, String userId2) {
+    final ids = [userId1, userId2]..sort();
+    return ids.join('_');
+  }
+
   Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
     final currentUserId = _currentUserId;
 
     if (text.isEmpty || currentUserId == null) return;
 
-    try {
-      await FirebaseFirestore.instance
-          .collection('chats')
-          .doc('${widget.userId}_$currentUserId')
-          .collection('messages')
-          .add({
-            'text': text,
-            'senderId': currentUserId,
-            'sendAt': _getCurrentTime(),
-          });
+    final chatId = _chatDocId(widget.userId, currentUserId);
+    final chatDocRef = FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId);
 
+    try {
+      await chatDocRef.collection('messages').add({
+        'text': text,
+        'senderId': currentUserId,
+        'sendAt': _getCurrentTime(),
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      await chatDocRef.set({
+        'participantIds': [currentUserId, widget.userId],
+
+        'lastMessage': text,
+        'updatedAt': FieldValue.serverTimestamp(),
+
+        'senderId': currentUserId,
+      }, SetOptions(merge: true));
       _messageController.clear();
       _scrollToBottom();
     } catch (e) {
@@ -70,12 +85,12 @@ class _ChatsScreenState extends State<ChatsScreen> {
     final currentUserId = _currentUserId;
     if (currentUserId == null || selectedMessageIds.isEmpty) return;
 
-    final batch = FirebaseFirestore.instance.batch();
     final collectionRef = FirebaseFirestore.instance
         .collection('chats')
-        .doc('${widget.userId}_$currentUserId')
+        .doc(_chatDocId(widget.userId, currentUserId))
         .collection('messages');
 
+    final batch = FirebaseFirestore.instance.batch();
     for (final messageId in selectedMessageIds) {
       batch.delete(collectionRef.doc(messageId));
     }
@@ -133,9 +148,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
         ? const Stream<QuerySnapshot<Map<String, dynamic>>>.empty()
         : FirebaseFirestore.instance
               .collection('chats')
-              .doc('${widget.userId}_$currentUserId')
+              .doc(_chatDocId(widget.userId, currentUserId))
               .collection('messages')
-              .orderBy('sendAt', descending: false)
+              .orderBy('createdAt', descending: false)
               .snapshots();
 
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -174,8 +189,10 @@ class _ChatsScreenState extends State<ChatsScreen> {
                                     style: TextStyle(color: Colors.red),
                                   ),
                                   onPressed: () async {
+                                    final navigator = Navigator.of(context);
                                     await _deleteSelectedMessages();
-                                    if (mounted) Navigator.of(context).pop();
+                                    if (!mounted) return;
+                                    navigator.pop();
                                   },
                                 ),
                               ],
