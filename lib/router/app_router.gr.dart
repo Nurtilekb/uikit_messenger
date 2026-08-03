@@ -34,6 +34,7 @@ class ChatsRoute extends PageRouteInfo<ChatsRouteArgs> {
     required String numName,
     required bool isOnline,
     required String imageAvatar,
+    required String userId,
     List<PageRouteInfo>? children,
   }) : super(
          ChatsRoute.name,
@@ -42,6 +43,7 @@ class ChatsRoute extends PageRouteInfo<ChatsRouteArgs> {
            numName: numName,
            isOnline: isOnline,
            imageAvatar: imageAvatar,
+           userId: userId,
          ),
          initialChildren: children,
        );
@@ -57,6 +59,7 @@ class ChatsRoute extends PageRouteInfo<ChatsRouteArgs> {
         numName: args.numName,
         isOnline: args.isOnline,
         imageAvatar: args.imageAvatar,
+        userId: args.userId,
       );
     },
   );
@@ -68,6 +71,7 @@ class ChatsRouteArgs {
     required this.numName,
     required this.isOnline,
     required this.imageAvatar,
+    required this.userId,
   });
 
   final Key? key;
@@ -77,6 +81,8 @@ class ChatsRouteArgs {
   final bool isOnline;
 
   final String imageAvatar;
+
+  final String userId;
 
   @override
   String toString() {

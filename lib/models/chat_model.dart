@@ -1,43 +1,50 @@
-class Chat {
-  final String avatar;
+import 'package:equatable/equatable.dart';
+
+enum ChatStatus { active, archived, deleted }
+
+class Chat extends Equatable {
+  final String chatID;
   final String name;
   final String lastMessage;
-  final String time;
-  final int unreadCount;
-  final bool isOnline;
-  final String chatID;
+  final DateTime time;
+  final bool isSelected;
+  final ChatStatus status;
 
-  Chat({
-    this.avatar = '',
-    this.unreadCount = 0,
-    this.isOnline = false,
+  const Chat({
     required this.chatID,
     required this.name,
     required this.lastMessage,
     required this.time,
+    this.isSelected = false,
+    this.status = ChatStatus.active,
   });
 
-  factory Chat.fromJson(Map<String, dynamic> json) {
+  Chat copyWith({
+    String? chatID,
+    String? name,
+    String? lastMessage,
+    DateTime? time,
+    bool? isSelected,
+    ChatStatus? status,
+    String? avatarUrl,
+  }) {
     return Chat(
-      avatar: json['avatar'] ?? '',
-      unreadCount: json['unreadCount'] ?? 0,
-      isOnline: json['isOnline'] ?? false,
-      chatID: json['chatID'] ?? '',
-      name: json['name'] ?? '',
-      lastMessage: json['lastMessage'] ?? '',
-      time: json['time'] ?? '',
+      chatID: chatID ?? this.chatID,
+      name: name ?? this.name,
+      lastMessage: lastMessage ?? this.lastMessage,
+      time: time ?? this.time,
+      isSelected: isSelected ?? this.isSelected,
+      status: status ?? this.status,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'avatar': avatar,
-      'unreadCount': unreadCount,
-      'isOnline': isOnline,
-      'chatID': chatID,
-      'name': name,
-      'lastMessage': lastMessage,
-      'time': time,
-    };
-  }
+  @override
+  List<Object?> get props => [
+    chatID,
+    name,
+    lastMessage,
+    time,
+    isSelected,
+    status,
+  ];
 }
