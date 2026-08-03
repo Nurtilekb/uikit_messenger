@@ -1,14 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uikit/models/chat_model.dart';
+import 'package:uikit/repositories/user_repository.dart';
 
 class ChatRepository {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
+  final UserRepository _userRepository;
 
-  ChatRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
-    : _firestore = firestore ?? FirebaseFirestore.instance,
-      _auth = auth ?? FirebaseAuth.instance;
+  ChatRepository({
+    FirebaseFirestore? firestore,
+    FirebaseAuth? auth,
+    UserRepository? userRepository,
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _auth = auth ?? FirebaseAuth.instance,
+       _userRepository = userRepository ?? UserRepository();
 
   Stream<List<Chat>> streamChats() {
     final currentUserId = _auth.currentUser?.uid;
@@ -19,46 +25,41 @@ class ChatRepository {
         .where('participantIds', arrayContains: currentUserId)
         .orderBy('updatedAt', descending: true)
         .snapshots()
-        .map((snap) {
-          return snap.docs.map((doc) {
-            final data = doc.data();
-            final participantIds = <String>[];
-            if (data['participantIds'] is List) {
-              participantIds.addAll(List<String>.from(data['participantIds']));
-            }
-            final participantNames = <String, dynamic>{};
-            if (data['participantNames'] is Map) {
-              participantNames.addAll(
-                Map<String, dynamic>.from(data['participantNames']),
+        .asyncMap((snap) async {
+          final chats = <Chat>[];
+          for (final doc in snap.docs) {
+            final chat = Chat.fromFirestore(doc.data(), doc.id, currentUserId);
+            if (chat.name.isEmpty || chat.name == chat.otherUserId) {
+              final otherUserName = await _userRepository.getUserName(
+                chat.otherUserId,
               );
-            }
-
-            String otherId = '';
-            if (participantIds.isNotEmpty) {
-              otherId = participantIds.firstWhere(
-                (id) => id != currentUserId,
-                orElse: () => participantIds.first,
+              chats.add(
+                otherUserName != null && otherUserName.isNotEmpty
+                    ? chat.copyWith(name: otherUserName)
+                    : chat,
               );
+            } else {
+              chats.add(chat);
             }
-
-            final name = participantNames[otherId]?.toString() ?? otherId;
-            final lastMessage = data['lastMessage']?.toString() ?? '';
-
-            DateTime time = DateTime.now();
-            final updated = data['updatedAt'];
-            if (updated is Timestamp) {
-              time = updated.toDate();
-            } else if (updated is String) {
-              time = DateTime.tryParse(updated) ?? DateTime.now();
-            }
-
-            return Chat(
-              chatID: doc.id,
-              name: name,
-              lastMessage: lastMessage,
-              time: time,
-            );
-          }).toList();
+          }
+          return chats;
         });
+  }
+
+  Future<void> deleteChats(List<String> chatIds) async {
+    if (chatIds.isEmpty) return;
+
+    for (final chatId in chatIds) {
+      final chatDoc = _firestore.collection('chats').doc(chatId);
+      final messageSnapshot = await chatDoc.collection('messages').get();
+      final batch = _firestore.batch();
+
+      for (final messageDoc in messageSnapshot.docs) {
+        batch.delete(messageDoc.reference);
+      }
+      batch.delete(chatDoc);
+
+      await batch.commit();
+    }
   }
 }

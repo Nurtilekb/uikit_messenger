@@ -77,7 +77,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
       _messageController.clear();
       _scrollToBottom();
     } catch (e) {
-      print('Ошибка записи: $e');
+      debugPrint('Ошибка записи: $e');
     }
   }
 
@@ -98,7 +98,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
     try {
       await batch.commit();
     } catch (e) {
-      print('Ошибка удаления: $e');
+      debugPrint('Ошибка удаления: $e');
     }
 
     setState(() {
@@ -156,6 +156,20 @@ class _ChatsScreenState extends State<ChatsScreen> {
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: messageStream,
       builder: (context, asyncSnapshot) {
+        if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (asyncSnapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text('Ошибка загрузки сообщений: ${asyncSnapshot.error}'),
+            ),
+          );
+        }
+
         final docs = asyncSnapshot.data?.docs ?? [];
 
         return Scaffold(
@@ -214,39 +228,56 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 Expanded(
                   child: ColoredBox(
                     color: colors.chatBackground,
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      itemCount: docs.length,
-                      itemBuilder: (context, index) {
-                        final doc = docs[index];
-                        final message = doc.data();
-                        final isMe = message['senderId'] == currentUserId;
-                        final isSelected = selectedMessageIds.contains(doc.id);
+                    child: docs.isEmpty
+                        ? Center(
+                            child: Text(
+                              'Сообщений пока нет',
+                              style: TextStyle(color: colors.textSecondary),
+                            ),
+                          )
+                        : ListView.builder(
+                            controller: _scrollController,
+                            itemCount: docs.length,
+                            itemBuilder: (context, index) {
+                              final doc = docs[index];
+                              final message = doc.data();
+                              final isMe = message['senderId'] == currentUserId;
+                              final isSelected = selectedMessageIds.contains(
+                                doc.id,
+                              );
+                              final timeText =
+                                  message['sendAt'] ??
+                                  (message['createdAt'] is Timestamp
+                                      ? (message['createdAt'] as Timestamp)
+                                            .toDate()
+                                            .toLocal()
+                                            .toString()
+                                      : '');
 
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 1,
-                            vertical: 1,
-                          ),
-                          color: isSelected
-                              ? colors.primary.withValues(alpha: 0.1)
-                              : Colors.transparent,
-                          child: ChatMessageBubble(
-                            text: message['text'] ?? '',
-                            isMe: isMe,
-                            time: message['sendAt'] ?? '',
-                            onlongTap: () {
-                              _toggleSelection(doc.id);
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 1,
+                                  vertical: 1,
+                                ),
+                                color: isSelected
+                                    ? colors.primary.withValues(alpha: 0.1)
+                                    : Colors.transparent,
+                                child: ChatMessageBubble(
+                                  text: message['text'] ?? '',
+                                  isMe: isMe,
+                                  time: timeText,
+                                  onlongTap: () {
+                                    _toggleSelection(doc.id);
+                                  },
+                                  ontapp: () {
+                                    if (_isSelectionMode) {
+                                      _toggleSelection(doc.id);
+                                    }
+                                  },
+                                ),
+                              );
                             },
-                            ontapp: () {
-                              if (_isSelectionMode) {
-                                _toggleSelection(doc.id);
-                              }
-                            },
                           ),
-                        );
-                      },
-                    ),
                   ),
                 ),
                 ChatComposer(

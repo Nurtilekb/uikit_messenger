@@ -1,6 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/router/app_router.dart';
 import 'package:uikit/theme/app_colors.dart';
@@ -9,7 +7,6 @@ import 'package:uikit/widgets/empty_contacts_state.dart';
 import 'package:uikit/repositories/chat_repository.dart';
 import 'package:uikit/widgets/user_tile.dart';
 import 'package:uikit/models/chat_model.dart';
-import 'package:uikit/repositories/user_repository.dart';
 
 @RoutePage()
 class HomeScreen extends StatefulWidget {
@@ -41,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final ChatRepository _chatRepository = ChatRepository();
 
-  void _deleteSelectedChats(List<String> idsToDelete) {
+  void _deleteSelectedChats(List<String> idsToDelete) async {
     if (idsToDelete.isEmpty) return;
 
     showDialog(
@@ -59,9 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              // Вызываем удаление в репозитории
-
-              // Очищаем выделение после удаления
+              await _chatRepository.deleteChats(idsToDelete);
+              if (!mounted) return;
               _clearSelection();
             },
             child: const Text('Удалить', style: TextStyle(color: Colors.red)),
@@ -104,6 +100,8 @@ class _HomeScreenState extends State<HomeScreen> {
             // Передаем функции управления состоянием внутрь виджета со списком
             Expanded(
               child: ChatsList(
+                chatRepository: _chatRepository,
+                selectedChatIds: selectedChatIds,
                 isSelectionMode: _isSelectionMode,
                 onToggleSelection: _toggleSelection,
               ),
@@ -124,171 +122,84 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class ChatsList extends StatelessWidget {
+  final ChatRepository chatRepository;
   final bool isSelectionMode;
+  final Set<String> selectedChatIds;
   final Function(String) onToggleSelection;
 
-  final UserRepository _userRepository = UserRepository();
-
-  ChatsList({
+  const ChatsList({
     super.key,
+    required this.chatRepository,
+    required this.selectedChatIds,
     required this.isSelectionMode,
     required this.onToggleSelection,
   });
 
-  String? _currentUserId() => FirebaseAuth.instance.currentUser?.uid;
+  String _formatTimestamp(DateTime time) {
+    final now = DateTime.now();
+    final difference = now.difference(time);
+    if (difference.inDays == 0) {
+      return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    }
+    if (difference.inDays < 7) {
+      const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+      return days[time.weekday - 1];
+    }
+    return '${time.day}.${time.month}';
+  }
 
   @override
   Widget build(BuildContext context) {
-    final currentUserId = _currentUserId();
-
-    if (currentUserId == null) {
-      return const Center(child: Text('Пользователь не авторизован'));
-    }
-
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance
-          .collection('chats')
-          .where('participantIds', arrayContains: currentUserId)
-          .orderBy('updatedAt', descending: true)
-          .snapshots(),
+    return StreamBuilder<List<Chat>>(
+      stream: chatRepository.streamChats(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.hasError) {
-          print('Error loading chats: ${snapshot.error}');
           return Center(
             child: Text('Ошибка загрузки чатов: ${snapshot.error}'),
           );
         }
 
-        final docs = snapshot.data?.docs ?? [];
-
-        if (docs.isEmpty) {
+        final chats = snapshot.data ?? [];
+        if (chats.isEmpty) {
           return const Center(child: EmptyChatWidget());
         }
 
         return ListView.separated(
-          itemCount: docs.length,
+          itemCount: chats.length,
           separatorBuilder: (_, _) => const SizedBox(height: 5),
           itemBuilder: (context, index) {
-            final doc = docs[index];
-            final data = doc.data();
-            final chatId = doc.id;
+            final chat = chats[index];
+            final isSelected = selectedChatIds.contains(chat.chatID);
 
-            // Извлекаем данные
-            final participantIds = List<String>.from(
-              data['participantIds'] ?? [],
-            );
-            final lastMessage = data['lastMessage'] ?? '';
-            final updatedAt = data['updatedAt'] as Timestamp?;
-
-            String otherUserId = participantIds.firstWhere(
-              (id) => id != currentUserId,
-              orElse: () =>
-                  participantIds.isNotEmpty ? participantIds.first : '',
-            );
-
-            final rawName = (data['name'] as String?)?.trim();
-            final avatarUrl = data['avatarUrl'] ?? '';
-            final isOnline =
-                false; // Статус онлайн нужно хранить отдельно или вычислять
-            final unreadCount = data['unreadCount'] ?? 0;
-
-            // Форматируем время
-            String timeString = '';
-            if (updatedAt != null) {
-              final date = updatedAt.toDate();
-              final now = DateTime.now();
-              final difference = now.difference(date);
-
-              if (difference.inDays == 0) {
-                timeString =
-                    '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-              } else if (difference.inDays < 7) {
-                const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-                timeString = days[date.weekday - 1];
-              } else {
-                timeString = '${date.day}.${date.month}';
-              }
-            }
-
-            final isSelected =
-                isSelectionMode &&
-                (context
-                        .findAncestorStateOfType<_HomeScreenState>()
-                        ?.selectedChatIds
-                        .contains(chatId) ??
-                    false);
-
-            final Widget tileWidget;
-            if (rawName != null && rawName.isNotEmpty) {
-              tileWidget = UserTile(
-                onTap: () {
-                  if (isSelectionMode) {
-                    onToggleSelection(chatId);
-                  } else {
-                    context.router.push(
-                      ChatsRoute(
-                        numName: rawName,
-                        userId: chatId,
-                        isOnline: false,
-                        imageAvatar: '',
-                      ),
-                    );
-                  }
-                },
-                name: rawName,
-                lastMessage: lastMessage,
-                isOnline: isOnline,
-                unreadCount: unreadCount,
-                avatarUrl: avatarUrl,
-                time: timeString,
-                isSelected: isSelected,
-                onlongPress: () {
-                  onToggleSelection(chatId);
-                },
-              );
-            } else {
-              tileWidget = FutureBuilder(
-                future: _userRepository.getUserById(otherUserId),
-                builder: (context, AsyncSnapshot<dynamic> snap) {
-                  final resolvedName = snap.hasData && snap.data != null
-                      ? (snap.data!.name as String)
-                      : (otherUserId.isNotEmpty ? otherUserId : 'Unknown');
-
-                  return UserTile(
-                    onTap: () {
-                      if (isSelectionMode) {
-                        onToggleSelection(chatId);
-                      } else {
-                        context.router.push(
-                          ChatsRoute(
-                            numName: resolvedName,
-                            userId: chatId,
-                            isOnline: false,
-                            imageAvatar: avatarUrl,
-                          ),
-                        );
-                      }
-                    },
-                    name: resolvedName,
-                    lastMessage: lastMessage,
-                    isOnline: isOnline,
-                    unreadCount: unreadCount,
-                    avatarUrl: avatarUrl,
-                    time: timeString,
-                    isSelected: isSelected,
-                    onlongPress: () {
-                      onToggleSelection(chatId);
-                    },
+            return UserTile(
+              onTap: () {
+                if (isSelectionMode) {
+                  onToggleSelection(chat.chatID);
+                } else {
+                  context.router.push(
+                    ChatsRoute(
+                      numName: chat.name,
+                      userId: chat.otherUserId,
+                      isOnline: false,
+                      imageAvatar: chat.avatarUrl,
+                    ),
                   );
-                },
-              );
-            }
-
-            return tileWidget;
+                }
+              },
+              name: chat.name,
+              lastMessage: chat.lastMessage,
+              unreadCount: chat.unreadCount,
+              avatarUrl: chat.avatarUrl,
+              time: _formatTimestamp(chat.time),
+              isSelected: isSelected,
+              onlongPress: () {
+                onToggleSelection(chat.chatID);
+              },
+            );
           },
         );
       },

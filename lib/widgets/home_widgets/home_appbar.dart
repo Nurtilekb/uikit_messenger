@@ -6,7 +6,13 @@ import 'package:uikit/widgets/appbar_button.dart';
 class HomeAppBar extends StatelessWidget {
   final void Function()? onTapSearch;
   final VoidCallback? onTapProfile;
-  const HomeAppBar({this.onTapSearch, this.onTapProfile, super.key});
+  final VoidCallback? deleteSelectedChats;
+  const HomeAppBar({
+    this.onTapSearch,
+    this.onTapProfile,
+    this.deleteSelectedChats,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -45,17 +51,15 @@ class HomeAppBar extends StatelessWidget {
 }
 
 class HomeAppBar2 extends StatelessWidget {
-  final void Function()? onTapSearch;
-  final VoidCallback? _clearSelection;
-  final VoidCallback? _deleteSelectedChats;
-  final VoidCallback? _onArchive;
+  final VoidCallback? clearSelection;
+  final VoidCallback? deleteSelectedChats;
+  final VoidCallback? onArchive;
   final Set<String> selectedChatIds;
   const HomeAppBar2({
-    this.onTapSearch,
     super.key,
-    this._clearSelection,
-    this._deleteSelectedChats,
-    this._onArchive,
+    this.clearSelection,
+    this.deleteSelectedChats,
+    this.onArchive,
     required this.selectedChatIds,
   });
 
@@ -66,7 +70,7 @@ class HomeAppBar2 extends StatelessWidget {
     return AppBar(
       leading: IconButton(
         icon: Icon(Icons.close, color: colors.iconPrimary),
-        onPressed: _clearSelection,
+        onPressed: clearSelection,
       ),
       title: Text(
         'Выбрано: ${selectedChatIds.length}',
@@ -77,11 +81,11 @@ class HomeAppBar2 extends StatelessWidget {
       actions: [
         IconButton(
           icon: Icon(Icons.delete_outline, color: Colors.red),
-          onPressed: _deleteSelectedChats,
+          onPressed: deleteSelectedChats,
         ),
         IconButton(
           icon: Icon(Icons.archive_outlined, color: colors.iconPrimary),
-          onPressed: _onArchive,
+          onPressed: onArchive,
         ),
       ],
     );
