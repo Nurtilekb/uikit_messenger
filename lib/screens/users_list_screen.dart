@@ -95,6 +95,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                           numName: user.name,
                           isOnline: user.isOnline,
                           imageAvatar: '',
+                          userId: user.id,
                         ),
                       );
                     },
@@ -162,3 +163,62 @@ class _UsersListScreenState extends State<UsersListScreen> {
     );
   }
 }
+
+
+
+
+
+
+// class DatabaseService {
+//   final FirebaseFirestore _db = FirebaseFirestore.instance;
+
+//   // CREATE: Создать документ
+//   Future<Result<void>> createUser(User user) async {
+//     try {
+//       await _db.collection('users').doc(user.id).set(user.toMap());
+
+//       return Result.success(null);
+//     } catch (e) {
+//       return Result.failure('Failed to create user');
+//     }
+//   }
+
+//   // READ: Прочитать документ
+//   Future<Result<User>> getUser(String userId) async {
+//     try {
+//       final doc = await _db.collection('users').doc(userId).get();
+
+//       if (!doc.exists) {
+//         return Result.failure('User not found');
+//       }
+
+//       final user = User.fromMap(doc.data() as Map<String, dynamic>);
+
+//       return Result.success(user);
+//     } catch (e) {
+//       return Result.failure('Failed to get user');
+//     }
+//   }
+
+//   // UPDATE: Обновить документ
+//   Future<Result<void>> updateUser(User user) async {
+//     try {
+//       await _db.collection('users').doc(user.id).update(user.toMap());
+
+//       return Result.success(null);
+//     } catch (e) {
+//       return Result.failure('Failed to update user');
+//     }
+//   }
+
+//   // DELETE: Удалить документ
+//   Future<Result<void>> deleteUser(String userId) async {
+//     try {
+//       await _db.collection('users').doc(userId).delete();
+
+//       return Result.success(null);
+//     } catch (e) {
+//       return Result.failure('Failed to delete user');
+//     }
+//   }
+// }
