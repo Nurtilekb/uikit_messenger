@@ -1,4 +1,7 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:auto_route/auto_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:uikit/models/chat_model.dart';
@@ -84,55 +87,41 @@ class _HomeScreenState extends State<HomeScreen> {
     Chat(
       name: 'Kutman Sayitkanov',
       lastMessage: 'bro, go to gym today?',
-      time: '22 июня',
-      avatar: '',
-      unreadCount: 3,
-      isOnline: true,
+      time: DateTime.now().subtract(const Duration(days: 1)),
+
       chatID: '1',
     ),
     Chat(
       name: 'Aigerim',
       lastMessage: 'Спасибо за помощь! 😊',
-      time: 'Сегодня',
-      avatar: '',
-      unreadCount: 0,
-      isOnline: false,
+      time: DateTime.now(),
+
       chatID: '2',
     ),
     Chat(
       name: 'Bekzat',
       lastMessage: 'Когда встречаемся?',
-      time: 'Вчера',
-      avatar: '',
-      unreadCount: 5,
-      isOnline: true,
+      time: DateTime.now().subtract(const Duration(days: 1)),
+
       chatID: '3',
     ),
     Chat(
       name: 'Daniyar Ermatov',
       lastMessage: 'Мы можем с вами встретиться?',
-      time: '12:30',
-      avatar: '',
-      unreadCount: 1,
-      isOnline: false,
+      time: DateTime.now().subtract(const Duration(hours: 2)),
+
       chatID: '4',
     ),
     Chat(
       name: 'Aizhan Matraimova',
       lastMessage: 'Давай сегодя пойдем в ынтымак за ручки держась',
-      time: '11:45',
-      avatar: '',
-      unreadCount: 0,
-      isOnline: true,
+      time: DateTime.now().subtract(const Duration(minutes: 30)),
       chatID: '5',
     ),
     Chat(
       name: 'Ruslan',
       lastMessage: 'Где ты? Я уже на месте',
-      time: '10:00',
-      avatar: '',
-      unreadCount: 2,
-      isOnline: false,
+      time: DateTime.now().subtract(const Duration(hours: 1)),
       chatID: '6',
     ),
   ];
@@ -164,40 +153,42 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 10),
             if (chats.isNotEmpty)
               Expanded(
-                child: ListView.separated(
-                  itemCount: chats.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 5),
-                  itemBuilder: (context, index) {
-                    final chat = chats[index];
-                    final isSelected = selectedChatIds.contains(chat.chatID);
+                child: ChatsPage(),
+                // child: ListView.separated(
+                //   itemCount: chats.length,
+                //   separatorBuilder: (_, _) => const SizedBox(height: 5),
+                //   itemBuilder: (context, index) {
+                //     final chat = chats[index];
+                //     final isSelected = selectedChatIds.contains(chat.chatID);
 
-                    return UserTile(
-                      onTap: () {
-                        if (_isSelectionMode) {
-                          _toggleSelection(chat.chatID);
-                        } else {
-                          context.router.push(
-                            ChatsRoute(
-                              numName: chat.name,
-                              isOnline: chat.isOnline,
-                              imageAvatar: chat.avatar,
-                            ),
-                          );
-                        }
-                      },
-                      onlongPress: () {
-                        _toggleSelection(chat.chatID);
-                      },
-                      name: chat.name,
-                      lastMessage: chat.lastMessage,
-                      isOnline: chat.isOnline,
-                      unreadCount: chat.unreadCount,
-                      avatarUrl: chat.avatar,
-                      time: chat.time,
-                      isSelected: isSelected,
-                    );
-                  },
-                ),
+                //     return UserTile(
+                //       onTap: () {
+                //         if (_isSelectionMode) {
+                //           _toggleSelection(chat.chatID);
+                //         } else {
+                //           context.router.push(
+                //             ChatsRoute(
+                //               numName: chat.name,
+                //               isOnline: true,
+                //               imageAvatar: '',
+                //               userId: '${chat.chatID}',
+                //             ),
+                //           );
+                //         }
+                //       },
+                //       onlongPress: () {
+                //         _toggleSelection(chat.chatID);
+                //       },
+                //       name: chat.name,
+                //       lastMessage: chat.lastMessage,
+                //       isOnline: true,
+                //       unreadCount: 2,
+                //       avatarUrl: '',
+                //       time: chat.time.toString(),
+                //       isSelected: isSelected,
+                //     );
+                //   },
+                // ),
               ),
             if (chats.isEmpty) const Center(child: EmptyChatWidget()),
           ],
@@ -211,6 +202,58 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: Icon(Icons.add, color: colors.textOnPrimary),
       ),
+    );
+  }
+}
+
+class ChatsPage extends StatelessWidget {
+  ChatsPage({super.key});
+
+  final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> get chatsStream {
+    return FirebaseFirestore.instance
+        .collection('chats')
+        .where('participantIds', arrayContains: currentUserId)
+        .orderBy('updatedAt', descending: true)
+        .snapshots();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('chats')
+          .where('participantIds', arrayContains: currentUserId)
+          .orderBy('updatedAt', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final chats = snapshot.data!.docs;
+
+        return ListView.separated(
+          itemCount: chats.length,
+          separatorBuilder: (_, __) => const Divider(),
+          itemBuilder: (context, index) {
+            final chat = chats[index].data();
+
+            final participants = List<String>.from(chat['participantIds']);
+
+            final otherUserId = participants.firstWhere(
+              (id) => id != currentUserId,
+            );
+
+            return ListTile(
+              title: Text(otherUserId), // пока выводим uid
+              subtitle: Text(chat['lastMessage']),
+              onTap: () {},
+            );
+          },
+        );
+      },
     );
   }
 }
