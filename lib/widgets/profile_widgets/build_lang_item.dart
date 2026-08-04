@@ -17,7 +17,7 @@ class BuiltLangItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isSelected = currentSelected == text;
+    final isSelected = currentSelected == text;
 
     return InkWell(
       onTap: onTap,
