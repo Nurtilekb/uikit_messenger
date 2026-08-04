@@ -20,6 +20,7 @@ class HomeAppBar extends StatelessWidget {
     final themeStyle = Theme.of(context);
 
     return AppBar(
+      automaticallyImplyLeading: false,
       backgroundColor: colors.cardBackground,
       actionsPadding: const EdgeInsets.fromLTRB(0, 8, 16, 8),
       title: Text(

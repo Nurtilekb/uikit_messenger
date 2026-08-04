@@ -34,8 +34,22 @@ class _LoginScreenState extends State<LoginScreen> {
     final colors = context.appColors;
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
+        if (state is AuthLoading) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) =>
+                const Center(child: CircularProgressIndicator()),
+          );
+        } else {
+         
+          Navigator.of(context, rootNavigator: true).pop();
+        }
         if (state is AuthAuthenticated) {
-          context.router.replaceAll([const HomeRoute()]);
+          context.router.pushAndPopUntil(
+            HomeRoute(),
+            predicate: (route) => false,
+          );
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message), backgroundColor: Colors.red),
@@ -165,14 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (isLoading)
-                    const SizedBox(
-                      width: 28,
-                      height: 28,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  else
-                    Icon(icon, size: 28, color: colors.googleButtonIcon),
+                  Icon(icon, size: 28, color: colors.googleButtonIcon),
                   const SizedBox(width: 20),
                   Text(
                     isLoading ? "loading...".tr() : "signinwithGoogle".tr(),

@@ -19,13 +19,18 @@ class _SearchScreenState extends State<SearchScreen> {
     final colors = context.appColors;
     final getStyle = Theme.of(context);
 
+    final _searchController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         title: Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: AppInputWidget(
+            controller: _searchController,
             trailing: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).pop();
+                _searchController.clear();
+              },
               icon: Icon(Icons.cancel, color: colors.iconSecondary),
             ),
             leading: Icon(Icons.search, color: colors.iconSecondary),
