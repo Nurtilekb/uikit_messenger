@@ -7,39 +7,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/theme/app_colors.dart';
-import 'package:uikit/widgets/Chat_widgets/Chat_message_bubble.dart';
 import 'package:uikit/widgets/chat_widgets/chat_app_bar.dart';
 import 'package:uikit/widgets/chat_widgets/chat_composer.dart';
-
-int calculateUnreadCount(int currentCount, {required bool isIncomingMessage}) {
-  return isIncomingMessage ? currentCount + 1 : currentCount;
-}
-
-Future<void> updateUnreadCountForChat(
-  String chatId,
-  String currentUserId,
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> newMessages,
-) async {
-  if (newMessages.isEmpty || currentUserId.isEmpty) return;
-
-  final incomingMessages = newMessages.where((doc) {
-    final senderId = doc.data()['senderId']?.toString();
-    return senderId != null && senderId != currentUserId;
-  }).toList();
-
-  if (incomingMessages.isEmpty) return;
-
-  final chatDocRef = FirebaseFirestore.instance.collection('chats').doc(chatId);
-  await chatDocRef.set({
-    'unreadCount': FieldValue.increment(incomingMessages.length),
-  }, SetOptions(merge: true));
-}
-
-Future<void> resetUnreadCountForChat(String chatId) async {
-  await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
-    'unreadCount': 0,
-  }, SetOptions(merge: true));
-}
+import 'package:uikit/widgets/chat_widgets/chat_firestore_helpers.dart';
+import 'package:uikit/widgets/chat_widgets/chat_message_list.dart';
+import 'package:uikit/widgets/chat_widgets/chat_selection_app_bar.dart';
 
 @RoutePage()
 class ChatsScreen extends StatefulWidget {
@@ -81,9 +53,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
   void didUpdateWidget(covariant ChatsScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.userId != widget.userId) {
-      _lastMessageCount = 0;
-      selectedMessageIds.clear();
-      _initMessageStream();
+      _resetChatState();
     }
   }
 
@@ -92,10 +62,14 @@ class _ChatsScreenState extends State<ChatsScreen> {
     super.initState();
     _initMessageStream();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _markChatAsRead();
-      }
+      if (mounted) _markChatAsRead();
     });
+  }
+
+  void _resetChatState() {
+    _lastMessageCount = 0;
+    selectedMessageIds.clear();
+    _initMessageStream();
   }
 
   void _initMessageStream() {
@@ -110,10 +84,8 @@ class _ChatsScreenState extends State<ChatsScreen> {
               .snapshots(includeMetadataChanges: true);
   }
 
-  String _chatDocId(String userId1, String userId2) {
-    final ids = [userId1, userId2]..sort();
-    return ids.join('_');
-  }
+  String _chatDocId(String userId1, String userId2) =>
+      buildChatDocId(userId1, userId2);
 
   Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
@@ -204,7 +176,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
         _scrollController.animateTo(
           maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 1),
           curve: Curves.easeOut,
         );
       }
@@ -213,11 +185,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
   void _toggleSelection(String id) {
     setState(() {
-      if (selectedMessageIds.contains(id)) {
-        selectedMessageIds.remove(id);
-      } else {
-        selectedMessageIds.add(id);
-      }
+      selectedMessageIds.contains(id)
+          ? selectedMessageIds.remove(id)
+          : selectedMessageIds.add(id);
     });
   }
 
@@ -253,16 +223,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
         }
 
         final docs = snapshot.data?.docs ?? [];
-        if (docs.isNotEmpty &&
-            (docs.length > _lastMessageCount || _lastMessageCount == 0)) {
+        if (docs.isNotEmpty && _shouldScrollToBottom(docs.length)) {
           if (_lastMessageCount > 0 && currentUserId != null) {
-            unawaited(
-              updateUnreadCountForChat(
-                _chatDocId(widget.userId, currentUserId),
-                currentUserId,
-                docs.skip(_lastMessageCount).toList(),
-              ),
-            );
+            unawaited(_updateUnreadCount(currentUserId, docs));
           }
           _lastMessageCount = docs.length;
           _scrollToBottom();
@@ -278,22 +241,15 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 Expanded(
                   child: ColoredBox(
                     color: colors.chatBackground,
-                    child: docs.isEmpty
-                        ? Center(
-                            child: Text(
-                              'Сообщений пока нет',
-                              style: TextStyle(color: colors.textSecondary),
-                            ),
-                          )
-                        : ListView.builder(
-                            controller: _scrollController,
-                            itemCount: docs.length,
-                            itemBuilder: (_, index) => _buildMessageTile(
-                              docs[index],
-                              colors,
-                              currentUserId,
-                            ),
-                          ),
+                    child: ChatMessageList(
+                      docs: docs,
+                      colors: colors,
+                      currentUserId: currentUserId,
+                      selectedMessageIds: selectedMessageIds,
+                      isSelectionMode: _isSelectionMode,
+                      scrollController: _scrollController,
+                      onToggleSelection: _toggleSelection,
+                    ),
                   ),
                 ),
                 _isSelectionMode
@@ -311,20 +267,25 @@ class _ChatsScreenState extends State<ChatsScreen> {
   }
 
   PreferredSizeWidget _buildSelectionAppBar() {
-    return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.close),
-        onPressed: _clearSelection,
-      ),
-      title: Text('${selectedMessageIds.length}'),
-      actions: [
-        IconButton(icon: const Icon(Icons.reply), onPressed: () {}),
-        IconButton(icon: const Icon(Icons.copy), onPressed: () {}),
-        IconButton(
-          icon: const Icon(Icons.delete_outline, color: Colors.red),
-          onPressed: () => _showDeleteDialog(),
-        ),
-      ],
+    return ChatSelectionAppBar(
+      selectedCount: selectedMessageIds.length,
+      onClose: _clearSelection,
+      onDelete: _showDeleteDialog,
+    );
+  }
+
+  bool _shouldScrollToBottom(int currentLength) {
+    return currentLength > _lastMessageCount || _lastMessageCount == 0;
+  }
+
+  Future<void> _updateUnreadCount(
+    String currentUserId,
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) async {
+    await updateUnreadCountForChat(
+      _chatDocId(widget.userId, currentUserId),
+      currentUserId,
+      docs.skip(_lastMessageCount).toList(),
     );
   }
 
@@ -333,39 +294,6 @@ class _ChatsScreenState extends State<ChatsScreen> {
       userName: widget.numName,
       isOnline: widget.isOnline,
       avatarUrl: widget.imageAvatar,
-    );
-  }
-
-  Widget _buildMessageTile(
-    QueryDocumentSnapshot<Map<String, dynamic>> doc,
-    AppColors colors,
-    String? currentUserId,
-  ) {
-    final message = doc.data();
-    final isMe = message['senderId'] == currentUserId;
-    final isSelected = selectedMessageIds.contains(doc.id);
-    final timeText =
-        message['sendAt'] ??
-        (message['createdAt'] is Timestamp
-            ? (message['createdAt'] as Timestamp).toDate().toLocal().toString()
-            : '');
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
-      color: isSelected
-          ? colors.primary.withValues(alpha: 0.1)
-          : Colors.transparent,
-      child: ChatMessageBubble(
-        text: message['text'] ?? '',
-        isMe: isMe,
-        time: timeText,
-        onlongTap: () => _toggleSelection(doc.id),
-        ontapp: () {
-          if (_isSelectionMode) {
-            _toggleSelection(doc.id);
-          }
-        },
-      ),
     );
   }
 
