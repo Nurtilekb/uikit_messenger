@@ -31,6 +31,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
   final Set<String> selectedMessageIds = {};
+  int _lastMessageCount = 0;
 
   String? get _currentUserId => FirebaseAuth.instance.currentUser?.uid;
   bool get _isSelectionMode => selectedMessageIds.isNotEmpty;
@@ -40,6 +41,14 @@ class _ChatsScreenState extends State<ChatsScreen> {
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ChatsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.userId != widget.userId) {
+      _lastMessageCount = 0;
+    }
   }
 
   String _chatDocId(String userId1, String userId2) {
@@ -114,8 +123,11 @@ class _ChatsScreenState extends State<ChatsScreen> {
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
+        final maxScrollExtent = _scrollController.position.maxScrollExtent;
+        if (maxScrollExtent <= 0) return;
+
         _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
+          maxScrollExtent,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
@@ -143,7 +155,6 @@ class _ChatsScreenState extends State<ChatsScreen> {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final currentUserId = _currentUserId;
-
     final messageStream = currentUserId == null
         ? const Stream<QuerySnapshot<Map<String, dynamic>>>.empty()
         : FirebaseFirestore.instance
@@ -155,73 +166,31 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: messageStream,
-      builder: (context, asyncSnapshot) {
-        if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
-
-        if (asyncSnapshot.hasError) {
+        if (snapshot.hasError) {
           return Scaffold(
             body: Center(
-              child: Text('Ошибка загрузки сообщений: ${asyncSnapshot.error}'),
+              child: Text('Ошибка загрузки сообщений: ${snapshot.error}'),
             ),
           );
         }
 
-        final docs = asyncSnapshot.data?.docs ?? [];
+        final docs = snapshot.data?.docs ?? [];
+        if (docs.isNotEmpty &&
+            (docs.length > _lastMessageCount || _lastMessageCount == 0)) {
+          _lastMessageCount = docs.length;
+          _scrollToBottom();
+        }
 
         return Scaffold(
           appBar: _isSelectionMode
-              ? AppBar(
-                  leading: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: _clearSelection,
-                  ),
-                  title: Text('${selectedMessageIds.length}'),
-                  actions: [
-                    IconButton(icon: const Icon(Icons.reply), onPressed: () {}),
-                    IconButton(icon: const Icon(Icons.copy), onPressed: () {}),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('confirmdeleting'.tr()),
-                              content: Text('descriptdeleting'.tr()),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: Text('cancel'.tr()),
-                                  onPressed: () => Navigator.of(context).pop(),
-                                ),
-                                TextButton(
-                                  child: Text(
-                                    'delete'.tr(),
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                  onPressed: () async {
-                                    final navigator = Navigator.of(context);
-                                    await _deleteSelectedMessages();
-                                    if (!mounted) return;
-                                    navigator.pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                )
-              : ChatAppBar(
-                  userName: widget.numName,
-                  isOnline: widget.isOnline,
-                  avatarUrl: widget.imageAvatar,
-                ),
+              ? _buildSelectionAppBar()
+              : _buildChatAppBar(),
           body: SafeArea(
             child: Column(
               children: [
@@ -238,45 +207,11 @@ class _ChatsScreenState extends State<ChatsScreen> {
                         : ListView.builder(
                             controller: _scrollController,
                             itemCount: docs.length,
-                            itemBuilder: (context, index) {
-                              final doc = docs[index];
-                              final message = doc.data();
-                              final isMe = message['senderId'] == currentUserId;
-                              final isSelected = selectedMessageIds.contains(
-                                doc.id,
-                              );
-                              final timeText =
-                                  message['sendAt'] ??
-                                  (message['createdAt'] is Timestamp
-                                      ? (message['createdAt'] as Timestamp)
-                                            .toDate()
-                                            .toLocal()
-                                            .toString()
-                                      : '');
-
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 1,
-                                  vertical: 1,
-                                ),
-                                color: isSelected
-                                    ? colors.primary.withValues(alpha: 0.1)
-                                    : Colors.transparent,
-                                child: ChatMessageBubble(
-                                  text: message['text'] ?? '',
-                                  isMe: isMe,
-                                  time: timeText,
-                                  onlongTap: () {
-                                    _toggleSelection(doc.id);
-                                  },
-                                  ontapp: () {
-                                    if (_isSelectionMode) {
-                                      _toggleSelection(doc.id);
-                                    }
-                                  },
-                                ),
-                              );
-                            },
+                            itemBuilder: (_, index) => _buildMessageTile(
+                              docs[index],
+                              colors,
+                              currentUserId,
+                            ),
                           ),
                   ),
                 ),
@@ -289,6 +224,93 @@ class _ChatsScreenState extends State<ChatsScreen> {
           ),
         );
       },
+    );
+  }
+
+  PreferredSizeWidget _buildSelectionAppBar() {
+    return AppBar(
+      leading: IconButton(
+        icon: const Icon(Icons.close),
+        onPressed: _clearSelection,
+      ),
+      title: Text('${selectedMessageIds.length}'),
+      actions: [
+        IconButton(icon: const Icon(Icons.reply), onPressed: () {}),
+        IconButton(icon: const Icon(Icons.copy), onPressed: () {}),
+        IconButton(
+          icon: const Icon(Icons.delete_outline, color: Colors.red),
+          onPressed: () => _showDeleteDialog(),
+        ),
+      ],
+    );
+  }
+
+  PreferredSizeWidget _buildChatAppBar() {
+    return ChatAppBar(
+      userName: widget.numName,
+      isOnline: widget.isOnline,
+      avatarUrl: widget.imageAvatar,
+    );
+  }
+
+  Widget _buildMessageTile(
+    QueryDocumentSnapshot<Map<String, dynamic>> doc,
+    AppColors colors,
+    String? currentUserId,
+  ) {
+    final message = doc.data();
+    final isMe = message['senderId'] == currentUserId;
+    final isSelected = selectedMessageIds.contains(doc.id);
+    final timeText =
+        message['sendAt'] ??
+        (message['createdAt'] is Timestamp
+            ? (message['createdAt'] as Timestamp).toDate().toLocal().toString()
+            : '');
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+      color: isSelected
+          ? colors.primary.withValues(alpha: 0.1)
+          : Colors.transparent,
+      child: ChatMessageBubble(
+        text: message['text'] ?? '',
+        isMe: isMe,
+        time: timeText,
+        onlongTap: () => _toggleSelection(doc.id),
+        ontapp: () {
+          if (_isSelectionMode) {
+            _toggleSelection(doc.id);
+          }
+        },
+      ),
+    );
+  }
+
+  Future<void> _showDeleteDialog() async {
+    final navigator = Navigator.of(context);
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('confirmdeleting'.tr()),
+        content: Text('descriptdeleting'.tr()),
+        actions: [
+          TextButton(
+            child: Text('cancel'.tr()),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          TextButton(
+            child: Text(
+              'delete'.tr(),
+              style: const TextStyle(color: Colors.red),
+            ),
+            onPressed: () async {
+              await _deleteSelectedMessages();
+              if (!mounted) return;
+              navigator.pop();
+            },
+          ),
+        ],
+      ),
     );
   }
 }

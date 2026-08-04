@@ -33,20 +33,18 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             size: 29,
             color: colors.iconPrimary,
           ),
-          onSelected: (String value) {
-            switch (value) {
-              case 'delete':
-                break;
-            }
-          },
-          itemBuilder: (BuildContext context) => [
+          onSelected: (_) {},
+          itemBuilder: (context) => [
             PopupMenuItem<String>(
               value: 'delete',
               child: Row(
                 children: [
-                  Icon(Icons.delete_sweep_outlined, size: 22),
-                  SizedBox(width: 12),
-                  Text('delete'.tr(), style: TextStyle(color: Colors.black87)),
+                  const Icon(Icons.delete_sweep_outlined, size: 22),
+                  const SizedBox(width: 12),
+                  Text(
+                    'delete'.tr(),
+                    style: const TextStyle(color: Colors.black87),
+                  ),
                 ],
               ),
             ),
@@ -55,74 +53,79 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       ],
       title: Row(
         children: [
-          Stack(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).dividerColor,
-                ),
-                child: avatarUrl.isEmpty
-                    ? Center(
-                        child: Text(
-                          getInitials(userName),
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      )
-                    : null,
-              ),
-              if (isOnline)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: 14,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      color: colors.online,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: colors.cardBackground,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
+          _buildAvatar(context, colors),
           const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.5,
-                child: Text(
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  userName,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: colors.textPrimary,
-                  ),
-                ),
-              ),
-              Text(
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                isOnline ? 'online'.tr() : 'offline'.tr(),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isOnline ? colors.online : colors.textSecondary,
-                ),
-              ),
-            ],
-          ),
+          _buildUserInfo(context, colors),
         ],
       ),
+    );
+  }
+
+  Widget _buildAvatar(BuildContext context, AppColors colors) {
+    return Stack(
+      children: [
+        Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).dividerColor,
+          ),
+          child: avatarUrl.isEmpty
+              ? Center(
+                  child: Text(
+                    getInitials(userName),
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                )
+              : null,
+        ),
+        if (isOnline)
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              width: 14,
+              height: 14,
+              decoration: BoxDecoration(
+                color: colors.online,
+                shape: BoxShape.circle,
+                border: Border.all(color: colors.cardBackground, width: 2),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildUserInfo(BuildContext context, AppColors colors) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.5,
+          child: Text(
+            userName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+              color: colors.textPrimary,
+            ),
+          ),
+        ),
+        Text(
+          isOnline ? 'online'.tr() : 'offline'.tr(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 14,
+            color: isOnline ? colors.online : colors.textSecondary,
+          ),
+        ),
+      ],
     );
   }
 

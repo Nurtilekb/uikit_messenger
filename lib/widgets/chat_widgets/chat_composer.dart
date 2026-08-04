@@ -32,18 +32,19 @@ class ChatComposer extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Container(
-              decoration: BoxDecoration(
-                color: colors.primary,
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                onPressed: onSend,
-                icon: Icon(Icons.send, color: colors.textOnPrimary, size: 20),
-              ),
-            ),
+            _buildSendButton(colors),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSendButton(AppColors colors) {
+    return Container(
+      decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
+      child: IconButton(
+        onPressed: onSend,
+        icon: Icon(Icons.send, color: colors.textOnPrimary, size: 20),
       ),
     );
   }
