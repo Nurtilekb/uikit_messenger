@@ -23,7 +23,12 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: ProfileRoute.page, guards: [authGuard]),
     AutoRoute(page: SearchRoute.page, guards: [authGuard]),
     AutoRoute(page: UsersListRoute.page, guards: [authGuard]),
-    AutoRoute(page: ChatsRoute.page, guards: [authGuard]),
+    CustomRoute(
+      page: ChatsRoute.page,
+      transitionsBuilder: TransitionsBuilders.slideLeftWithFade,
+      duration: const Duration(milliseconds: 300),
+      guards: [authGuard],
+    ),
     AutoRoute(page: SplashRoute.page, initial: true),
   ];
 }
