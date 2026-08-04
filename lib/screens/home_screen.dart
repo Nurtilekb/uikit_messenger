@@ -1,12 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:uikit/repositories/chat_repository.dart';
 import 'package:uikit/router/app_router.dart';
 import 'package:uikit/theme/app_colors.dart';
+import 'package:uikit/widgets/home_widgets/chats_list_view.dart';
 import 'package:uikit/widgets/home_widgets/home_appbar.dart';
-import 'package:uikit/widgets/empty_contacts_state.dart';
-import 'package:uikit/repositories/chat_repository.dart';
-import 'package:uikit/widgets/user_tile.dart';
-import 'package:uikit/models/chat_model.dart';
 
 @RoutePage()
 class HomeScreen extends StatefulWidget {
@@ -91,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
             const SizedBox(height: 10),
             Expanded(
-              child: ChatsList(
+              child: ChatsListView(
                 chatRepository: _chatRepository,
                 selectedChatIds: selectedChatIds,
                 isSelectionMode: _isSelectionMode,
@@ -111,92 +109,6 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: themeStyle.primaryColor,
       onPressed: () => context.router.push(const UsersListRoute()),
       child: Icon(Icons.add, color: colors.textOnPrimary),
-    );
-  }
-}
-
-class ChatsList extends StatelessWidget {
-  final ChatRepository chatRepository;
-  final bool isSelectionMode;
-  final Set<String> selectedChatIds;
-  final Function(String) onToggleSelection;
-
-  const ChatsList({
-    super.key,
-    required this.chatRepository,
-    required this.selectedChatIds,
-    required this.isSelectionMode,
-    required this.onToggleSelection,
-  });
-
-  String _formatTimestamp(DateTime time) {
-    final now = DateTime.now();
-    final difference = now.difference(time);
-    if (difference.inDays == 0) {
-      return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-    }
-    if (difference.inDays < 7) {
-      const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-      return days[time.weekday - 1];
-    }
-    return '${time.day}.${time.month}';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<List<Chat>>(
-      stream: chatRepository.streamChats(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (snapshot.hasError) {
-          return Center(
-            child: Text('Ошибка загрузки чатов: ${snapshot.error}'),
-          );
-        }
-
-        final chats = snapshot.data ?? [];
-        if (chats.isEmpty) {
-          return const Center(child: EmptyChatWidget());
-        }
-
-        return ListView.separated(
-          itemCount: chats.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 5),
-          itemBuilder: (context, index) {
-            final chat = chats[index];
-            final isSelected = selectedChatIds.contains(chat.chatID);
-
-            return UserTile(
-              onTap: () {
-                if (isSelectionMode) {
-                  onToggleSelection(chat.chatID);
-                } else {
-                  context.router.push(
-                    ChatsRoute(
-                      numName: chat.name,
-                      userId: chat.otherUserId,
-                      isOnline: false,
-                      imageAvatar: chat.avatarUrl,
-                    ),
-                  );
-                }
-              },
-              name: chat.name,
-              lastMessage: chat.lastMessage,
-              unreadCount: chat.unreadCount,
-              avatarUrl: chat.avatarUrl,
-              time: _formatTimestamp(chat.time),
-              isSelected: isSelected,
-              onlongPress: () {
-                onToggleSelection(chat.chatID);
-              },
-            );
-          },
-        );
-      },
     );
   }
 }
