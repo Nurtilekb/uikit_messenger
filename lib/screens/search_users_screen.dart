@@ -1,10 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/router/app_router.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/app_text_field.dart';
+import 'package:uikit/widgets/empty_contacts_state.dart';
 import 'package:uikit/widgets/on_user_search_tile.dart';
 
 @RoutePage()
@@ -78,9 +80,16 @@ class _SearchScreenState extends State<SearchScreen> {
 
                   final users = asyncSnapshot.data?.docs ?? [];
                   final query = _searchController.text.trim().toLowerCase();
+                  final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
                   final filteredUsers = users.where((doc) {
                     final data = doc.data();
+                    final docId = doc.id;
+                    final userId = data['id']?.toString() ?? docId;
+                    if (currentUserId != null && userId == currentUserId) {
+                      return false;
+                    }
+
                     final name = (data['name'] ?? '').toString().toLowerCase();
                     final email = (data['email'] ?? '')
                         .toString()
@@ -90,13 +99,26 @@ class _SearchScreenState extends State<SearchScreen> {
                         : name.contains(query) || email.contains(query);
                   }).toList();
 
+                  if (filteredUsers.isEmpty) {
+                    return EmptyChatWidget(
+                      title: 'Ничего не найдено',
+                      subtitle:
+                          'Проверьте имя пользователя или email и попробуйте снова',
+                      icon: Icons.search,
+                    );
+                  }
+
                   if (_searchController.text.isEmpty) {
                     return Center(
                       child: Text(
                         query.isEmpty
                             ? 'Поиск пользователей....'
                             : 'Ничего не найдено',
-                        style: getStyle.textTheme.bodyMedium,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400,
+                          color: colors.textSecondary,
+                        ),
                       ),
                     );
                   }
@@ -105,7 +127,6 @@ class _SearchScreenState extends State<SearchScreen> {
                     itemBuilder: (BuildContext context, int index) {
                       final userDoc = filteredUsers[index];
                       final data = userDoc.data();
-
                       return InkWell(
                         child: SearchChatTile(
                           name: data['name']?.toString() ?? 'Без имени',
