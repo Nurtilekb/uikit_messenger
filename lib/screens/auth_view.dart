@@ -20,6 +20,8 @@ class _AuthScreenState extends State<AuthScreen>
     with SingleTickerProviderStateMixin {
   Future<void> _loadThemeMode() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+
     final isDarkMode = prefs.getBool('isDarkMode') ?? false;
     context.read<ThemeCubit>().setTheme(isDarkMode);
   }
@@ -53,76 +55,14 @@ class _AuthScreenState extends State<AuthScreen>
             const SizedBox(height: 16),
             _buildSocialIcon(Icons.messenger),
             const SizedBox(height: 16),
-            Text(
-              "eho".tr(),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,
-                color: colors.textPrimary,
-              ),
-            ),
-            Text(
-              "amessagewithout".tr(),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                letterSpacing: -0.5,
-                color: colors.textSecondary,
-              ),
-            ),
+            _buildHeader(colors),
             const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Container(
-                height: 58,
-                decoration: BoxDecoration(
-                  color: colors.tabBackground,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: TabBar(
-                  padding: EdgeInsets.all(5),
-                  controller: _tabController,
-                  indicator: BoxDecoration(
-                    color: colors.tabSelected,
-                    borderRadius: BorderRadius.circular(11),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.shadow,
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  labelColor: colors.primary,
-                  unselectedLabelColor: colors.tabUnselected,
-                  labelStyle: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'interTight',
-                  ),
-                  unselectedLabelStyle: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'interTight',
-                  ),
-                  splashBorderRadius: BorderRadius.circular(16),
-                  tabs: [
-                    Tab(text: "login".tr()),
-                    Tab(text: 'registration'.tr()),
-                  ],
-                ),
-              ),
-            ),
+            _buildTabBar(colors),
             Expanded(
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  LoginScreen(),
+                  const LoginScreen(),
                   RegisterScreen(
                     forLogin: _forLogin(colors),
                     onLoginTap: _switchToLogin.call,
@@ -130,6 +70,80 @@ class _AuthScreenState extends State<AuthScreen>
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(AppColors colors) {
+    return Column(
+      children: [
+        Text(
+          'eho'.tr(),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 34,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.5,
+            color: colors.textPrimary,
+          ),
+        ),
+        Text(
+          'amessagewithout'.tr(),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
+            letterSpacing: -0.5,
+            color: colors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTabBar(AppColors colors) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Container(
+        height: 58,
+        decoration: BoxDecoration(
+          color: colors.tabBackground,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: TabBar(
+          padding: const EdgeInsets.all(5),
+          controller: _tabController,
+          indicator: BoxDecoration(
+            color: colors.tabSelected,
+            borderRadius: BorderRadius.circular(11),
+            boxShadow: [
+              BoxShadow(
+                color: colors.shadow,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          indicatorSize: TabBarIndicatorSize.tab,
+          dividerColor: Colors.transparent,
+          labelColor: colors.primary,
+          unselectedLabelColor: colors.tabUnselected,
+          labelStyle: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            fontFamily: 'interTight',
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            fontFamily: 'interTight',
+          ),
+          splashBorderRadius: BorderRadius.circular(16),
+          tabs: [
+            Tab(text: 'login'.tr()),
+            Tab(text: 'registration'.tr()),
           ],
         ),
       ),
