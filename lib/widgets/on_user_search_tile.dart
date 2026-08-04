@@ -96,8 +96,12 @@ class SearchChatTile extends StatelessWidget {
             ),
           ),
           IconButton.filled(
-            onPressed: () {},
-            icon: const Icon(Icons.messenger_outline, size: 18),
+            onPressed: onTap,
+            icon: Icon(
+              Icons.messenger_outline,
+              size: 18,
+              color: getterStyle.primaryColor,
+            ),
             style: IconButton.styleFrom(
               backgroundColor: getterStyle.dividerColor,
               foregroundColor: getterStyle.primaryColor,

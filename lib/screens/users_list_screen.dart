@@ -58,24 +58,11 @@ class _UsersListScreenState extends State<UsersListScreen> {
         padding: const EdgeInsets.only(top: 15),
         child: SafeArea(
           child: BlocConsumer<AuthBloc, AuthState>(
-            listener: (context, state) {
-              if (state is AuthError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.message),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-              if (state is AuthUnauthenticated) {
-                context.router.replaceAll([const AuthRoute()]);
-              }
-            },
+            listener: _handleAuthState,
             builder: (context, state) {
               if (_isLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
-
               if (_users.isEmpty) {
                 return Center(
                   child: Text(
@@ -86,78 +73,86 @@ class _UsersListScreenState extends State<UsersListScreen> {
               }
 
               return ListView.separated(
-                itemBuilder: (BuildContext context, int index) {
-                  final user = _users[index];
-                  return InkWell(
-                    onTap: () {
-                      context.router.push(
-                        ChatsRoute(
-                          numName: user.name,
-                          isOnline: user.isOnline,
-                          imageAvatar: '',
-                          userId: user.id,
-                        ),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 7, 24, 7),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: colors.surface,
-                            radius: 35,
-                            child: Center(
-                              child: Text(
-                                user.initials,
-                                style: const TextStyle(
-                                  fontSize: 23,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  user.name.isNotEmpty ? user.name : 'No Name',
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: colors.textPrimary,
-                                  ),
-                                ),
-                                Text(
-                                  user.email.isNotEmpty
-                                      ? user.email
-                                      : 'No Email',
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    overflow: TextOverflow.ellipsis,
-                                    fontSize: 12,
-                                    color: colors.textSecondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-                separatorBuilder: (BuildContext context, int index) {
-                  return const SizedBox(height: 25);
-                },
                 itemCount: _users.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 25),
+                itemBuilder: (_, index) =>
+                    _buildUserItem(context, _users[index], colors),
               );
             },
           ),
+        ),
+      ),
+    );
+  }
+
+  void _handleAuthState(BuildContext context, AuthState state) {
+    if (state is AuthError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+      );
+    }
+    if (state is AuthUnauthenticated) {
+      context.router.replaceAll([const AuthRoute()]);
+    }
+  }
+
+  Widget _buildUserItem(
+    BuildContext context,
+    UserModel user,
+    AppColors colors,
+  ) {
+    return InkWell(
+      onTap: () => context.router.push(
+        ChatsRoute(
+          numName: user.name,
+          isOnline: user.isOnline,
+          imageAvatar: '',
+          userId: user.id,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 7, 24, 7),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: colors.surface,
+              radius: 35,
+              child: Text(
+                user.initials,
+                style: const TextStyle(
+                  fontSize: 23,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.name.isNotEmpty ? user.name : 'No Name',
+                    maxLines: 1,
+                    style: TextStyle(
+                      overflow: TextOverflow.ellipsis,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    user.email.isNotEmpty ? user.email : 'No Email',
+                    maxLines: 1,
+                    style: TextStyle(
+                      overflow: TextOverflow.ellipsis,
+                      fontSize: 12,
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
