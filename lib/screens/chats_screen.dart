@@ -1,12 +1,45 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/Chat_widgets/Chat_message_bubble.dart';
 import 'package:uikit/widgets/chat_widgets/chat_app_bar.dart';
 import 'package:uikit/widgets/chat_widgets/chat_composer.dart';
+
+int calculateUnreadCount(int currentCount, {required bool isIncomingMessage}) {
+  return isIncomingMessage ? currentCount + 1 : currentCount;
+}
+
+Future<void> updateUnreadCountForChat(
+  String chatId,
+  String currentUserId,
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> newMessages,
+) async {
+  if (newMessages.isEmpty || currentUserId.isEmpty) return;
+
+  final incomingMessages = newMessages.where((doc) {
+    final senderId = doc.data()['senderId']?.toString();
+    return senderId != null && senderId != currentUserId;
+  }).toList();
+
+  if (incomingMessages.isEmpty) return;
+
+  final chatDocRef = FirebaseFirestore.instance.collection('chats').doc(chatId);
+  await chatDocRef.set({
+    'unreadCount': FieldValue.increment(incomingMessages.length),
+  }, SetOptions(merge: true));
+}
+
+Future<void> resetUnreadCountForChat(String chatId) async {
+  await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
+    'unreadCount': 0,
+  }, SetOptions(merge: true));
+}
 
 @RoutePage()
 class ChatsScreen extends StatefulWidget {
@@ -32,6 +65,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
   final _scrollController = ScrollController();
   final Set<String> selectedMessageIds = {};
   int _lastMessageCount = 0;
+  Stream<QuerySnapshot<Map<String, dynamic>>>? _messageStream;
 
   String? get _currentUserId => FirebaseAuth.instance.currentUser?.uid;
   bool get _isSelectionMode => selectedMessageIds.isNotEmpty;
@@ -48,7 +82,32 @@ class _ChatsScreenState extends State<ChatsScreen> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.userId != widget.userId) {
       _lastMessageCount = 0;
+      selectedMessageIds.clear();
+      _initMessageStream();
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initMessageStream();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _markChatAsRead();
+      }
+    });
+  }
+
+  void _initMessageStream() {
+    final currentUserId = _currentUserId;
+    _messageStream = currentUserId == null
+        ? const Stream<QuerySnapshot<Map<String, dynamic>>>.empty()
+        : FirebaseFirestore.instance
+              .collection('chats')
+              .doc(_chatDocId(widget.userId, currentUserId))
+              .collection('messages')
+              .orderBy('createdAt', descending: false)
+              .snapshots(includeMetadataChanges: true);
   }
 
   String _chatDocId(String userId1, String userId2) {
@@ -66,7 +125,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
     final chatDocRef = FirebaseFirestore.instance
         .collection('chats')
         .doc(chatId);
-
+    _messageController.clear();
     try {
       await chatDocRef.collection('messages').add({
         'text': text,
@@ -77,42 +136,59 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
       await chatDocRef.set({
         'participantIds': [currentUserId, widget.userId],
-
         'lastMessage': text,
         'updatedAt': FieldValue.serverTimestamp(),
-
         'senderId': currentUserId,
+        'unreadCount': 0,
       }, SetOptions(merge: true));
-      _messageController.clear();
+
       _scrollToBottom();
     } catch (e) {
       debugPrint('Ошибка записи: $e');
     }
   }
 
+  Future<void> _markChatAsRead() async {
+    final currentUserId = _currentUserId;
+    if (currentUserId == null || widget.userId.isEmpty) return;
+
+    await resetUnreadCountForChat(_chatDocId(widget.userId, currentUserId));
+  }
+
   Future<void> _deleteSelectedMessages() async {
     final currentUserId = _currentUserId;
     if (currentUserId == null || selectedMessageIds.isEmpty) return;
 
-    final collectionRef = FirebaseFirestore.instance
+    final chatDocRef = FirebaseFirestore.instance
         .collection('chats')
-        .doc(_chatDocId(widget.userId, currentUserId))
-        .collection('messages');
-
+        .doc(_chatDocId(widget.userId, currentUserId));
+    final messagesRef = chatDocRef.collection('messages');
     final batch = FirebaseFirestore.instance.batch();
+
     for (final messageId in selectedMessageIds) {
-      batch.delete(collectionRef.doc(messageId));
+      batch.delete(messagesRef.doc(messageId));
     }
 
     try {
       await batch.commit();
+
+      final remainingSnapshot = await messagesRef.get();
+      final remainingMessage = remainingSnapshot.docs.isNotEmpty
+          ? (remainingSnapshot.docs.last.data()['text']?.toString() ?? '')
+          : '';
+
+      await chatDocRef.set({
+        'lastMessage': remainingMessage,
+      }, SetOptions(merge: true));
+
+      if (mounted) {
+        setState(() {
+          selectedMessageIds.clear();
+        });
+      }
     } catch (e) {
       debugPrint('Ошибка удаления: $e');
     }
-
-    setState(() {
-      selectedMessageIds.clear();
-    });
   }
 
   String _getCurrentTime() {
@@ -155,17 +231,13 @@ class _ChatsScreenState extends State<ChatsScreen> {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final currentUserId = _currentUserId;
-    final messageStream = currentUserId == null
-        ? const Stream<QuerySnapshot<Map<String, dynamic>>>.empty()
-        : FirebaseFirestore.instance
-              .collection('chats')
-              .doc(_chatDocId(widget.userId, currentUserId))
-              .collection('messages')
-              .orderBy('createdAt', descending: false)
-              .snapshots(includeMetadataChanges: true);
+
+    if (currentUserId != null && _messageStream == null) {
+      _initMessageStream();
+    }
 
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: messageStream,
+      stream: _messageStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
@@ -183,6 +255,15 @@ class _ChatsScreenState extends State<ChatsScreen> {
         final docs = snapshot.data?.docs ?? [];
         if (docs.isNotEmpty &&
             (docs.length > _lastMessageCount || _lastMessageCount == 0)) {
+          if (_lastMessageCount > 0 && currentUserId != null) {
+            unawaited(
+              updateUnreadCountForChat(
+                _chatDocId(widget.userId, currentUserId),
+                currentUserId,
+                docs.skip(_lastMessageCount).toList(),
+              ),
+            );
+          }
           _lastMessageCount = docs.length;
           _scrollToBottom();
         }
@@ -304,9 +385,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
               style: const TextStyle(color: Colors.red),
             ),
             onPressed: () async {
+              navigator.pop();
               await _deleteSelectedMessages();
               if (!mounted) return;
-              navigator.pop();
             },
           ),
         ],
