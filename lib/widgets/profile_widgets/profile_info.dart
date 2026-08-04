@@ -58,29 +58,7 @@ class _ProfileInfoState extends State<ProfileInfo> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: TextField(
-                    autofocus: true,
-                    controller: _titleController,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    style: TextStyle(
-                      fontSize: 23,
-                      fontWeight: FontWeight.w600,
-                      color: colors.textPrimary,
-                    ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      isCollapsed: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            _buildNameField(colors),
             SizedBox(
               height: 50,
               width: 300,
@@ -99,6 +77,32 @@ class _ProfileInfoState extends State<ProfileInfo> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildNameField(AppColors colors) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Expanded(
+          child: TextField(
+            autofocus: true,
+            controller: _titleController,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            style: TextStyle(
+              fontSize: 23,
+              fontWeight: FontWeight.w600,
+              color: colors.textPrimary,
+            ),
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              isCollapsed: true,
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

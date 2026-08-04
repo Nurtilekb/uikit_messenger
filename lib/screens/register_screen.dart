@@ -45,90 +45,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 16,
             children: [
               const SizedBox(height: 16),
-              AppInputWidget(
-                controller: _nameController,
-                labelStyle: Theme.of(context).textTheme.bodySmall,
-                hintText: 'fullname2'.tr(),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 18,
-                ),
-                filledColor: colors.cardBackground,
-                label: 'fullname'.tr(),
-                inputType: TextInputType.visiblePassword,
-                validator: Validators.validateString,
+              _buildInput(
+                'fullname'.tr(),
+                'fullname2'.tr(),
+                _nameController,
+                colors,
+                Validators.validateString,
+                TextInputType.visiblePassword,
               ),
-              AppInputWidget(
-                controller: _registrEmailController,
-                labelStyle: Theme.of(context).textTheme.bodySmall,
-                hintText: 'your@gmail.com',
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 18,
-                ),
-                filledColor: colors.cardBackground,
-                label: 'Email',
-                inputType: TextInputType.emailAddress,
-                validator: Validators.validateEmail,
+              _buildInput(
+                'Email',
+                'your@gmail.com',
+                _registrEmailController,
+                colors,
+                Validators.validateEmail,
+                TextInputType.emailAddress,
               ),
-
-              AppInputWidget(
-                isPasswordField: true,
-                controller: _registrpasswordController,
-                labelStyle: Theme.of(context).textTheme.bodySmall,
-                hintText: 'enteryourpassword'.tr(),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 18,
-                ),
-                filledColor: colors.cardBackground,
-                validator: Validators.validatePassword,
-                label: 'password'.tr(),
-                inputType: TextInputType.visiblePassword,
+              _buildInput(
+                'password'.tr(),
+                'enteryourpassword'.tr(),
+                _registrpasswordController,
+                colors,
+                Validators.validatePassword,
+                TextInputType.visiblePassword,
+                isPassword: true,
               ),
-
               const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () => _handleSignUp(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.textOnPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    elevation: 2,
-                    shadowColor: colors.primary.withValues(alpha: 0.3),
-                  ),
-                  child: Text(
-                    'createaccaunt'.tr(),
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-
-              Row(
-                children: [
-                  Expanded(child: Divider(color: colors.border)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'or'.tr(),
-                      style: TextStyle(
-                        color: colors.textSecondary,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                  Expanded(child: Divider(color: colors.border)),
-                ],
-              ),
-
+              _buildSubmitButton(colors),
+              const SizedBox(height: 16),
+              _buildDivider(colors),
+              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -143,6 +91,73 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildInput(
+    String label,
+    String hint,
+    TextEditingController controller,
+    AppColors colors,
+    String? Function(String?)? validator,
+    TextInputType inputType, {
+    bool isPassword = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: AppInputWidget(
+        controller: controller,
+        labelStyle: Theme.of(context).textTheme.bodySmall,
+        hintText: hint,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 18,
+        ),
+        filledColor: colors.cardBackground,
+        label: label,
+        inputType: inputType,
+        validator: validator,
+        isPasswordField: isPassword,
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton(AppColors colors) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: () => _handleSignUp(context),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: colors.primary,
+          foregroundColor: colors.textOnPrimary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          elevation: 2,
+          shadowColor: colors.primary.withValues(alpha: 0.3),
+        ),
+        child: Text(
+          'createaccaunt'.tr(),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDivider(AppColors colors) {
+    return Row(
+      children: [
+        Expanded(child: Divider(color: colors.border)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'or'.tr(),
+            style: TextStyle(color: colors.textSecondary, fontSize: 14),
+          ),
+        ),
+        Expanded(child: Divider(color: colors.border)),
+      ],
     );
   }
 
