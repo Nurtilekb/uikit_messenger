@@ -52,7 +52,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   FutureOr<void> _onArchiveSelected(
-    ClearSelection event,
+    ArchiveSelectedChats event,
     Emitter<ChatState> emit,
   ) async {
     if (state is ChatLoaded) {
