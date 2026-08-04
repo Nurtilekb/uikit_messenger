@@ -296,10 +296,12 @@ class _ChatsScreenState extends State<ChatsScreen> {
                           ),
                   ),
                 ),
-                ChatComposer(
-                  controller: _messageController,
-                  onSend: _sendMessage,
-                ),
+                _isSelectionMode
+                    ? SizedBox()
+                    : ChatComposer(
+                        controller: _messageController,
+                        onSend: _sendMessage,
+                      ),
               ],
             ),
           ),
