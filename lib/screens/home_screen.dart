@@ -77,27 +77,19 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // Передаем колбэки для управления выделением и удалением
             _isSelectionMode
                 ? HomeAppBar2(
                     selectedChatIds: selectedChatIds,
                     clearSelection: _clearSelection,
                     deleteSelectedChats: () =>
                         _deleteSelectedChats(selectedChatIds.toList()),
-                    onArchive: () {
-                      // TODO: Реализовать архивацию
-                    },
+                    onArchive: () {},
                   )
                 : HomeAppBar(
-                    onTapSearch: () {
-                      context.router.push(SearchRoute());
-                    },
-                    onTapProfile: () {
-                      context.router.push(ProfileRoute());
-                    },
+                    onTapSearch: () => context.router.push(SearchRoute()),
+                    onTapProfile: () => context.router.push(ProfileRoute()),
                   ),
             const SizedBox(height: 10),
-            // Передаем функции управления состоянием внутрь виджета со списком
             Expanded(
               child: ChatsList(
                 chatRepository: _chatRepository,
@@ -109,14 +101,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        backgroundColor: themeStyle.primaryColor,
-        onPressed: () {
-          context.router.push(const UsersListRoute());
-        },
-        child: Icon(Icons.add, color: colors.textOnPrimary),
-      ),
+      floatingActionButton: _buildFab(themeStyle, colors),
+    );
+  }
+
+  Widget _buildFab(ThemeData themeStyle, AppColors colors) {
+    return FloatingActionButton(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      backgroundColor: themeStyle.primaryColor,
+      onPressed: () => context.router.push(const UsersListRoute()),
+      child: Icon(Icons.add, color: colors.textOnPrimary),
     );
   }
 }
