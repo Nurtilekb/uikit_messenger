@@ -151,7 +151,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
               .doc(_chatDocId(widget.userId, currentUserId))
               .collection('messages')
               .orderBy('createdAt', descending: false)
-              .snapshots();
+              .snapshots(includeMetadataChanges: true);
 
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: messageStream,
