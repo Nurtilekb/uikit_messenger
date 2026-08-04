@@ -1,16 +1,22 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:uikit/router/app_router.dart';
 import 'package:uikit/theme/app_colors.dart';
 
 class EmptyChatWidget extends StatelessWidget {
-  const EmptyChatWidget({super.key});
-
+  const EmptyChatWidget({
+    super.key,
+    this.title,
+    this.subtitle,
+    this.icon,
+    this.actionButton,
+  });
+  final String? title;
+  final String? subtitle;
+  final IconData? icon;
+  final Widget? actionButton;
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final themeStyle = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 44),
       child: Column(
@@ -24,11 +30,12 @@ class EmptyChatWidget extends StatelessWidget {
               color: colors.surface,
               borderRadius: BorderRadius.circular(68),
             ),
-            child: Icon(Icons.messenger, color: colors.iconSecondary, size: 42),
+            child: Icon(icon, color: colors.iconSecondary, size: 42),
           ),
           const SizedBox(height: 24),
           Text(
-            'nochatsyet'.tr(),
+            title ?? 'nochatsyet'.tr(),
+            // 'nochatsyet'.tr(),
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
@@ -37,7 +44,9 @@ class EmptyChatWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'startconv'.tr(),
+            subtitle ?? 'startconv'.tr(),
+            //
+            // 'startconv'.tr(),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
@@ -46,29 +55,7 @@ class EmptyChatWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 30),
-          InkWell(
-            onTap: () {
-              context.router.push(UsersListRoute());
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: themeStyle.primaryColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              width: MediaQuery.of(context).size.width / 2,
-              height: 50,
-              child: Center(
-                child: Text(
-                  '+newchat'.tr(),
-                  style: TextStyle(
-                    color: colors.textOnPrimary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          ?actionButton,
         ],
       ),
     );
