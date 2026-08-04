@@ -111,12 +111,11 @@ class _SearchScreenState extends State<SearchScreen> {
                           name: data['name']?.toString() ?? 'Без имени',
                           gmailAccaunt: data['email']?.toString() ?? '',
                         ),
-
                         onTap: () {
                           context.router.push(
                             ChatsRoute(
                               numName: data['name']?.toString() ?? 'Без имени',
-                              userId: data['uid']?.toString() ?? '',
+                              userId: data['id']?.toString() ?? 'Без id',
                               isOnline: false,
                               imageAvatar: data['avatarUrl']?.toString() ?? '',
                             ),
