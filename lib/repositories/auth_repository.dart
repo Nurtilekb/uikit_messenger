@@ -16,11 +16,10 @@ class AuthRepository {
     FirebaseAuth? firebaseAuth,
     FirebaseFirestore? firestore,
     GoogleSignIn? googleSignIn,
-    String? googleServerClientId,
+    this._googleServerClientId,
   }) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
        _firestore = firestore ?? FirebaseFirestore.instance,
-       _googleSignIn = googleSignIn ?? GoogleSignIn.instance,
-       _googleServerClientId = googleServerClientId;
+       _googleSignIn = googleSignIn ?? GoogleSignIn.instance;
 
   User? get currentUser => _firebaseAuth.currentUser;
 

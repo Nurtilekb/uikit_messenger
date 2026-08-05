@@ -8,6 +8,7 @@ import 'package:uikit/blocs/auth/auth_state.dart';
 import 'package:uikit/router/app_router.dart';
 import 'package:uikit/widgets/app_text_field.dart';
 import 'package:uikit/theme/app_colors.dart';
+import 'package:uikit/widgets/common_dialogs.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,14 +36,8 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthLoading) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) =>
-                const Center(child: CircularProgressIndicator()),
-          );
+          showLoadingDialog(context);
         } else {
-         
           Navigator.of(context, rootNavigator: true).pop();
         }
         if (state is AuthAuthenticated) {
