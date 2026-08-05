@@ -93,14 +93,29 @@ class Chat extends Equatable {
       timeValue = DateTime.tryParse(updated) ?? DateTime.now();
     }
 
+    final unreadCountMap = data['unreadCountByUser'];
+    int unreadCountValue = 0;
+    if (unreadCountMap is Map) {
+      final userCount = unreadCountMap[currentUserId];
+      if (userCount is int) {
+        unreadCountValue = userCount;
+      } else if (userCount is String) {
+        unreadCountValue = int.tryParse(userCount) ?? 0;
+      }
+    }
+
+    if (unreadCountValue == 0) {
+      unreadCountValue = data['unreadCount'] is int
+          ? data['unreadCount'] as int
+          : int.tryParse(data['unreadCount']?.toString() ?? '0') ?? 0;
+    }
+
     return Chat(
       chatID: chatId,
       name: displayName,
       lastMessage: data['lastMessage']?.toString() ?? '',
       avatarUrl: data['avatarUrl']?.toString() ?? '',
-      unreadCount: data['unreadCount'] is int
-          ? data['unreadCount'] as int
-          : int.tryParse(data['unreadCount']?.toString() ?? '0') ?? 0,
+      unreadCount: unreadCountValue,
       time: timeValue,
       participantIds: participantIds,
       otherUserId: otherId,
