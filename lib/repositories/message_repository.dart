@@ -27,7 +27,7 @@ class MessageRepository {
       'lastMessage': text,
       'updatedAt': FieldValue.serverTimestamp(),
       'senderId': senderId,
-      'unreadCountByUser.$recipientId': FieldValue.increment(1),
+      'unreadCountByUser': {senderId: 0, recipientId: FieldValue.increment(1)},
     }, SetOptions(merge: true));
   }
 
@@ -75,5 +75,42 @@ class MessageRepository {
     await chatDoc.set({
       'lastMessage': remainingMessage,
     }, SetOptions(merge: true));
+  }
+
+  Future<void> clearChat({
+    required String chatId,
+    required String currentUserId,
+  }) async {
+    final chatDoc = _firestore.collection('chats').doc(chatId);
+    final chatSnapshot = await chatDoc.get();
+    final participantIds = <String>[];
+    final data = chatSnapshot.data();
+    if (data != null && data['participantIds'] is List) {
+      participantIds.addAll(List<String>.from(data['participantIds']));
+    }
+
+    final messagesRef = chatDoc.collection('messages');
+    final messageSnapshot = await messagesRef.get();
+    final batch = _firestore.batch();
+
+    for (final messageDoc in messageSnapshot.docs) {
+      batch.delete(messageDoc.reference);
+    }
+
+    final unreadMap = <String, Object>{};
+    for (final participantId in participantIds) {
+      unreadMap[participantId] = 0;
+    }
+    if (participantIds.isEmpty && currentUserId.isNotEmpty) {
+      unreadMap[currentUserId] = 0;
+    }
+
+    batch.set(chatDoc, {
+      'lastMessage': '',
+      'updatedAt': FieldValue.serverTimestamp(),
+      'unreadCountByUser': unreadMap,
+    }, SetOptions(merge: true));
+
+    await batch.commit();
   }
 }

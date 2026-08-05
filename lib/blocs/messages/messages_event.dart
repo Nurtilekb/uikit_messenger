@@ -31,17 +31,16 @@ class MarkChatRead extends MessagesEvent {
   List<Object?> get props => [chatId, currentUserId];
 }
 
-class SubscribeMessages extends MessagesEvent {
-  final String chatId;
-  const SubscribeMessages({required this.chatId});
-
-  @override
-  List<Object?> get props => [chatId];
-}
-
 class UnsubscribeMessages extends MessagesEvent {
   final String chatId;
+
   const UnsubscribeMessages({required this.chatId});
+}
+
+class SubscribeMessages extends MessagesEvent {
+  final String chatId;
+
+  const SubscribeMessages({required this.chatId});
 
   @override
   List<Object?> get props => [chatId];
@@ -55,4 +54,14 @@ class DeleteMessages extends MessagesEvent {
 
   @override
   List<Object?> get props => [chatId, messageIds];
+}
+
+class ClearChat extends MessagesEvent {
+  final String chatId;
+  final String currentUserId;
+
+  const ClearChat({required this.chatId, required this.currentUserId});
+
+  @override
+  List<Object?> get props => [chatId, currentUserId];
 }

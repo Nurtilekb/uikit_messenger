@@ -42,6 +42,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
   final _scrollController = ScrollController();
   final Set<String> selectedMessageIds = {};
   int _lastMessageCount = 0;
+  bool _hasMarkedAsRead = false;
   List<QueryDocumentSnapshot<Map<String, dynamic>>> _lastDocs = [];
   late final MessagesBloc _messagesBloc;
   late final MessageRepository _messageRepository;
@@ -92,12 +93,6 @@ class _ChatsScreenState extends State<ChatsScreen> {
       _messagesBloc.add(
         SubscribeMessages(chatId: _chatDocId(widget.userId, currentUserId)),
       );
-      _messagesBloc.add(
-        MarkChatRead(
-          chatId: _chatDocId(widget.userId, currentUserId),
-          currentUserId: currentUserId,
-        ),
-      );
     }
   }
 
@@ -105,6 +100,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
     _lastMessageCount = 0;
     selectedMessageIds.clear();
     _lastDocs = [];
+    _hasMarkedAsRead = false;
   }
 
   String _chatDocId(String userId1, String userId2) =>
@@ -165,17 +161,18 @@ class _ChatsScreenState extends State<ChatsScreen> {
             _lastDocs = state.docs;
           }
           final docs = _lastDocs;
-          if (docs.isNotEmpty && _shouldScrollToBottom(docs.length)) {
-            if (_lastMessageCount > 0 && currentUserId != null) {
-              _messagesBloc.add(
-                MarkChatRead(
-                  chatId: _chatDocId(widget.userId, currentUserId),
-                  currentUserId: currentUserId,
-                ),
-              );
-            }
+          if (docs.isNotEmpty && currentUserId != null && !_hasMarkedAsRead) {
+            _hasMarkedAsRead = true;
+            _messagesBloc.add(
+              MarkChatRead(
+                chatId: _chatDocId(widget.userId, currentUserId),
+                currentUserId: currentUserId,
+              ),
+            );
             _lastMessageCount = docs.length;
-            _scrollToBottom();
+            if (_shouldScrollToBottom(docs.length)) {
+              _scrollToBottom();
+            }
           }
           return Scaffold(
             appBar: _isSelectionMode
@@ -249,10 +246,13 @@ class _ChatsScreenState extends State<ChatsScreen> {
   }
 
   PreferredSizeWidget _buildChatAppBar() {
+    final currentUserId = _currentUserId;
     return ChatAppBar(
       userName: widget.numName,
       isOnline: widget.isOnline,
       avatarUrl: widget.imageAvatar,
+      chatId: _chatDocId(widget.userId, currentUserId!),
+      currentUserId: currentUserId,
     );
   }
 

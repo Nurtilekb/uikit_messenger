@@ -22,6 +22,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     on<SubscribeMessages>(_onSubscribeMessages);
     on<UnsubscribeMessages>(_onUnsubscribeMessages);
     on<DeleteMessages>(_onDeleteMessages);
+    on<ClearChat>(_onClearChat);
     on<_InternalMessagesUpdated>(
       (event, emit) => _onInternalMessagesUpdated(event.docs, emit),
     );
@@ -99,6 +100,20 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
       await _repository.deleteMessages(
         chatId: event.chatId,
         messageIds: event.messageIds,
+      );
+    } catch (e) {
+      emit(MessageError(e.toString()));
+    }
+  }
+
+  FutureOr<void> _onClearChat(
+    ClearChat event,
+    Emitter<MessagesState> emit,
+  ) async {
+    try {
+      await _repository.clearChat(
+        chatId: event.chatId,
+        currentUserId: event.currentUserId,
       );
     } catch (e) {
       emit(MessageError(e.toString()));
