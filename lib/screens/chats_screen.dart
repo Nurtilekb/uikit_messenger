@@ -4,7 +4,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/chat_widgets/chat_app_bar.dart';
@@ -12,6 +11,12 @@ import 'package:uikit/widgets/chat_widgets/chat_composer.dart';
 import 'package:uikit/widgets/chat_widgets/chat_firestore_helpers.dart';
 import 'package:uikit/widgets/chat_widgets/chat_message_list.dart';
 import 'package:uikit/widgets/chat_widgets/chat_selection_app_bar.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uikit/blocs/messages/messages_bloc.dart';
+import 'package:uikit/blocs/messages/messages_event.dart';
+import 'package:uikit/blocs/messages/messages_state.dart';
+import 'package:uikit/repositories/message_repository.dart';
+import 'package:uikit/widgets/common_dialogs.dart';
 
 @RoutePage()
 class ChatsScreen extends StatefulWidget {
@@ -37,7 +42,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
   final _scrollController = ScrollController();
   final Set<String> selectedMessageIds = {};
   int _lastMessageCount = 0;
-  Stream<QuerySnapshot<Map<String, dynamic>>>? _messageStream;
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> _lastDocs = [];
+  late final MessagesBloc _messagesBloc;
+  late final MessageRepository _messageRepository;
 
   String? get _currentUserId => FirebaseAuth.instance.currentUser?.uid;
   bool get _isSelectionMode => selectedMessageIds.isNotEmpty;
@@ -46,6 +53,13 @@ class _ChatsScreenState extends State<ChatsScreen> {
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    final currentUserId = _currentUserId;
+    if (currentUserId != null) {
+      _messagesBloc.add(
+        UnsubscribeMessages(chatId: _chatDocId(widget.userId, currentUserId)),
+      );
+    }
+    _messagesBloc.close();
     super.dispose();
   }
 
@@ -53,6 +67,17 @@ class _ChatsScreenState extends State<ChatsScreen> {
   void didUpdateWidget(covariant ChatsScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.userId != widget.userId) {
+      final currentUserId = _currentUserId;
+      if (currentUserId != null) {
+        _messagesBloc.add(
+          UnsubscribeMessages(
+            chatId: _chatDocId(oldWidget.userId, currentUserId),
+          ),
+        );
+        _messagesBloc.add(
+          SubscribeMessages(chatId: _chatDocId(widget.userId, currentUserId)),
+        );
+      }
       _resetChatState();
     }
   }
@@ -60,113 +85,30 @@ class _ChatsScreenState extends State<ChatsScreen> {
   @override
   void initState() {
     super.initState();
-    _initMessageStream();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _markChatAsRead();
-    });
+    _messageRepository = MessageRepository();
+    _messagesBloc = MessagesBloc(repository: _messageRepository);
+    final currentUserId = _currentUserId;
+    if (currentUserId != null) {
+      _messagesBloc.add(
+        SubscribeMessages(chatId: _chatDocId(widget.userId, currentUserId)),
+      );
+      _messagesBloc.add(
+        MarkChatRead(
+          chatId: _chatDocId(widget.userId, currentUserId),
+          currentUserId: currentUserId,
+        ),
+      );
+    }
   }
 
   void _resetChatState() {
     _lastMessageCount = 0;
     selectedMessageIds.clear();
-    _initMessageStream();
-  }
-
-  void _initMessageStream() {
-    final currentUserId = _currentUserId;
-    _messageStream = currentUserId == null
-        ? const Stream<QuerySnapshot<Map<String, dynamic>>>.empty()
-        : FirebaseFirestore.instance
-              .collection('chats')
-              .doc(_chatDocId(widget.userId, currentUserId))
-              .collection('messages')
-              .orderBy('createdAt', descending: false)
-              .snapshots(includeMetadataChanges: true);
+    _lastDocs = [];
   }
 
   String _chatDocId(String userId1, String userId2) =>
       buildChatDocId(userId1, userId2);
-
-  Future<void> _sendMessage() async {
-    final text = _messageController.text.trim();
-    final currentUserId = _currentUserId;
-
-    if (text.isEmpty || currentUserId == null) return;
-
-    final chatId = _chatDocId(widget.userId, currentUserId);
-    final chatDocRef = FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chatId);
-    _messageController.clear();
-    try {
-      await chatDocRef.collection('messages').add({
-        'text': text,
-        'senderId': currentUserId,
-        'sendAt': _getCurrentTime(),
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      await chatDocRef.set({
-        'participantIds': [currentUserId, widget.userId],
-        'lastMessage': text,
-        'updatedAt': FieldValue.serverTimestamp(),
-        'senderId': currentUserId,
-        'unreadCount': 0,
-      }, SetOptions(merge: true));
-
-      _scrollToBottom();
-    } catch (e) {
-      debugPrint('Ошибка записи: $e');
-    }
-  }
-
-  Future<void> _markChatAsRead() async {
-    final currentUserId = _currentUserId;
-    if (currentUserId == null || widget.userId.isEmpty) return;
-
-    await resetUnreadCountForChat(_chatDocId(widget.userId, currentUserId));
-  }
-
-  Future<void> _deleteSelectedMessages() async {
-    final currentUserId = _currentUserId;
-    if (currentUserId == null || selectedMessageIds.isEmpty) return;
-
-    final chatDocRef = FirebaseFirestore.instance
-        .collection('chats')
-        .doc(_chatDocId(widget.userId, currentUserId));
-    final messagesRef = chatDocRef.collection('messages');
-    final batch = FirebaseFirestore.instance.batch();
-
-    for (final messageId in selectedMessageIds) {
-      batch.delete(messagesRef.doc(messageId));
-    }
-
-    try {
-      await batch.commit();
-
-      final remainingSnapshot = await messagesRef.get();
-      final remainingMessage = remainingSnapshot.docs.isNotEmpty
-          ? (remainingSnapshot.docs.last.data()['text']?.toString() ?? '')
-          : '';
-
-      await chatDocRef.set({
-        'lastMessage': remainingMessage,
-      }, SetOptions(merge: true));
-
-      if (mounted) {
-        setState(() {
-          selectedMessageIds.clear();
-        });
-      }
-    } catch (e) {
-      debugPrint('Ошибка удаления: $e');
-    }
-  }
-
-  String _getCurrentTime() {
-    final now = DateTime.now();
-    return '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-  }
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -202,66 +144,94 @@ class _ChatsScreenState extends State<ChatsScreen> {
     final colors = context.appColors;
     final currentUserId = _currentUserId;
 
-    if (currentUserId != null && _messageStream == null) {
-      _initMessageStream();
-    }
-
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: _messageStream,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (snapshot.hasError) {
-          return Scaffold(
-            body: Center(
-              child: Text('Ошибка загрузки сообщений: ${snapshot.error}'),
-            ),
-          );
-        }
-
-        final docs = snapshot.data?.docs ?? [];
-        if (docs.isNotEmpty && _shouldScrollToBottom(docs.length)) {
-          if (_lastMessageCount > 0 && currentUserId != null) {
-            unawaited(_updateUnreadCount(currentUserId, docs));
+    return BlocProvider.value(
+      value: _messagesBloc,
+      child: BlocBuilder<MessagesBloc, MessagesState>(
+        builder: (context, state) {
+          if (state is MessagesLoadInProgress) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
           }
-          _lastMessageCount = docs.length;
-          _scrollToBottom();
-        }
 
-        return Scaffold(
-          appBar: _isSelectionMode
-              ? _buildSelectionAppBar()
-              : _buildChatAppBar(),
-          body: SafeArea(
-            child: Column(
-              children: [
-                Expanded(
-                  child: ColoredBox(
-                    color: colors.chatBackground,
-                    child: ChatMessageList(
-                      docs: docs,
-                      colors: colors,
-                      currentUserId: currentUserId,
-                      selectedMessageIds: selectedMessageIds,
-                      isSelectionMode: _isSelectionMode,
-                      scrollController: _scrollController,
-                      onToggleSelection: _toggleSelection,
-                    ),
-                  ),
+          if (state is MessageError) {
+            return Scaffold(
+              body: Center(
+                child: Text('Ошибка загрузки сообщений: ${state.message}'),
+              ),
+            );
+          }
+          if (state is MessagesLoadSuccess) {
+            _lastDocs = state.docs;
+          }
+          final docs = _lastDocs;
+          if (docs.isNotEmpty && _shouldScrollToBottom(docs.length)) {
+            if (_lastMessageCount > 0 && currentUserId != null) {
+              _messagesBloc.add(
+                MarkChatRead(
+                  chatId: _chatDocId(widget.userId, currentUserId),
+                  currentUserId: currentUserId,
                 ),
-                _isSelectionMode
-                    ? SizedBox()
-                    : ChatComposer(
-                        controller: _messageController,
-                        onSend: _sendMessage,
-                      ),
-              ],
+              );
+            }
+            _lastMessageCount = docs.length;
+            _scrollToBottom();
+          }
+          return Scaffold(
+            appBar: _isSelectionMode
+                ? _buildSelectionAppBar()
+                : _buildChatAppBar(),
+            body: SafeArea(
+              child: Column(
+                children: [
+                  _buildMessageArea(colors, currentUserId, docs),
+                  _buildComposer(),
+                ],
+              ),
             ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildMessageArea(
+    AppColors colors,
+    String? currentUserId,
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    return Expanded(
+      child: ColoredBox(
+        color: colors.chatBackground,
+        child: ChatMessageList(
+          docs: docs,
+          colors: colors,
+          currentUserId: currentUserId,
+          selectedMessageIds: selectedMessageIds,
+          isSelectionMode: _isSelectionMode,
+          scrollController: _scrollController,
+          onToggleSelection: _toggleSelection,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildComposer() {
+    if (_isSelectionMode) return const SizedBox();
+
+    return ChatComposer(
+      controller: _messageController,
+      onSend: (text) {
+        final currentUserId = _currentUserId;
+        if (currentUserId == null) return;
+        _messagesBloc.add(
+          SendMessage(
+            chatId: _chatDocId(widget.userId, currentUserId),
+            recipientId: widget.userId,
+            text: text,
           ),
         );
+        _scrollToBottom();
       },
     );
   }
@@ -278,17 +248,6 @@ class _ChatsScreenState extends State<ChatsScreen> {
     return currentLength > _lastMessageCount || _lastMessageCount == 0;
   }
 
-  Future<void> _updateUnreadCount(
-    String currentUserId,
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
-  ) async {
-    await updateUnreadCountForChat(
-      _chatDocId(widget.userId, currentUserId),
-      currentUserId,
-      docs.skip(_lastMessageCount).toList(),
-    );
-  }
-
   PreferredSizeWidget _buildChatAppBar() {
     return ChatAppBar(
       userName: widget.numName,
@@ -298,30 +257,26 @@ class _ChatsScreenState extends State<ChatsScreen> {
   }
 
   Future<void> _showDeleteDialog() async {
-    final navigator = Navigator.of(context);
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('confirmdeleting'.tr()),
-        content: Text('descriptdeleting'.tr()),
-        actions: [
-          TextButton(
-            child: Text('cancel'.tr()),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          TextButton(
-            child: Text(
-              'delete'.tr(),
-              style: const TextStyle(color: Colors.red),
-            ),
-            onPressed: () async {
-              navigator.pop();
-              await _deleteSelectedMessages();
-              if (!mounted) return;
-            },
-          ),
-        ],
-      ),
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'confirmdeleting'.tr(),
+      content: 'descriptdeleting'.tr(),
+      cancelText: 'cancel'.tr(),
+      confirmText: 'delete'.tr(),
     );
+
+    if (confirmed == true) {
+      final currentUserId = _currentUserId;
+      if (currentUserId == null) return;
+      final chatId = _chatDocId(widget.userId, currentUserId);
+      _messagesBloc.add(
+        DeleteMessages(chatId: chatId, messageIds: selectedMessageIds.toList()),
+      );
+      if (mounted) {
+        setState(() {
+          selectedMessageIds.clear();
+        });
+      }
+    }
   }
 }

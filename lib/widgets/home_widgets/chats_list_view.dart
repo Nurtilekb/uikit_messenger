@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/models/chat_model.dart';
@@ -54,7 +53,12 @@ class ChatsListView extends StatelessWidget {
         }
 
         final chats = snapshot.data ?? [];
-        if (chats.isEmpty) {
+        // Only show chats that have a last message for the list view.
+        final visibleChats = chats
+            .where((c) => c.lastMessage.isNotEmpty)
+            .toList();
+
+        if (visibleChats.isEmpty) {
           return Center(
             child: EmptyChatWidget(
               title: 'nochatsyet'.tr(),
@@ -88,68 +92,37 @@ class ChatsListView extends StatelessWidget {
         }
 
         return ListView.separated(
-          itemCount: chats.length,
+          itemCount: visibleChats.length,
           separatorBuilder: (_, _) => const SizedBox(height: 5),
           itemBuilder: (context, index) {
-            final chat = chats[index];
+            final chat = visibleChats[index];
             final isSelected = selectedChatIds.contains(chat.chatID);
 
-            if (chat.lastMessage.isEmpty) {
-              return EmptyChatWidget(
-                title: 'nochatsyet'.tr(),
-                subtitle: 'startconv'.tr(),
-                icon: Icons.messenger,
-                actionButton: InkWell(
-                  onTap: () {
-                    context.router.push(UsersListRoute());
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: themeStyle.primaryColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    width: MediaQuery.of(context).size.width / 2,
-                    height: 50,
-                    child: Center(
-                      child: Text(
-                        '+newchat'.tr(),
-                        style: TextStyle(
-                          color: colors.textOnPrimary,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            } else {
-              return UserTile(
-                onTap: () {
-                  if (isSelectionMode) {
-                    onToggleSelection(chat.chatID);
-                  } else {
-                    context.router.push(
-                      ChatsRoute(
-                        numName: chat.name,
-                        userId: chat.otherUserId,
-                        isOnline: false,
-                        imageAvatar: chat.avatarUrl,
-                      ),
-                    );
-                  }
-                },
-                name: chat.name,
-                lastMessage: chat.lastMessage,
-                unreadCount: chat.unreadCount,
-                avatarUrl: chat.avatarUrl,
-                time: _formatTimestamp(chat.time),
-                isSelected: isSelected,
-                onlongPress: () {
+            return UserTile(
+              onTap: () {
+                if (isSelectionMode) {
                   onToggleSelection(chat.chatID);
-                },
-              );
-            }
+                } else {
+                  context.router.push(
+                    ChatsRoute(
+                      numName: chat.name,
+                      userId: chat.otherUserId,
+                      isOnline: false,
+                      imageAvatar: chat.avatarUrl,
+                    ),
+                  );
+                }
+              },
+              name: chat.name,
+              lastMessage: chat.lastMessage,
+              unreadCount: chat.unreadCount,
+              avatarUrl: chat.avatarUrl,
+              time: _formatTimestamp(chat.time),
+              isSelected: isSelected,
+              onlongPress: () {
+                onToggleSelection(chat.chatID);
+              },
+            );
           },
         );
       },
