@@ -1,4 +1,3 @@
-// lib/bloc/theme/theme_state.dart
 part of 'theme_cubit.dart';
 
 class ThemeState extends Equatable {

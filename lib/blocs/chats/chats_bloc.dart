@@ -12,9 +12,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<AddChat>(_onAddChat);
     on<ToggleChatSelection>(_onToggleSelection);
     on<ClearSelection>(_onClearSelection);
-    on<ArchiveSelectedChats>(
-      _onArchiveSelected as EventHandler<ArchiveSelectedChats, ChatState>,
-    );
+    on<ArchiveSelectedChats>(_onArchiveSelected);
     on<DeleteSelectedChats>(
       _onDeleteSelected as EventHandler<DeleteSelectedChats, ChatState>,
     );
