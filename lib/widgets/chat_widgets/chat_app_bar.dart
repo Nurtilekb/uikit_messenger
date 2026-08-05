@@ -1,17 +1,25 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uikit/blocs/messages/messages_bloc.dart';
+import 'package:uikit/blocs/messages/messages_event.dart';
 import 'package:uikit/theme/app_colors.dart';
+import 'package:uikit/widgets/common_dialogs.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String userName;
   final bool isOnline;
   final String avatarUrl;
+  final String chatId;
+  final String currentUserId;
 
   const ChatAppBar({
     super.key,
     required this.userName,
     required this.isOnline,
     required this.avatarUrl,
+    required this.chatId,
+    required this.currentUserId,
   });
 
   @override
@@ -33,16 +41,31 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             size: 29,
             color: colors.iconPrimary,
           ),
-          onSelected: (_) {},
+          onSelected: (value) {
+            if (value != 'clear') return;
+            showConfirmDialog(
+              context,
+              title: 'clearchat'.tr(),
+              content: 'clearchatconfirm'.tr(),
+              cancelText: 'cancel'.tr(),
+              confirmText: 'clear'.tr(),
+            ).then((confirmed) {
+              if (confirmed != true) return;
+              if (!context.mounted) return;
+              context.read<MessagesBloc>().add(
+                ClearChat(chatId: chatId, currentUserId: currentUserId),
+              );
+            });
+          },
           itemBuilder: (context) => [
             PopupMenuItem<String>(
-              value: 'delete',
+              value: 'clear',
               child: Row(
                 children: [
                   const Icon(Icons.delete_sweep_outlined, size: 22),
                   const SizedBox(width: 12),
                   Text(
-                    'delete'.tr(),
+                    'clearchat'.tr(),
                     style: const TextStyle(color: Colors.black87),
                   ),
                 ],
