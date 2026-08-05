@@ -32,6 +32,7 @@ class _SearchScreenState extends State<SearchScreen> {
     final getStyle = Theme.of(context);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Padding(
           padding: const EdgeInsets.only(right: 8.0),
