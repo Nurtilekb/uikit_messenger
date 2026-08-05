@@ -11,6 +11,8 @@
 "online": "online",
 "message": "Message",
 "clearchat": "Clear chat",
+"clearchatconfirm": "Are you sure you want to clear this chat?",
+"clear": "Clear",
 "search": "Search",
 "block": "Block",
 "complain": "Complain",
