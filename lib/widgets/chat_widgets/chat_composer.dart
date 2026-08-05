@@ -4,7 +4,7 @@ import 'package:uikit/widgets/app_text_field.dart';
 
 class ChatComposer extends StatelessWidget {
   final TextEditingController controller;
-  final VoidCallback onSend;
+  final void Function(String text) onSend;
 
   const ChatComposer({
     super.key,
@@ -43,7 +43,12 @@ class ChatComposer extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
       child: IconButton(
-        onPressed: onSend,
+        onPressed: () {
+          final text = controller.text.trim();
+          if (text.isEmpty) return;
+          onSend(text);
+          controller.clear();
+        },
         icon: Icon(Icons.send, color: colors.textOnPrimary, size: 20),
       ),
     );

@@ -1,28 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-Future<void> updateUnreadCountForChat(
+Future<void> incrementUnreadCountForChat(
   String chatId,
-  String currentUserId,
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> newMessages,
+  String recipientId,
 ) async {
-  if (newMessages.isEmpty || currentUserId.isEmpty) return;
-
-  final incomingMessages = newMessages.where((doc) {
-    final senderId = doc.data()['senderId']?.toString();
-    return senderId != null && senderId != currentUserId;
-  }).toList();
-
-  if (incomingMessages.isEmpty) return;
+  if (recipientId.isEmpty) return;
 
   final chatDocRef = FirebaseFirestore.instance.collection('chats').doc(chatId);
   await chatDocRef.set({
-    'unreadCount': FieldValue.increment(incomingMessages.length),
+    'unreadCountByUser.$recipientId': FieldValue.increment(1),
   }, SetOptions(merge: true));
 }
 
-Future<void> resetUnreadCountForChat(String chatId) async {
+Future<void> resetUnreadCountForChat(
+  String chatId,
+  String currentUserId,
+) async {
+  if (currentUserId.isEmpty) return;
+
   await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
-    'unreadCount': 0,
+    'unreadCountByUser.$currentUserId': 0,
   }, SetOptions(merge: true));
 }
 
