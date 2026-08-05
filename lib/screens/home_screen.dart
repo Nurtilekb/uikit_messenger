@@ -4,6 +4,7 @@ import 'package:uikit/repositories/chat_repository.dart';
 import 'package:uikit/router/app_router.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/home_widgets/chats_list_view.dart';
+import 'package:uikit/widgets/common_dialogs.dart';
 import 'package:uikit/widgets/home_widgets/home_appbar.dart';
 
 @RoutePage()
@@ -39,30 +40,19 @@ class _HomeScreenState extends State<HomeScreen> {
   void _deleteSelectedChats(List<String> idsToDelete) async {
     if (idsToDelete.isEmpty) return;
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Удалить чаты?'),
-        content: Text(
-          'Вы уверены, что хотите удалить ${idsToDelete.length} чат(ов)?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _chatRepository.deleteChats(idsToDelete);
-              if (!mounted) return;
-              _clearSelection();
-            },
-            child: const Text('Удалить', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Удалить чаты?',
+      content: 'Вы уверены, что хотите удалить ${idsToDelete.length} чат(ов)?',
+      cancelText: 'Отмена',
+      confirmText: 'Удалить',
     );
+
+    if (confirmed == true) {
+      await _chatRepository.deleteChats(idsToDelete);
+      if (!mounted) return;
+      _clearSelection();
+    }
   }
 
   @override
