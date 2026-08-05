@@ -104,12 +104,6 @@ class Chat extends Equatable {
       }
     }
 
-    if (unreadCountValue == 0) {
-      unreadCountValue = data['unreadCount'] is int
-          ? data['unreadCount'] as int
-          : int.tryParse(data['unreadCount']?.toString() ?? '0') ?? 0;
-    }
-
     return Chat(
       chatID: chatId,
       name: displayName,
