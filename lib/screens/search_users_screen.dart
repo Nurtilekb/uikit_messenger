@@ -3,11 +3,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:uikit/repositories/user_repository.dart';
 import 'package:uikit/router/app_router.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/app_text_field.dart';
 import 'package:uikit/widgets/empty_contacts_state.dart';
 import 'package:uikit/widgets/on_user_search_tile.dart';
+
+class _ChatSearchItem {
+  const _ChatSearchItem({
+    required this.userId,
+    required this.name,
+    required this.email,
+    required this.avatarUrl,
+  });
+
+  final String userId;
+  final String name;
+  final String email;
+  final String avatarUrl;
+}
 
 @RoutePage()
 class SearchScreen extends StatefulWidget {
@@ -19,6 +34,44 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final UserRepository _userRepository = UserRepository();
+
+  Future<List<_ChatSearchItem>> _loadChatSearchItems(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> chatDocs,
+    String currentUserId,
+  ) async {
+    final items = <_ChatSearchItem>[];
+
+    for (final doc in chatDocs) {
+      final data = doc.data();
+      final participantIds = <String>[];
+      if (data['participantIds'] is List) {
+        participantIds.addAll(List<String>.from(data['participantIds']));
+      }
+
+      final otherUserId = participantIds.firstWhere(
+        (id) => id != currentUserId,
+        orElse: () => '',
+      );
+
+      if (otherUserId.isEmpty) continue;
+
+      final user = await _userRepository.getUserById(otherUserId);
+      final name = (user?.name ?? data['name'] ?? '').toString().trim();
+      final email = (user?.email ?? data['email'] ?? '').toString().trim();
+
+      items.add(
+        _ChatSearchItem(
+          userId: otherUserId,
+          name: name.isNotEmpty ? name : 'Без имени',
+          email: email.isNotEmpty ? email : '',
+          avatarUrl: data['avatarUrl']?.toString() ?? '',
+        ),
+      );
+    }
+
+    return items;
+  }
 
   @override
   void dispose() {
@@ -66,8 +119,12 @@ class _SearchScreenState extends State<SearchScreen> {
               padding: const EdgeInsets.fromLTRB(24, 10, 24, 10),
               child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                 stream: FirebaseFirestore.instance
-                    .collection('users')
-                    .orderBy('name', descending: false)
+                    .collection('chats')
+                    .where(
+                      'participantIds',
+                      arrayContains: FirebaseAuth.instance.currentUser!.uid,
+                    )
+                    .orderBy('updatedAt', descending: true)
                     .snapshots(),
                 builder: (context, asyncSnapshot) {
                   if (asyncSnapshot.connectionState ==
@@ -79,76 +136,76 @@ class _SearchScreenState extends State<SearchScreen> {
                     return Center(child: Text('Ошибка загрузки пользователей'));
                   }
 
-                  final users = asyncSnapshot.data?.docs ?? [];
+                  final chatDocs = asyncSnapshot.data?.docs ?? [];
                   final query = _searchController.text.trim().toLowerCase();
                   final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
-                  final filteredUsers = users.where((doc) {
-                    final data = doc.data();
-                    final docId = doc.id;
-                    final userId = data['id']?.toString() ?? docId;
-                    if (currentUserId != null && userId == currentUserId) {
-                      return false;
-                    }
-
-                    final name = (data['name'] ?? '').toString().toLowerCase();
-                    final email = (data['email'] ?? '')
-                        .toString()
-                        .toLowerCase();
-                    return query.isEmpty
-                        ? true
-                        : name.contains(query) || email.contains(query);
-                  }).toList();
-
-                  if (filteredUsers.isEmpty) {
-                    return EmptyChatWidget(
-                      title: 'Ничего не найдено',
-                      subtitle:
-                          'Проверьте имя пользователя или email и попробуйте снова',
-                      icon: Icons.search,
+                  if (currentUserId == null) {
+                    return const Center(
+                      child: Text('Пользователь не авторизован'),
                     );
                   }
 
-                  if (_searchController.text.isEmpty) {
-                    return Center(
-                      child: Text(
-                        query.isEmpty
-                            ? 'Поиск пользователей....'
-                            : 'Ничего не найдено',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400,
-                          color: colors.textSecondary,
-                        ),
-                      ),
-                    );
-                  }
+                  return FutureBuilder<List<_ChatSearchItem>>(
+                    future: _loadChatSearchItems(chatDocs, currentUserId),
+                    builder: (context, futureSnapshot) {
+                      if (futureSnapshot.connectionState ==
+                              ConnectionState.waiting &&
+                          query.isNotEmpty) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                  return ListView.separated(
-                    itemBuilder: (BuildContext context, int index) {
-                      final userDoc = filteredUsers[index];
-                      final data = userDoc.data();
-                      return InkWell(
-                        child: SearchChatTile(
-                          name: data['name']?.toString() ?? 'Без имени',
-                          gmailAccaunt: data['email']?.toString() ?? '',
-                        ),
-                        onTap: () {
-                          context.router.push(
-                            ChatsRoute(
-                              numName: data['name']?.toString() ?? 'Без имени',
-                              userId: data['id']?.toString() ?? 'Без id',
-                              isOnline: false,
-                              imageAvatar: data['avatarUrl']?.toString() ?? '',
+                      if (futureSnapshot.hasError) {
+                        return Center(child: Text('Ошибка загрузки чатов'));
+                      }
+
+                      final users = futureSnapshot.data ?? [];
+                      final filteredUsers = users.where((item) {
+                        final name = item.name.toLowerCase();
+                        final email = item.email.toLowerCase();
+                        return query.isEmpty
+                            ? true
+                            : name.contains(query) || email.contains(query);
+                      }).toList();
+
+                      if (filteredUsers.isEmpty) {
+                        return EmptyChatWidget(
+                          title: query.isEmpty
+                              ? 'У вас пока нет диалогов'
+                              : 'Ничего не найдено',
+                          subtitle: query.isEmpty
+                              ? 'Начните разговор с пользователем, чтобы он появился здесь'
+                              : 'Проверьте имя пользователя или email и попробуйте снова',
+                          icon: Icons.search,
+                        );
+                      }
+
+                      return ListView.separated(
+                        itemBuilder: (BuildContext context, int index) {
+                          final item = filteredUsers[index];
+                          return InkWell(
+                            child: SearchChatTile(
+                              name: item.name,
+                              gmailAccaunt: item.email,
                             ),
+                            onTap: () {
+                              context.router.push(
+                                ChatsRoute(
+                                  numName: item.name,
+                                  userId: item.userId,
+                                  isOnline: false,
+                                  imageAvatar: item.avatarUrl,
+                                ),
+                              );
+                            },
                           );
                         },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return const SizedBox(height: 25);
+                        },
+                        itemCount: filteredUsers.length,
                       );
                     },
-                    separatorBuilder: (BuildContext context, int index) {
-                      return const SizedBox(height: 25);
-                    },
-                    itemCount: filteredUsers.length,
                   );
                 },
               ),
