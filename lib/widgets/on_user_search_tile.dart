@@ -4,12 +4,14 @@ import 'package:uikit/theme/app_colors.dart';
 class SearchChatTile extends StatelessWidget {
   final String name;
   final String gmailAccaunt;
+  final bool isOnline;
   final VoidCallback? onTap;
 
   const SearchChatTile({
     super.key,
     required this.name,
     required this.gmailAccaunt,
+    this.isOnline = false,
     this.onTap,
   });
 
@@ -54,6 +56,20 @@ class SearchChatTile extends StatelessWidget {
                         ),
                       ),
               ),
+              if (isOnline)
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: colors.online,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: colors.surface, width: 2),
+                    ),
+                  ),
+                ),
             ],
           ),
           const SizedBox(width: 14),

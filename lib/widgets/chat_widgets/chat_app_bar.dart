@@ -103,7 +103,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                 )
               : null,
         ),
-        if (isOnline)
+        if (isOnline == true)
           Positioned(
             bottom: 0,
             right: 0,

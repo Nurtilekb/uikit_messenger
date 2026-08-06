@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +43,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
   final Set<String> selectedMessageIds = {};
   int _lastMessageCount = 0;
   bool _hasMarkedAsRead = false;
+  bool _isMarkingAsRead = false;
   List<QueryDocumentSnapshot<Map<String, dynamic>>> _lastDocs = [];
   late final MessagesBloc _messagesBloc;
   late final MessageRepository _messageRepository;
@@ -79,6 +79,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
         _messagesBloc.add(
           SubscribeMessages(chatId: _chatDocId(widget.userId, currentUserId)),
         );
+        _markChatAsRead();
       }
       _resetChatState();
     }
@@ -94,12 +95,24 @@ class _ChatsScreenState extends State<ChatsScreen> {
       _messagesBloc.add(
         SubscribeMessages(chatId: _chatDocId(widget.userId, currentUserId)),
       );
-      _messagesBloc.add(
-        MarkChatRead(
-          chatId: _chatDocId(widget.userId, currentUserId),
-          currentUserId: currentUserId,
-        ),
+    }
+  }
+
+  Future<void> _markChatAsRead() async {
+    if (_hasMarkedAsRead || _isMarkingAsRead) return;
+
+    final currentUserId = _currentUserId;
+    if (currentUserId == null) return;
+
+    _isMarkingAsRead = true;
+    try {
+      await resetUnreadCountForChat(
+        _chatDocId(widget.userId, currentUserId),
+        currentUserId,
       );
+      _hasMarkedAsRead = true;
+    } finally {
+      _isMarkingAsRead = false;
     }
   }
 
@@ -169,13 +182,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
           }
           final docs = _lastDocs;
           if (docs.isNotEmpty && currentUserId != null && !_hasMarkedAsRead) {
-            _hasMarkedAsRead = true;
-            _messagesBloc.add(
-              MarkChatRead(
-                chatId: _chatDocId(widget.userId, currentUserId),
-                currentUserId: currentUserId,
-              ),
-            );
+            unawaited(_markChatAsRead());
+          }
+          if (docs.isNotEmpty && currentUserId != null) {
             _lastMessageCount = docs.length;
             if (_shouldScrollToBottom(docs.length)) {
               _scrollToBottom();

@@ -16,12 +16,14 @@ class _ChatSearchItem {
     required this.name,
     required this.email,
     required this.avatarUrl,
+    required this.isOnline,
   });
 
   final String userId;
   final String name;
   final String email;
   final String avatarUrl;
+  final bool isOnline;
 }
 
 @RoutePage()
@@ -66,6 +68,7 @@ class _SearchScreenState extends State<SearchScreen> {
           name: name.isNotEmpty ? name : 'Без имени',
           email: email.isNotEmpty ? email : '',
           avatarUrl: data['avatarUrl']?.toString() ?? '',
+          isOnline: user?.isOnline ?? (data['isOnline'] ?? false) as bool,
         ),
       );
     }
@@ -187,13 +190,14 @@ class _SearchScreenState extends State<SearchScreen> {
                             child: SearchChatTile(
                               name: item.name,
                               gmailAccaunt: item.email,
+                              isOnline: item.isOnline == true,
                             ),
                             onTap: () {
                               context.router.push(
                                 ChatsRoute(
                                   numName: item.name,
                                   userId: item.userId,
-                                  isOnline: false,
+                                  isOnline: item.isOnline,
                                   imageAvatar: item.avatarUrl,
                                 ),
                               );

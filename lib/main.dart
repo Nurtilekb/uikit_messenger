@@ -43,15 +43,19 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final AppRouter _appRouter = AppRouter();
   final PresenceService _presenceService = PresenceService();
+  late final _AppLifecycleObserver _lifecycleObserver;
 
   @override
   void initState() {
     super.initState();
+    _lifecycleObserver = _AppLifecycleObserver(_presenceService);
+    WidgetsBinding.instance.addObserver(_lifecycleObserver);
     _presenceService.initialize();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(_lifecycleObserver);
     _presenceService.dispose();
     super.dispose();
   }
@@ -81,10 +85,6 @@ class _MyAppState extends State<MyApp> {
             SizedBox();
           }
           if (state is AuthAuthenticated) {
-            final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-            if (currentUserId != null) {
-              unawaited(_presenceService.setOnline(currentUserId));
-            }
             _appRouter.replaceAll([const HomeRoute()]);
           } else if (state is AuthUnauthenticated) {
             _appRouter.replaceAll([const AuthRoute()]);
@@ -106,5 +106,25 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+}
+
+class _AppLifecycleObserver extends WidgetsBindingObserver {
+  _AppLifecycleObserver(this._presenceService);
+
+  final PresenceService _presenceService;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    if (state == AppLifecycleState.resumed) {
+      unawaited(_presenceService.syncPresence(userId));
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      unawaited(_presenceService.setOffline(userId));
+    }
   }
 }
