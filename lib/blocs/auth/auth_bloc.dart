@@ -3,13 +3,17 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uikit/blocs/auth/auth_event.dart';
 import 'package:uikit/blocs/auth/auth_state.dart';
+import 'package:uikit/blocs/presence/presence_cubit.dart';
 import 'package:uikit/models/user_model.dart';
 import 'package:uikit/repositories/auth_repository.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository _authRepository;
+  final PresenceService _presenceService;
 
-  AuthBloc({required this._authRepository}) : super(AuthInitial()) {
+  AuthBloc({required this._authRepository, PresenceService? presenceService})
+    : _presenceService = presenceService ?? PresenceService(),
+      super(AuthInitial()) {
     on<AuthLoginRequested>(_onAuthLoginRequested);
     on<AuthRegisterRequested>(_onAuthRegisterRequested);
     on<AuthLogoutRequested>(_onAuthLogoutRequested);
@@ -33,7 +37,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null) {
         final userModel = await _authRepository.getUserData(user.id);
         if (userModel != null) {
-          emit(AuthAuthenticated(user: userModel));
+          await _presenceService.setOnline(user.id);
+          emit(AuthAuthenticated(user: userModel.copyWith(isOnline: true)));
         } else {
           emit(AuthAuthenticated(user: user));
         }
@@ -74,7 +79,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null) {
         final userModel = await _authRepository.getUserData(user.id);
         if (userModel != null) {
-          emit(AuthAuthenticated(user: userModel));
+          await _presenceService.setOnline(user.id);
+          emit(AuthAuthenticated(user: userModel.copyWith(isOnline: true)));
         } else {
           emit(AuthAuthenticated(user: user));
         }
@@ -147,7 +153,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null) {
         final userModel = await _authRepository.getUserData(user.uid);
         if (userModel != null) {
-          emit(AuthAuthenticated(user: userModel));
+          await _presenceService.setOnline(user.uid);
+          emit(AuthAuthenticated(user: userModel.copyWith(isOnline: true)));
         } else {
           final tempUser = UserModel(
             id: user.uid,
@@ -176,7 +183,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final userModel = await _authRepository.signInWithGoogle();
 
       if (userModel != null) {
-        emit(AuthAuthenticated(user: userModel));
+        await _presenceService.setOnline(userModel.id);
+        emit(AuthAuthenticated(user: userModel.copyWith(isOnline: true)));
       } else {
         emit(AuthUnauthenticated());
       }

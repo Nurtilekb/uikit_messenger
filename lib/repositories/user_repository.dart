@@ -16,10 +16,19 @@ class UserRepository {
       final currentUserId = _firebaseAuth.currentUser?.uid;
       final snapshot = await _firestore.collection('users').get();
 
-      return snapshot.docs
-          .map((doc) => UserModel.fromJson({...doc.data(), 'id': doc.id}))
-          .where((user) => currentUserId == null || user.id != currentUserId)
-          .toList();
+      final users = <UserModel>[];
+      for (final doc in snapshot.docs) {
+        try {
+          final user = UserModel.fromJson({...doc.data(), 'id': doc.id});
+          if (currentUserId == null || user.id != currentUserId) {
+            users.add(user);
+          }
+        } catch (_) {
+          continue;
+        }
+      }
+
+      return users;
     } catch (e) {
       return [];
     }

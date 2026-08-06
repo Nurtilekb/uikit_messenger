@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +47,6 @@ class _ChatsScreenState extends State<ChatsScreen> {
   List<QueryDocumentSnapshot<Map<String, dynamic>>> _lastDocs = [];
   late final MessagesBloc _messagesBloc;
   late final MessageRepository _messageRepository;
-
   String? get _currentUserId => FirebaseAuth.instance.currentUser?.uid;
   bool get _isSelectionMode => selectedMessageIds.isNotEmpty;
 
@@ -61,6 +61,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
       );
     }
     _messagesBloc.close();
+
     super.dispose();
   }
 
@@ -92,6 +93,12 @@ class _ChatsScreenState extends State<ChatsScreen> {
     if (currentUserId != null) {
       _messagesBloc.add(
         SubscribeMessages(chatId: _chatDocId(widget.userId, currentUserId)),
+      );
+      _messagesBloc.add(
+        MarkChatRead(
+          chatId: _chatDocId(widget.userId, currentUserId),
+          currentUserId: currentUserId,
+        ),
       );
     }
   }

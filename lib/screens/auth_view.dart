@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uikit/blocs/theme/theme_cubit.dart';
+import 'package:uikit/screens/conectivity_screen.dart';
 import 'package:uikit/screens/login_screen.dart';
 import 'package:uikit/screens/register_screen.dart';
 import 'package:uikit/theme/app_colors.dart';
@@ -33,6 +34,7 @@ class _AuthScreenState extends State<AuthScreen>
     super.initState();
     _loadThemeMode();
     _tabController = TabController(length: 2, vsync: this);
+    checkConnection();
   }
 
   @override

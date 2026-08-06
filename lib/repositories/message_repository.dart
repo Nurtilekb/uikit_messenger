@@ -27,6 +27,7 @@ class MessageRepository {
       'lastMessage': text,
       'updatedAt': FieldValue.serverTimestamp(),
       'senderId': senderId,
+      'unreadCount': FieldValue.increment(1),
       'unreadCountByUser': {senderId: 0, recipientId: FieldValue.increment(1)},
     }, SetOptions(merge: true));
   }
@@ -37,6 +38,7 @@ class MessageRepository {
   }) async {
     await _firestore.collection('chats').doc(chatId).set({
       'unreadCountByUser.$currentUserId': 0,
+      'unreadCount': 0,
     }, SetOptions(merge: true));
   }
 

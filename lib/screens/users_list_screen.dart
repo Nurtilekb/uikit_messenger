@@ -8,6 +8,7 @@ import 'package:uikit/models/user_model.dart';
 import 'package:uikit/repositories/user_repository.dart';
 import 'package:uikit/router/app_router.dart';
 import 'package:uikit/theme/app_colors.dart';
+import 'package:uikit/widgets/home_widgets/user_avatar.dart';
 
 @RoutePage()
 class UsersListScreen extends StatefulWidget {
@@ -114,16 +115,32 @@ class _UsersListScreenState extends State<UsersListScreen> {
         padding: const EdgeInsets.fromLTRB(24, 7, 24, 7),
         child: Row(
           children: [
-            CircleAvatar(
-              backgroundColor: colors.surface,
-              radius: 35,
-              child: Text(
-                user.initials,
-                style: const TextStyle(
-                  fontSize: 23,
-                  fontWeight: FontWeight.w600,
+            Stack(
+              children: [
+                UserAvatar(
+                  name: user.name,
+                  avatarUrl: '',
+                  isOnline: user.isOnline,
                 ),
-              ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: user.isOnline
+                          ? colors.online
+                          : colors.textSecondary,
+                      border: Border.all(
+                        color: colors.cardBackground,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(width: 14),
             Expanded(

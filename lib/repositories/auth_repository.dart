@@ -52,9 +52,17 @@ class AuthRepository {
 
       await _saveUserToFirestore(firebaseUser);
       return await getUserData(firebaseUser.uid);
+    } on FirebaseAuthException catch (e) {
+      log('Google sign in failed', error: e, stackTrace: StackTrace.current);
+      throw Exception(_handleAuthException(e));
+    } on GoogleSignInException catch (e) {
+      log('Google sign in failed', error: e, stackTrace: StackTrace.current);
+      throw Exception(_handleGoogleSignInException(e));
     } catch (e, stackTrace) {
       log('Google sign in failed', error: e, stackTrace: stackTrace);
-      rethrow;
+      throw Exception(
+        'Не удалось войти через Google. Проверьте учетные данные и попробуйте снова.',
+      );
     }
   }
 
@@ -163,13 +171,21 @@ class AuthRepository {
     try {
       final doc = await _firestore.collection('users').doc(uid).get();
 
-      if (doc.exists) {
-        return UserModel.fromJson(doc.data()!);
+      if (doc.exists && doc.data() != null) {
+        return UserModel.fromJson({...doc.data()!, 'id': doc.id});
       }
       return null;
     } catch (e) {
       return null;
     }
+  }
+
+  String _handleGoogleSignInException(GoogleSignInException e) {
+    if (e.toString().contains('No credential available') ||
+        e.toString().contains('unknownError')) {
+      return 'Нет доступных Google-аккаунтов на устройстве. Добавьте аккаунт Google и попробуйте снова.';
+    }
+    return 'Не удалось открыть окно входа через Google. Попробуйте ещё раз.';
   }
 
   String _handleAuthException(FirebaseAuthException e) {
