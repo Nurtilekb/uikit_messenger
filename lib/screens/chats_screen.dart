@@ -95,6 +95,13 @@ class _ChatsScreenState extends State<ChatsScreen> {
       _messagesBloc.add(
         SubscribeMessages(chatId: _chatDocId(widget.userId, currentUserId)),
       );
+      // Delay mark-as-read slightly to allow subscription to attach
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _markChatAsRead().catchError((e) {
+          // ignore: avoid_print
+          print('markChatAsRead error: $e');
+        });
+      });
     }
   }
 
@@ -106,9 +113,14 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
     _isMarkingAsRead = true;
     try {
+      // Attempt to reset unread count for current user
       await resetUnreadCountForChat(
         _chatDocId(widget.userId, currentUserId),
         currentUserId,
+      );
+      // ignore: avoid_print
+      print(
+        'Chat ${_chatDocId(widget.userId, currentUserId)} marked read for $currentUserId',
       );
       _hasMarkedAsRead = true;
     } finally {

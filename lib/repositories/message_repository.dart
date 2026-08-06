@@ -14,6 +14,11 @@ class MessageRepository {
   }) async {
     final chatDocRef = _firestore.collection('chats').doc(chatId);
 
+    // ignore: avoid_print
+    print(
+      'sendMessage: chat=$chatId sender=$senderId recipient=$recipientId text=$text',
+    );
+
     await chatDocRef.collection('messages').add({
       'text': text,
       'senderId': senderId,
@@ -22,14 +27,19 @@ class MessageRepository {
       'createdAt': FieldValue.serverTimestamp(),
     });
 
-    await chatDocRef.set({
+    // Update chat metadata and unread counters
+    final updateData = {
       'participantIds': [senderId, recipientId],
       'lastMessage': text,
       'updatedAt': FieldValue.serverTimestamp(),
       'senderId': senderId,
       'unreadCount': FieldValue.increment(1),
       'unreadCountByUser': {senderId: 0, recipientId: FieldValue.increment(1)},
-    }, SetOptions(merge: true));
+    };
+    // ignore: avoid_print
+    print('sendMessage: updating chat doc $chatId with $updateData');
+
+    await chatDocRef.set(updateData, SetOptions(merge: true));
   }
 
   Future<void> markChatRead({
