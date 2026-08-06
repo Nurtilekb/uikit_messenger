@@ -22,6 +22,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthGoogleRequested>(_onGoogleLogin);
   }
 
+  Future<void> _emitAuthenticatedUser(
+    Emitter<AuthState> emit,
+    UserModel user,
+  ) async {
+    final isOnline = await _presenceService.syncPresence(user.id);
+    final refreshedUser = await _authRepository.getUserData(user.id);
+
+    emit(
+      AuthAuthenticated(
+        user: (refreshedUser ?? user).copyWith(isOnline: isOnline),
+      ),
+    );
+  }
+
   void _onAuthLoginRequested(
     AuthLoginRequested event,
     Emitter<AuthState> emit,
@@ -37,10 +51,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null) {
         final userModel = await _authRepository.getUserData(user.id);
         if (userModel != null) {
-          await _presenceService.setOnline(user.id);
-          emit(AuthAuthenticated(user: userModel.copyWith(isOnline: true)));
+          await _emitAuthenticatedUser(emit, userModel);
         } else {
-          emit(AuthAuthenticated(user: user));
+          await _emitAuthenticatedUser(emit, user);
         }
         return;
       }
@@ -51,10 +64,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           id: firebaseUser.uid,
           name: firebaseUser.displayName ?? 'User',
           email: firebaseUser.email ?? '',
-          isOnline: true,
           createdAt: DateTime.now(),
         );
-        emit(AuthAuthenticated(user: tempUser));
+        await _emitAuthenticatedUser(emit, tempUser);
       } else {
         emit(AuthUnauthenticated());
       }
@@ -79,10 +91,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null) {
         final userModel = await _authRepository.getUserData(user.id);
         if (userModel != null) {
-          await _presenceService.setOnline(user.id);
-          emit(AuthAuthenticated(user: userModel.copyWith(isOnline: true)));
+          await _emitAuthenticatedUser(emit, userModel);
         } else {
-          emit(AuthAuthenticated(user: user));
+          await _emitAuthenticatedUser(emit, user);
         }
       } else {
         emit(AuthUnauthenticated());
@@ -153,17 +164,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (user != null) {
         final userModel = await _authRepository.getUserData(user.uid);
         if (userModel != null) {
-          await _presenceService.setOnline(user.uid);
-          emit(AuthAuthenticated(user: userModel.copyWith(isOnline: true)));
+          await _emitAuthenticatedUser(emit, userModel);
         } else {
           final tempUser = UserModel(
             id: user.uid,
             name: user.displayName ?? 'User',
             email: user.email ?? '',
-            isOnline: true,
             createdAt: DateTime.now(),
           );
-          emit(AuthAuthenticated(user: tempUser));
+          await _emitAuthenticatedUser(emit, tempUser);
         }
       } else {
         emit(AuthUnauthenticated());
@@ -183,8 +192,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final userModel = await _authRepository.signInWithGoogle();
 
       if (userModel != null) {
-        await _presenceService.setOnline(userModel.id);
-        emit(AuthAuthenticated(user: userModel.copyWith(isOnline: true)));
+        await _emitAuthenticatedUser(emit, userModel);
       } else {
         emit(AuthUnauthenticated());
       }
