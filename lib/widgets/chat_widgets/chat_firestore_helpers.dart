@@ -20,6 +20,8 @@ Future<void> resetUnreadCountForChat(
 
   await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
     'unreadCountByUser.$currentUserId': 0,
+    'unreadCount': 0,
+    'updatedAt': FieldValue.serverTimestamp(),
   }, SetOptions(merge: true));
 }
 
