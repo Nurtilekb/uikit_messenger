@@ -93,23 +93,15 @@ class Chat extends Equatable {
       timeValue = DateTime.tryParse(updated) ?? DateTime.now();
     }
 
-    int unreadCountValue = 0;
     final unreadCountMap = data['unreadCountByUser'];
+    int unreadCountValue = 0;
     if (unreadCountMap is Map) {
       final userCount = unreadCountMap[currentUserId];
       if (userCount is int) {
         unreadCountValue = userCount;
       } else if (userCount is String) {
         unreadCountValue = int.tryParse(userCount) ?? 0;
-      } else if (userCount is num) {
-        unreadCountValue = userCount.toInt();
       }
-    }
-
-    if (unreadCountValue == 0 && data['unreadCount'] is int) {
-      unreadCountValue = data['unreadCount'] as int;
-    } else if (unreadCountValue == 0 && data['unreadCount'] is String) {
-      unreadCountValue = int.tryParse(data['unreadCount'].toString()) ?? 0;
     }
 
     return Chat(
