@@ -2,6 +2,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/models/chat_model.dart';
+import 'package:uikit/models/user_model.dart';
+import 'package:uikit/repositories/user_repository.dart';
 import 'package:uikit/repositories/chat_repository.dart';
 import 'package:uikit/router/app_router.dart';
 import 'package:uikit/theme/app_colors.dart';
@@ -39,6 +41,8 @@ class ChatsListView extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final themeStyle = Theme.of(context);
+    final userRepository = UserRepository();
+
     return StreamBuilder<List<Chat>>(
       stream: chatRepository.streamChats(),
       builder: (context, snapshot) {
@@ -53,7 +57,6 @@ class ChatsListView extends StatelessWidget {
         }
 
         final chats = snapshot.data ?? [];
-        // Only show chats that have a last message for the list view.
         final visibleChats = chats
             .where((c) => c.lastMessage.isNotEmpty)
             .toList();
@@ -98,29 +101,39 @@ class ChatsListView extends StatelessWidget {
             final chat = visibleChats[index];
             final isSelected = selectedChatIds.contains(chat.chatID);
 
-            return UserTile(
-              onTap: () {
-                if (isSelectionMode) {
-                  onToggleSelection(chat.chatID);
-                } else {
-                  context.router.push(
-                    ChatsRoute(
-                      numName: chat.name,
-                      userId: chat.otherUserId,
-                      isOnline: false,
-                      imageAvatar: chat.avatarUrl,
-                    ),
-                  );
-                }
-              },
-              name: chat.name,
-              lastMessage: chat.lastMessage,
-              unreadCount: chat.unreadCount,
-              avatarUrl: chat.avatarUrl,
-              time: _formatTimestamp(chat.time),
-              isSelected: isSelected,
-              onlongPress: () {
-                onToggleSelection(chat.chatID);
+            return FutureBuilder<UserModel?>(
+              future: userRepository.getUserById(chat.otherUserId),
+              builder: (context, userSnapshot) {
+                final user = userSnapshot.data;
+                final online =
+                    user?.isOnline ?? (chat.status == ChatStatus.active);
+
+                return UserTile(
+                  onTap: () {
+                    if (isSelectionMode) {
+                      onToggleSelection(chat.chatID);
+                    } else {
+                      context.router.push(
+                        ChatsRoute(
+                          numName: chat.name,
+                          userId: chat.otherUserId,
+                          isOnline: online,
+                          imageAvatar: chat.avatarUrl,
+                        ),
+                      );
+                    }
+                  },
+                  name: chat.name,
+                  lastMessage: chat.lastMessage,
+                  unreadCount: chat.unreadCount,
+                  avatarUrl: chat.avatarUrl,
+                  time: _formatTimestamp(chat.time),
+                  isSelected: isSelected,
+                  isOnline: online,
+                  onlongPress: () {
+                    onToggleSelection(chat.chatID);
+                  },
+                );
               },
             );
           },
