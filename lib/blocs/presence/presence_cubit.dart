@@ -29,7 +29,7 @@ class PresenceService {
     _authSubscription = _firebaseAuth.authStateChanges().listen((user) async {
       if (user != null) {
         log('PresenceService: User authenticated - ${user.uid}');
-        await _refreshPresenceFromConnectivity(user.uid);
+        await syncPresence(user.uid);
       } else {
         log('PresenceService: User logged out');
         if (_currentUserId != null) {
@@ -47,7 +47,7 @@ class PresenceService {
       await _setOnlineStatus(userId, hasConnection);
     });
 
-    _refreshPresenceFromConnectivity(_firebaseAuth.currentUser?.uid);
+    syncPresence(_firebaseAuth.currentUser?.uid);
   }
 
   Future<void> _setOnlineStatus(String userId, bool isOnline) async {
@@ -85,12 +85,13 @@ class PresenceService {
 
   bool get isOnline => _isOnline;
 
-  Future<void> _refreshPresenceFromConnectivity(String? userId) async {
-    if (userId == null) return;
+  Future<bool> syncPresence(String? userId) async {
+    if (userId == null) return false;
 
     final results = await _connectivity.checkConnectivity();
     final hasConnection = !results.contains(ConnectivityResult.none);
     await _setOnlineStatus(userId, hasConnection);
+    return hasConnection;
   }
 
   void dispose() {
