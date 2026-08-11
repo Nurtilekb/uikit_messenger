@@ -17,7 +17,7 @@
 "block": "Block",
 "complain": "Complain",
 "offline": "was recently",
-"language": "Language",
+"language": "Language", 
 "darktheme": "Dark theme",
 "logout": "Login Out",
 "settings": "Settings"
@@ -45,6 +45,13 @@
         "cancel": "Cancel",
   "confirmdeleting": "Are you sure you want to delete?",
   "descriptdeleting": "All selected messages will be deleted.",
-  "save": "Save"
+  "save": "Save",
+  "changesupdated": "Changes saved",
+  "changesnotupdated": "Changes not saved",
+  "nofound": "No results found",
+  "checknameoremail": "Check the name or email and try again",
+  "youhavenochats": "You have no chats yet",
+  "startconv": "Start a conversation - find a user by name or email"
+  
 }
  
