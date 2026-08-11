@@ -34,8 +34,8 @@ class EmptyChatWidget extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            title ?? 'nochatsyet'.tr(),
-            // 'nochatsyet'.tr(),
+            textAlign: TextAlign.center,
+            title ?? 'nofound'.tr(),
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
@@ -44,9 +44,8 @@ class EmptyChatWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            subtitle ?? 'startconv'.tr(),
-            //
-            // 'startconv'.tr(),
+            subtitle ?? 'checknameoremail'.tr(),
+
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,

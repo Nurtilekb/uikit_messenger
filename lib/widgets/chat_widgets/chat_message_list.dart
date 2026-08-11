@@ -42,14 +42,17 @@ class ChatMessageList extends StatelessWidget {
         final message = doc.data();
         final isMe = message['senderId'] == currentUserId;
         final isSelected = selectedMessageIds.contains(doc.id);
-        final timeText =
-            message['sendAt'] ??
-            (message['createdAt'] is Timestamp
-                ? (message['createdAt'] as Timestamp)
-                      .toDate()
-                      .toLocal()
-                      .toString()
-                : '');
+        final createdAt = message['createdAt'];
+
+        String timeText = '';
+
+        if (createdAt is Timestamp) {
+          final dateTime = createdAt.toDate().toLocal();
+
+          timeText =
+              '${dateTime.hour.toString().padLeft(2, '0')}:'
+              '${dateTime.minute.toString().padLeft(2, '0')}';
+        }
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
