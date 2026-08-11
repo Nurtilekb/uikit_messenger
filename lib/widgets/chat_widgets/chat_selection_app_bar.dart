@@ -5,12 +5,13 @@ class ChatSelectionAppBar extends StatelessWidget
   final int selectedCount;
   final VoidCallback onClose;
   final VoidCallback onDelete;
-
+  final VoidCallback onCopy;
   const ChatSelectionAppBar({
     super.key,
     required this.selectedCount,
     required this.onClose,
     required this.onDelete,
+    required this.onCopy,
   });
 
   @override
@@ -19,8 +20,12 @@ class ChatSelectionAppBar extends StatelessWidget
       leading: IconButton(icon: const Icon(Icons.close), onPressed: onClose),
       title: Text('$selectedCount'),
       actions: [
-        IconButton(icon: const Icon(Icons.reply), onPressed: () {}),
-        IconButton(icon: const Icon(Icons.copy), onPressed: () {}),
+        IconButton(
+          icon: const Icon(Icons.copy),
+          onPressed: () {
+            onCopy();
+          },
+        ),
         IconButton(
           icon: const Icon(Icons.delete_outline, color: Colors.red),
           onPressed: onDelete,
