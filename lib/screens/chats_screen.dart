@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:uikit/theme/app_colors.dart';
 import 'package:uikit/widgets/chat_widgets/chat_app_bar.dart';
 import 'package:uikit/widgets/chat_widgets/chat_composer.dart';
@@ -95,10 +96,8 @@ class _ChatsScreenState extends State<ChatsScreen> {
       _messagesBloc.add(
         SubscribeMessages(chatId: _chatDocId(widget.userId, currentUserId)),
       );
-      // Delay mark-as-read slightly to allow subscription to attach
       Future.delayed(const Duration(milliseconds: 300), () {
         _markChatAsRead().catchError((e) {
-          // ignore: avoid_print
           print('markChatAsRead error: $e');
         });
       });
@@ -113,12 +112,10 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
     _isMarkingAsRead = true;
     try {
-      // Attempt to reset unread count for current user
       await resetUnreadCountForChat(
         _chatDocId(widget.userId, currentUserId),
         currentUserId,
       );
-      // ignore: avoid_print
       print(
         'Chat ${_chatDocId(widget.userId, currentUserId)} marked read for $currentUserId',
       );
@@ -241,6 +238,20 @@ class _ChatsScreenState extends State<ChatsScreen> {
     );
   }
 
+  Future<void> copySelectedMessages() async {
+    final selectedMessages = _lastDocs
+        .where((doc) => selectedMessageIds.contains(doc.id))
+        .map((doc) => doc.data())
+        .toList();
+
+    final text = selectedMessages
+        .map((message) => message['text'] ?? '')
+        .join('\n');
+
+    await Clipboard.setData(ClipboardData(text: text));
+    _clearSelection();
+  }
+
   Widget _buildComposer() {
     if (_isSelectionMode) return const SizedBox();
 
@@ -263,6 +274,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
   PreferredSizeWidget _buildSelectionAppBar() {
     return ChatSelectionAppBar(
+      onCopy: copySelectedMessages,
       selectedCount: selectedMessageIds.length,
       onClose: _clearSelection,
       onDelete: _showDeleteDialog,
