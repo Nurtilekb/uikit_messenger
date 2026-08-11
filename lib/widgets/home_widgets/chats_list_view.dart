@@ -1,9 +1,9 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:uikit/models/chat_model.dart';
 import 'package:uikit/models/user_model.dart';
-import 'package:uikit/repositories/user_repository.dart';
 import 'package:uikit/repositories/chat_repository.dart';
 import 'package:uikit/router/app_router.dart';
 import 'package:uikit/theme/app_colors.dart';
@@ -41,7 +41,6 @@ class ChatsListView extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final themeStyle = Theme.of(context);
-    final userRepository = UserRepository();
 
     return StreamBuilder<List<Chat>>(
       stream: chatRepository.streamChats(),
@@ -101,10 +100,16 @@ class ChatsListView extends StatelessWidget {
             final chat = visibleChats[index];
             final isSelected = selectedChatIds.contains(chat.chatID);
 
-            return FutureBuilder<UserModel?>(
-              future: userRepository.getUserById(chat.otherUserId),
+            return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(chat.otherUserId)
+                  .snapshots(),
               builder: (context, userSnapshot) {
-                final user = userSnapshot.data;
+                final data = userSnapshot.data?.data();
+                final user = data == null
+                    ? null
+                    : UserModel.fromJson({...data, 'id': chat.otherUserId});
                 final online =
                     user?.isOnline ?? (chat.status == ChatStatus.active);
 
@@ -116,7 +121,6 @@ class ChatsListView extends StatelessWidget {
                       context.router.push(
                         ChatsRoute(
                           numName: chat.name,
-
                           userId: chat.otherUserId,
                           isOnline: online,
                           imageAvatar: chat.avatarUrl,
