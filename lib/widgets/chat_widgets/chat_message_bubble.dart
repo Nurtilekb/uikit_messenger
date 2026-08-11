@@ -21,6 +21,9 @@ class ChatMessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final screenWidth = MediaQuery.of(context).size.width;
+    String limitEmptyLines(String text) {
+      return text.replaceAll(RegExp(r'\n{4,}'), '\n\n\n');
+    }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -65,7 +68,7 @@ class ChatMessageBubble extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        text,
+                        limitEmptyLines(text),
                         style: TextStyle(
                           color: isMe
                               ? colors.textOnPrimary
