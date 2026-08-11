@@ -54,8 +54,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
           if (mounted && shouldShowSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Изменения сохранены'),
+              SnackBar(
+                content: Text('changesupdated'.tr()),
                 backgroundColor: Colors.green,
               ),
             );
