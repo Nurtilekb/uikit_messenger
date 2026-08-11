@@ -174,11 +174,11 @@ class _SearchScreenState extends State<SearchScreen> {
                       if (filteredUsers.isEmpty) {
                         return EmptyChatWidget(
                           title: query.isEmpty
-                              ? 'У вас пока нет диалогов'
-                              : 'Ничего не найдено',
+                              ? 'youhavenochats'.tr()
+                              : 'nofound'.tr(),
                           subtitle: query.isEmpty
-                              ? 'Начните разговор с пользователем, чтобы он появился здесь'
-                              : 'Проверьте имя пользователя или email и попробуйте снова',
+                              ? 'startconv'.tr()
+                              : 'checknameoremail'.tr(),
                           icon: Icons.search,
                         );
                       }
