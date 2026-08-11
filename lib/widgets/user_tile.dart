@@ -52,6 +52,7 @@ class UserTile extends StatelessWidget {
                   lastMessage: lastMessage,
                   time: time,
                   unreadCount: unreadCount,
+                  isOnline: isOnline,
                 ),
               ),
             ],

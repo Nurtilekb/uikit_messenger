@@ -6,6 +6,7 @@ class UserTileContent extends StatelessWidget {
   final String lastMessage;
   final String time;
   final int unreadCount;
+  final bool isOnline;
 
   const UserTileContent({
     super.key,
@@ -13,6 +14,7 @@ class UserTileContent extends StatelessWidget {
     required this.lastMessage,
     required this.time,
     this.unreadCount = 0,
+    this.isOnline = false,
   });
 
   @override
@@ -26,16 +28,43 @@ class UserTileContent extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: Text(
-                name,
-                maxLines: 1,
-                style: TextStyle(
-                  overflow: TextOverflow.ellipsis,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: colors.textPrimary,
-                ),
-                overflow: TextOverflow.ellipsis,
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      name,
+                      maxLines: 1,
+                      style: TextStyle(
+                        overflow: TextOverflow.ellipsis,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: colors.textPrimary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (isOnline) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        'online',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: colors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
             Text(

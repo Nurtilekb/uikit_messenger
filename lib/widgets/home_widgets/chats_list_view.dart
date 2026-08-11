@@ -116,6 +116,7 @@ class ChatsListView extends StatelessWidget {
                       context.router.push(
                         ChatsRoute(
                           numName: chat.name,
+
                           userId: chat.otherUserId,
                           isOnline: online,
                           imageAvatar: chat.avatarUrl,

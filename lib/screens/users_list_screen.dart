@@ -72,7 +72,6 @@ class _UsersListScreenState extends State<UsersListScreen> {
                   ),
                 );
               }
-
               return ListView.separated(
                 itemCount: _users.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 25),
