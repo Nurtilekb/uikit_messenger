@@ -5,16 +5,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uikit/blocs/auth/auth_bloc.dart';
 import 'package:uikit/blocs/auth/auth_state.dart';
 import 'package:uikit/blocs/presence/presence_cubit.dart';
-
-import 'package:uikit/repositories/auth_repository.dart';
 import 'package:uikit/blocs/theme/theme_cubit.dart';
 import 'package:uikit/firebase_options.dart';
+import 'package:uikit/repositories/auth_repository.dart';
 import 'package:uikit/router/app_router.dart';
-
 import 'package:uikit/theme/app_theme.dart';
+import 'package:uikit/utils/locale_helper.dart';
 
 import 'blocs/auth/auth_event.dart';
 
@@ -23,12 +23,17 @@ void main() async {
   await EasyLocalization.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  final prefs = await SharedPreferences.getInstance();
+  const supportedLocales = [Locale('en'), Locale('ru'), Locale('ky')];
+  final initialLocale = resolveInitialLocale(prefs, supportedLocales);
+
   runApp(
     EasyLocalization(
-      supportedLocales: const [Locale('en'), Locale('ru'), Locale('ky')],
+      supportedLocales: supportedLocales,
       path: 'assets/translations',
-      fallbackLocale: const Locale('en'),
-      child: MyApp(),
+      startLocale: initialLocale,
+      fallbackLocale: const Locale('ru'),
+      child: const MyApp(),
     ),
   );
 }
@@ -79,11 +84,6 @@ class _MyAppState extends State<MyApp> {
       ],
       child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is GetUserLoading) {
-            Center(child: CircularProgressIndicator());
-          } else {
-            SizedBox();
-          }
           if (state is AuthAuthenticated) {
             _appRouter.replaceAll([const HomeRoute()]);
           } else if (state is AuthUnauthenticated) {
