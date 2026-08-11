@@ -21,6 +21,7 @@ class ProfileSettings extends StatefulWidget {
 
 class _ProfileSettingsState extends State<ProfileSettings> {
   String selectedLanguage = '🇷🇺 Русский';
+  bool _initializedLanguage = false;
 
   final List<Map<String, String>> languages = [
     {'flag': '🇺🇸', 'name': 'English', 'code': 'en'},
@@ -29,40 +30,27 @@ class _ProfileSettingsState extends State<ProfileSettings> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _loadSavedLanguage();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initializedLanguage) return;
+
+    selectedLanguage = _languageLabelForCode(context.locale.languageCode);
+    _initializedLanguage = true;
   }
 
-  Future<void> _loadSavedLanguage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedLanguage = prefs.getString('selected_language');
-    if (savedLanguage != null) {
-      setState(() {
-        selectedLanguage = savedLanguage;
-      });
-    }
-  }
-
-  Future<void> _saveLanguage(String language) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('selected_language', language);
-  }
-
-  String getLanguageName(String language) {
-    return language
-        .replaceFirst('🇺🇸 ', '')
-        .replaceFirst('🇷🇺 ', '')
-        .replaceFirst('🇰🇬 ', '');
-  }
-
-  String getLanguageCode(String language) {
-    for (var lang in languages) {
-      if (language.contains(lang['name']!)) {
-        return lang['code']!;
+  String _languageLabelForCode(String code) {
+    for (final lang in languages) {
+      if (lang['code'] == code) {
+        return '${lang['flag']} ${lang['name']}';
       }
     }
-    return 'ru';
+    return '🇷🇺 Русский';
+  }
+
+  Future<void> _saveLanguage(String code) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selected_language_code', code);
+    await prefs.setString('selected_language', _languageLabelForCode(code));
   }
 
   @override
@@ -123,11 +111,10 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                                         onTap: () async {
                                           final newLanguage =
                                               '${lang['flag']} ${lang['name']}';
+                                          final code = lang['code']!;
 
-                                          await context.setLocale(
-                                            Locale(lang['code']!),
-                                          );
-                                          await _saveLanguage(newLanguage);
+                                          await _saveLanguage(code);
+                                          await context.setLocale(Locale(code));
 
                                           setState(() {
                                             selectedLanguage = newLanguage;
@@ -170,7 +157,10 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                           ),
                           const Spacer(),
                           Text(
-                            getLanguageName(selectedLanguage),
+                            selectedLanguage.replaceFirst(
+                              RegExp(r'^[^ ]+ '),
+                              '',
+                            ),
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
