@@ -107,7 +107,7 @@ flutter clean
 - Логи можно смотреть в терминале или Android Studio
 
 ---
-<img width="2108" height="2945" alt="github_app_showcase" src="https://github.com/user-attachments/assets/3be7e694-6a83-4d20-8ac8-8095a086c6ab" />
+<img width="2086" height="2160" alt="github_app_showcase (1)" src="https://github.com/user-attachments/assets/e21271fc-15e0-470d-b707-8ca8c3d827d1" />
 
  
 
